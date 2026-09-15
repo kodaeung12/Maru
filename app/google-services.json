@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "698535286401",
+    "project_id": "maru-cddba",
+    "storage_bucket": "maru-cddba.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:698535286401:android:39be309df745390e435f80",
+        "android_client_info": {
+          "package_name": "com.project.maru"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "698535286401-udbgp9qpg5akmumbcfdt8t6ntirmijq1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.project.maru",
+            "certificate_hash": "dba4dfec417323ecd8ab055cec7aa29ddcefb5a3"
+          }
+        },
+        {
+          "client_id": "698535286401-3hvp7m3b1dib5d9d9etlt965num4g91s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBsYeJe6YWAJT-p9kDqW5H6DOJuK19J3R4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "698535286401-3hvp7m3b1dib5d9d9etlt965num4g91s.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

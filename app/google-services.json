@@ -14,6 +14,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "698535286401-8rqehvh88b5jssmf815m7gfur84rvlul.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.project.maru",
+            "certificate_hash": "522636fb1bea7a8b6295825bdd276e0c33407fa8"
+          }
+        },
+        {
+          "client_id": "698535286401-gr8ck7vkukioj98f33k74o97kt1ar201.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.project.maru",
+            "certificate_hash": "07d6c669167169d6ef6df81459788425513d6dd4"
+          }
+        },
+        {
           "client_id": "698535286401-udbgp9qpg5akmumbcfdt8t6ntirmijq1.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

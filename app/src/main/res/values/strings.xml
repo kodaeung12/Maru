@@ -1,3 +1,32 @@
 <resources>
     <string name="app_name">Maru</string>
+
+    <!-- 온보딩화면에서 사용 할 꺼 -->
+    <string name="skip">건너뛰기</string>
+    <string name="next">다음</string>
+    <string name="start">시작하기</string>
+    <string name="onboarding_image_description">온보딩 이미지</string>
+    <string name="onboarding_title_1">아이와 함께하는\n더 쉬운 시작, 마루</string>
+    <string name="onboarding_description_1">육아 이야기를 나누고\n필요한 정보를 찾아보세요</string>
+    <string name="onboarding_title_2">연령에 맞는\n맞춤 교육 콘텐츠</string>
+    <string name="onboarding_description_2">우리 아이 발달 단계에 맞는\n콘텐츠를 만나보세요</string>
+    <string name="onboarding_title_3">초보 부모를 위한\n실전 가이드</string>
+    <string name="onboarding_description_3">임신, 출산, 육아 정보까지\n필요한 내용을 쉽게 찾아보세요</string>
+    <string name="onboarding_title_4">체험 전 준비물과\n안전정보까지</string>
+    <string name="onboarding_description_4">외출과 체험에 필요한 정보를\n한곳에서 확인하세요</string>
+
+    <!-- 로그인화면에서 사용할 거 -->
+    <string name="login_title">로그인하고 시작해요</string>
+    <string name="email_hint">이메일</string>
+    <string name="password_hint">비밀번호</string>
+    <string name="login">로그인</string>
+    <string name="google_login">Google로 계속하기</string>
+    <string name="or">또는</string>
+    <string name="go_signup">계정이 없으신가요? 회원가입</string>
+
+    <!-- 회원가입화면에서 사용할 거 -->
+    <string name="signup_title">회원가입</string>
+    <string name="password_confirm_hint">비밀번호 확인</string>
+    <string name="signup">회원가입</string>
+    <string name="go_login">이미 계정이 있으신가요? 로그인</string>
 </resources>

@@ -13,7 +13,6 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:layout_marginTop="8dp"
-        android:contentDescription="온보딩 이미지"
         android:scaleType="centerCrop"
         android:src="@drawable/test1" />
 
@@ -23,7 +22,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:gravity="center"
-        android:text="아이와 함께하는\n더 쉬운 시작, 마루"
+        android:text="@string/onboarding_title_1"
         android:textColor="#242424"
         android:textSize="22sp"
         android:textStyle="bold" />
@@ -34,7 +33,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:gravity="center"
-        android:text="육아 이야기를 나누고\n필요한 정보를 찾아보세요"
+        android:text="@string/onboarding_description_1"
         android:textColor="#858585"
         android:textSize="14sp" />
 

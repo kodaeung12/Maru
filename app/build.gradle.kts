@@ -25,6 +25,9 @@ dependencies {
 }
 
 android {
+    buildFeatures {
+        viewBinding = true
+    }
     namespace = "com.project.maru"
     compileSdk {
         version = release(37)

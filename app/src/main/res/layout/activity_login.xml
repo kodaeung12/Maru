@@ -1,40 +1,27 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/loginRoot"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#FFFDFD">
-
-    <TextView
-        android:id="@+id/tvLoginTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/login_title"
-        android:textColor="#242424"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@id/btnGoogleLogin"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="packed" />
-
-    <Button
-        android:id="@+id/btnGoogleLogin"
-        android:layout_width="0dp"
-        android:layout_height="52dp"
-        android:layout_marginStart="28dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="28dp"
-        android:backgroundTint="#FF8792"
-        android:text="@string/google_login"
-        android:textAllCaps="false"
-        android:textColor="#FFFFFF"
-        app:layout_constraintTop_toBottomOf="@id/tvLoginTitle"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/loginRoot" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:background="#FFFDFD">
+  <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="28dp" android:orientation="vertical" android:gravity="center_vertical">
+    <LinearLayout android:id="@+id/layoutLogin" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="visible">
+      <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="16dp" android:textColor="#242424" android:textSize="24sp" android:text="@string/login_title" />
+      <EditText android:id="@+id/editLoginEmail" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="56dp" android:hint="@string/email_hint" android:inputType="textEmailAddress" android:autofillHints="emailAddress" android:maxLines="1" />
+      <EditText android:id="@+id/editLoginPassword" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="56dp" android:hint="@string/password_hint" android:inputType="textPassword" android:autofillHints="password" android:maxLines="1" />
+      <Button android:id="@+id/buttonLogin" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="52dp" android:layout_marginTop="12dp" android:backgroundTint="#FF8792" android:textColor="#FFFFFF" android:textAllCaps="false" android:text="@string/login" />
+      <Button android:id="@+id/buttonGoSignup" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="52dp" android:layout_marginTop="12dp" android:backgroundTint="#FF8792" android:textColor="#FFFFFF" android:textAllCaps="false" android:text="@string/go_signup" />
+      <Button android:id="@+id/btnGoogleLogin" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="52dp" android:layout_marginTop="12dp" android:backgroundTint="#FF8792" android:textColor="#FFFFFF" android:textAllCaps="false" android:text="@string/google_login" />
+    </LinearLayout>
+    <LinearLayout android:id="@+id/layoutSignup" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+      <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="16dp" android:textColor="#242424" android:textSize="24sp" android:text="@string/signup_title" />
+      <EditText android:id="@+id/editSignupEmail" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="56dp" android:hint="@string/email_hint" android:inputType="textEmailAddress" android:autofillHints="emailAddress" android:maxLines="1" />
+      <EditText android:id="@+id/editSignupPassword" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="56dp" android:hint="@string/password_hint" android:inputType="textPassword" android:autofillHints="newPassword" android:maxLines="1" />
+      <EditText android:id="@+id/editSignupPasswordConfirm" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="56dp" android:hint="@string/password_confirm_hint" android:inputType="textPassword" android:autofillHints="newPassword" android:maxLines="1" />
+      <Button android:id="@+id/buttonSignup" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="52dp" android:layout_marginTop="12dp" android:backgroundTint="#FF8792" android:textColor="#FFFFFF" android:textAllCaps="false" android:text="@string/signup" />
+      <Button android:id="@+id/buttonBackLogin" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="52dp" android:layout_marginTop="12dp" android:backgroundTint="#FF8792" android:textColor="#FFFFFF" android:textAllCaps="false" android:text="@string/go_login" />
+    </LinearLayout>
+    <LinearLayout android:id="@+id/layoutHome" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+      <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="16dp" android:textColor="#242424" android:textSize="24sp" android:text="@string/auth_home_title" />
+      <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="16dp" android:textColor="#242424" android:textSize="16sp" android:id="@+id/textUserEmail" />
+      <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="16dp" android:textColor="#242424" android:textSize="16sp" android:text="@string/auth_home_description" />
+      <Button android:id="@+id/buttonLogout" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="52dp" android:layout_marginTop="12dp" android:backgroundTint="#FF8792" android:textColor="#FFFFFF" android:textAllCaps="false" android:text="@string/logout" />
+    </LinearLayout>
+    <ProgressBar android:id="@+id/progressAuth" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center_horizontal" android:visibility="gone" />
+  </LinearLayout>
+</ScrollView>

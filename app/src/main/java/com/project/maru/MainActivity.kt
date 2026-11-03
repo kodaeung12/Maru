@@ -1,10 +1,10 @@
 package com.project.maru
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -81,11 +81,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showLoginScreen() {
-        setContentView(R.layout.activity_login)
-        applySystemBarInsets(R.id.loginRoot)
-        findViewById<Button>(R.id.btnGoogleLogin).setOnClickListener {
-            Toast.makeText(this, "로그인 연결 전", Toast.LENGTH_SHORT).show()
-        }
+        startActivity(Intent(this, LoginActivity::class.java))
+        finish()
     }
 
     private fun applySystemBarInsets(viewId: Int) {

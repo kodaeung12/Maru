@@ -83,6 +83,12 @@
             android:layout_margin="4dp"
             android:background="@drawable/bg_indicator_inactive" />
 
+        <View
+            android:id="@+id/indicator5"
+            android:layout_width="8dp"
+            android:layout_height="8dp"
+            android:layout_margin="4dp"
+            android:background="@drawable/bg_indicator_inactive" />
     </LinearLayout>
 
     <Button
@@ -92,7 +98,7 @@
         android:layout_marginStart="28dp"
         android:layout_marginEnd="28dp"
         android:layout_marginBottom="24dp"
-        android:backgroundTint="#FF8792"
+        android:backgroundTint="#FF9494"
         android:text="@string/next"
         android:textAllCaps="false"
         android:textColor="#FFFFFF"

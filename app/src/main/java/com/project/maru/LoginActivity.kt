@@ -1,8 +1,12 @@
 package com.project.maru
 
 import android.os.Bundle
+import android.graphics.Color
 import android.util.Log
 import android.util.Patterns
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.ForegroundColorSpan
 import android.view.View
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -10,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.UserProfileChangeRequest
 import com.project.maru.MyApplication.Companion.auth
 import com.project.maru.databinding.ActivityLoginBinding
 
@@ -22,20 +27,19 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         binding = ActivityLoginBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        ViewCompat.setOnApplyWindowInsetsListener(binding.loginRoot) { view, insets ->
-            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.setPadding(bars.left, bars.top, bars.right, bars.bottom)
-            insets
-        }
+        binding.textSignupTitle.text = highlightLast(getString(R.string.signup_title), "마루")
+        binding.textChildSignupTitle.text = highlightLast(getString(R.string.signup_title), "마루")
         binding.buttonGoSignup.setOnClickListener { showSignupScreen() }
-        binding.buttonBackLogin.setOnClickListener { showLoginScreen() }
-        binding.buttonSignup.setOnClickListener { createEmailAccount() }
+        binding.buttonBackLogin.setOnClickListener { showSignupChoiceScreen() }
+        binding.buttonSignup.setOnClickListener { showChildSignupScreen() }
+        binding.buttonSignupComplete.setOnClickListener { createEmailAccount() }
+        binding.buttonChildAdd.setOnClickListener { toast(getString(R.string.child_add_pending)) }
+        binding.buttonChildBack.setOnClickListener { showSignupScreen() }
         binding.buttonLogin.setOnClickListener { loginWithEmail() }
         binding.buttonLogout.setOnClickListener {
             auth.signOut()
             binding.editLoginPassword.text.clear()
-            showLoginScreen()
+            showAuthChoiceScreen()
             toast(getString(R.string.logged_out))
         }
         // 기존 Google 버튼의 준비 중 상태를 유지한다.
@@ -46,7 +50,7 @@ class LoginActivity : AppCompatActivity() {
     private fun showInitialScreen() {
         val user = auth.currentUser
         if (user == null) {
-            showLoginScreen()
+            showAuthChoiceScreen()
             return
         }
         setButtonsEnabled(false)
@@ -58,7 +62,7 @@ class LoginActivity : AppCompatActivity() {
                 showHomeScreen(refreshedUser)
             } else {
                 auth.signOut()
-                showLoginScreen()
+                showAuthChoiceScreen()
                 if (!task.isSuccessful) showError(task.exception)
             }
         }
@@ -69,9 +73,11 @@ class LoginActivity : AppCompatActivity() {
         val email = binding.editSignupEmail.text.toString().trim()
         val password = binding.editSignupPassword.text.toString()
         val confirm = binding.editSignupPasswordConfirm.text.toString()
+        val username = binding.editSignupName.text.toString().trim()
         if (!validateEmail(email)) return
         if (password.length < 6) { toast(getString(R.string.password_too_short)); return }
         if (password != confirm) { toast(getString(R.string.password_mismatch)); return }
+        if (username.isBlank()) { toast(getString(R.string.signup_username_required)); return }
         setButtonsEnabled(false)
         auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this) { task ->
             if (!task.isSuccessful) {
@@ -85,18 +91,22 @@ class LoginActivity : AppCompatActivity() {
                 toast(getString(R.string.user_unavailable))
                 return@addOnCompleteListener
             }
-            user.sendEmailVerification().addOnCompleteListener(this) { verification ->
-                auth.signOut()
-                binding.editLoginEmail.setText(email)
-                binding.editLoginPassword.text.clear()
-                binding.editSignupPassword.text.clear()
-                binding.editSignupPasswordConfirm.text.clear()
-                showLoginScreen()
-                if (verification.isSuccessful) toast(getString(R.string.verification_sent))
-                else {
-                    toast(getString(R.string.verification_send_failed))
-                    showError(verification.exception)
-                }
+            user.updateProfile(UserProfileChangeRequest.Builder().setDisplayName(username).build())
+                .addOnCompleteListener(this) {
+                    user.sendEmailVerification().addOnCompleteListener(this) { verification ->
+                        auth.signOut()
+                        binding.editLoginEmail.setText(email)
+                        binding.editLoginPassword.text.clear()
+                        binding.editSignupPassword.text.clear()
+                        binding.editSignupPasswordConfirm.text.clear()
+                        binding.editSignupName.text.clear()
+                        showLoginScreen()
+                        if (verification.isSuccessful) toast(getString(R.string.verification_sent))
+                        else {
+                            toast(getString(R.string.verification_send_failed))
+                            showError(verification.exception)
+                        }
+                    }
             }
         }
     }
@@ -141,9 +151,84 @@ class LoginActivity : AppCompatActivity() {
         return true
     }
 
-    private fun showLoginScreen() = showScreen(binding.layoutLogin)
-    private fun showSignupScreen() = showScreen(binding.layoutSignup)
+    private fun showLoginScreen() {
+        setContentView(binding.root)
+        applyFormInsets()
+        showScreen(binding.layoutLogin)
+    }
+
+    private fun showSignupScreen() {
+        setContentView(binding.root)
+        applyFormInsets()
+        showScreen(binding.layoutSignup)
+    }
+
+    private fun showChildSignupScreen() {
+        val email = binding.editSignupEmail.text.toString().trim()
+        val password = binding.editSignupPassword.text.toString()
+        val confirm = binding.editSignupPasswordConfirm.text.toString()
+        val username = binding.editSignupName.text.toString().trim()
+        if (!validateEmail(email)) return
+        if (password.length < 6) { toast(getString(R.string.password_too_short)); return }
+        if (password != confirm) { toast(getString(R.string.password_mismatch)); return }
+        if (username.isBlank()) { toast(getString(R.string.signup_username_required)); return }
+        showScreen(binding.layoutChildSignup)
+    }
+
+    private fun showAuthChoiceScreen() {
+        setContentView(R.layout.activity_auth_choice)
+        applyOverlayInsets(R.id.authChoiceRoot, R.id.authChoicePanel)
+        findViewById<android.widget.TextView>(R.id.textAuthChoiceTitle).text =
+            highlightLast(getString(R.string.auth_choice_title), "마루")
+        findViewById<View>(R.id.buttonAuthLogin).setOnClickListener { showLoginScreen() }
+        findViewById<View>(R.id.buttonAuthSignup).setOnClickListener { showSignupChoiceScreen() }
+    }
+
+    private fun showSignupChoiceScreen() {
+        setContentView(R.layout.activity_signup_choice)
+        applyOverlayInsets(R.id.signupChoiceRoot, R.id.signupChoicePanel)
+        findViewById<android.widget.TextView>(R.id.textSignupChoiceTitle).text =
+            highlightLast(getString(R.string.signup_choice_title), "마루")
+        findViewById<View>(R.id.buttonSignupEmail).setOnClickListener { showSignupScreen() }
+        findViewById<View>(R.id.buttonSignupEmailAlternative).setOnClickListener { showSignupScreen() }
+        findViewById<View>(R.id.buttonSignupChoiceBack).setOnClickListener { showAuthChoiceScreen() }
+    }
+
+    private fun applyFormInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.loginRoot) { view, insets ->
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.setPadding(bars.left, bars.top, bars.right, bars.bottom)
+            insets
+        }
+    }
+
+    private fun applyOverlayInsets(rootId: Int, panelId: Int) {
+        val panel = findViewById<View>(panelId)
+        val horizontal = panel.paddingLeft
+        val top = panel.paddingTop
+        val bottom = panel.paddingBottom
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(rootId)) { _, insets ->
+            val navBottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+            panel.setPadding(horizontal, top, horizontal, bottom + navBottom)
+            insets
+        }
+    }
+
+    private fun highlightLast(text: String, phrase: String): SpannableString {
+        return SpannableString(text).apply {
+            val start = lastIndexOf(phrase)
+            if (start >= 0) setSpan(
+                ForegroundColorSpan(Color.rgb(255, 148, 148)),
+                start,
+                start + phrase.length,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }
+    }
+
     private fun showHomeScreen(user: FirebaseUser) {
+        setContentView(binding.root)
+        applyFormInsets()
         binding.textUserEmail.text = user.email
         showScreen(binding.layoutHome)
     }
@@ -151,6 +236,7 @@ class LoginActivity : AppCompatActivity() {
     private fun showScreen(screen: View) {
         binding.layoutLogin.visibility = if (screen === binding.layoutLogin) View.VISIBLE else View.GONE
         binding.layoutSignup.visibility = if (screen === binding.layoutSignup) View.VISIBLE else View.GONE
+        binding.layoutChildSignup.visibility = if (screen === binding.layoutChildSignup) View.VISIBLE else View.GONE
         binding.layoutHome.visibility = if (screen === binding.layoutHome) View.VISIBLE else View.GONE
         setButtonsEnabled(true)
     }
@@ -158,9 +244,10 @@ class LoginActivity : AppCompatActivity() {
     private fun setButtonsEnabled(enabled: Boolean) {
         busy = !enabled
         listOf(binding.buttonLogin, binding.btnGoogleLogin, binding.buttonGoSignup,
-            binding.buttonSignup, binding.buttonBackLogin, binding.buttonLogout,
+            binding.buttonSignup, binding.buttonBackLogin, binding.buttonSignupComplete,
+            binding.buttonChildAdd, binding.buttonChildBack, binding.buttonLogout,
             binding.editLoginEmail, binding.editLoginPassword, binding.editSignupEmail,
-            binding.editSignupPassword, binding.editSignupPasswordConfirm).forEach { it.isEnabled = enabled }
+            binding.editSignupPassword, binding.editSignupPasswordConfirm, binding.editSignupName).forEach { it.isEnabled = enabled }
         binding.progressAuth.visibility = if (enabled) View.GONE else View.VISIBLE
     }
 

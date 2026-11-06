@@ -1,6 +1,8 @@
 package com.project.maru
 
 import android.content.Intent
+import android.os.Handler
+import android.os.Looper
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
@@ -20,12 +22,14 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
-        if (preferences.getBoolean(KEY_ONBOARDING_COMPLETED, false)) {
-            showLoginScreen()
-        } else {
-            showOnboarding()
-        }
+        setContentView(R.layout.activity_splash)
+        Handler(Looper.getMainLooper()).postDelayed({
+            if (preferences.getBoolean(KEY_ONBOARDING_COMPLETED, false)) {
+                showLoginScreen()
+            } else {
+                showOnboarding()
+            }
+        }, SPLASH_DURATION_MS)
     }
 
     private fun showOnboarding() {
@@ -39,7 +43,8 @@ class MainActivity : AppCompatActivity() {
             findViewById<View>(R.id.indicator1),
             findViewById<View>(R.id.indicator2),
             findViewById<View>(R.id.indicator3),
-            findViewById<View>(R.id.indicator4)
+            findViewById<View>(R.id.indicator4),
+            findViewById<View>(R.id.indicator5)
         )
 
         viewPager.adapter = OnboardingPagerAdapter(this)
@@ -96,5 +101,6 @@ class MainActivity : AppCompatActivity() {
     companion object {
         private const val PREFERENCES_NAME = "maru_preferences"
         private const val KEY_ONBOARDING_COMPLETED = "onboarding_completed"
+        private const val SPLASH_DURATION_MS = 900L
     }
 }

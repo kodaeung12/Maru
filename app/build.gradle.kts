@@ -1,7 +1,25 @@
+import java.util.Properties
+
 plugins {
     id("com.google.gms.google-services")
     alias(libs.plugins.android.application)
 }
+
+
+
+val localProperties = Properties()
+
+val localFile = rootProject.file("local.properties")
+
+if (localFile.exists()) {
+    localFile.inputStream().use { stream ->
+        localProperties.load(stream)
+    }
+}
+
+val seoulApiKey = localProperties.getProperty("SEOUL_API_KEY", "")
+
+
 
 dependencies {
     // Import the Firebase BoM
@@ -27,6 +45,7 @@ dependencies {
 android {
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
     namespace = "com.project.maru"
     compileSdk {
@@ -39,6 +58,11 @@ android {
         targetSdk = 37
         versionCode = 1
         versionName = "1.0"
+
+
+
+        buildConfigField("String", "SEOUL_API_KEY", "\"$seoulApiKey\"")
+
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -73,4 +97,18 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
+
+
+    // 행사 목록을 표시하는 RecyclerView
+    implementation("androidx.recyclerview:recyclerview:1.4.0")
+
+    // 서울시 문화행사 API 통신
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+
+    // API JSON 응답을 Kotlin 객체로 변환
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+
+    // 행사 대표 이미지 표시
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+
 }

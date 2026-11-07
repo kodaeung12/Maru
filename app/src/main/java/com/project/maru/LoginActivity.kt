@@ -1,6 +1,7 @@
 package com.project.maru
 
 import android.app.DatePickerDialog
+import android.content.Intent
 import android.os.Bundle
 import android.graphics.Color
 import android.text.InputType
@@ -81,7 +82,7 @@ class LoginActivity : AppCompatActivity() {
             setButtonsEnabled(true)
             val refreshedUser = auth.currentUser
             if (task.isSuccessful && refreshedUser != null && refreshedUser.isEmailVerified) {
-                showHomeScreen(refreshedUser)
+                showHomeScreen()
             } else {
                 auth.signOut()
                 showAuthChoiceScreen()
@@ -287,7 +288,7 @@ class LoginActivity : AppCompatActivity() {
                 }
             } else {
                 binding.editLoginPassword.text.clear()
-                showHomeScreen(user)
+                showHomeScreen()
             }
         }
     }
@@ -375,11 +376,9 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    private fun showHomeScreen(user: FirebaseUser) {
-        setContentView(binding.root)
-        applyFormInsets()
-        binding.textUserEmail.text = user.email
-        showScreen(binding.layoutHome)
+    private fun showHomeScreen() {
+        startActivity(Intent(this, HomeActivity::class.java))
+        finish()
     }
 
     private fun showScreen(screen: View) {

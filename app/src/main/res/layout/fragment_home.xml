@@ -1,0 +1,572 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 홈 화면 -->
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/page_bg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="16dp">
+
+        <!-- ============ 1. 상단 (로고 / 인사말 / 가족 그림 / 알림·하트 / 검색바) ============ -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="340dp"
+            android:background="@drawable/bg_hero">
+
+            <!-- 가족 그림 -->
+            <ImageView
+                android:layout_width="240dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_marginBottom="30dp"
+                android:adjustViewBounds="true"
+                android:importantForAccessibility="no"
+                android:src="@drawable/img_family_hero" />
+
+            <!-- 그림 아래쪽을 배경색으로 흐리게 -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_gravity="bottom"
+                android:background="@drawable/bg_hero_fade" />
+
+            <!-- 왼쪽 글자 -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="22dp"
+                android:paddingTop="8dp">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/logo"
+                        android:textColor="@color/maru_pink"
+                        android:textSize="42sp"
+                        android:textStyle="bold" />
+
+                    <ImageView
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:layout_marginTop="2dp"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/ic_sun_sparkle" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:lineSpacingExtra="2sp"
+                    android:text="@string/logo_sub"
+                    android:textColor="@color/text_sub"
+                    android:textSize="13sp" />
+
+                <!-- "지은님, 오늘은 어떤 특별한 하루를 만들어볼까요?" (이름은 strings.xml 의 user_name) -->
+                <TextView
+                    android:id="@+id/tvGreeting"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:lineSpacingExtra="6sp"
+                    android:textColor="@color/text_dark"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    tools:text="지은님,\n오늘은 어떤\n특별한 하루를\n만들어볼까요?" />
+            </LinearLayout>
+
+            <!-- 오른쪽 위: 알림 / 즐겨찾기 -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|end"
+                android:layout_marginTop="6dp"
+                android:layout_marginEnd="6dp"
+                android:orientation="horizontal">
+
+                <FrameLayout
+                    android:layout_width="48dp"
+                    android:layout_height="48dp">
+
+                    <ImageButton
+                        android:id="@+id/btnBell"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/notification"
+                        android:padding="10dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_bell_selector" />
+
+                    <!-- 알림 켜짐 표시 빨간 점 -->
+                    <View
+                        android:id="@+id/viewBellDot"
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
+                        android:layout_gravity="top|end"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginEnd="12dp"
+                        android:background="@drawable/bg_red_dot" />
+                </FrameLayout>
+
+                <ImageButton
+                    android:id="@+id/btnFavorite"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/title_favorites"
+                    android:padding="10dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_favorite_border" />
+            </LinearLayout>
+
+            <!-- 검색바 -->
+            <LinearLayout
+                android:id="@+id/searchBar"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:layout_gravity="bottom"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="4dp"
+                android:background="@drawable/bg_search"
+                android:clickable="true"
+                android:elevation="6dp"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="18dp"
+                android:paddingEnd="18dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_search"
+                    app:tint="@color/maru_pink" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:maxLines="1"
+                    android:text="@string/search_hint"
+                    android:textColor="@color/text_gray"
+                    android:textSize="14sp" />
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_tune"
+                    app:tint="@color/maru_pink" />
+            </LinearLayout>
+        </FrameLayout>
+
+        <!-- ============ 2. 카테고리 버튼 6개 ============ -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingStart="13dp"
+            android:paddingTop="14dp"
+            android:paddingEnd="13dp"
+            android:paddingBottom="14dp">
+
+            <LinearLayout
+                android:id="@+id/catExperience"
+                style="@style/CategoryBox"
+                android:backgroundTint="@color/cat_pink">
+                <ImageView style="@style/CategoryIcon" android:src="@drawable/ic_cat_tent" />
+                <TextView style="@style/CategoryText" android:text="@string/cat_experience" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/catAgeEdu"
+                style="@style/CategoryBox"
+                android:backgroundTint="@color/cat_purple">
+                <ImageView style="@style/CategoryIcon" android:src="@drawable/ic_cat_book" />
+                <TextView style="@style/CategoryText" android:text="@string/cat_age_edu" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/catCulture"
+                style="@style/CategoryBox"
+                android:backgroundTint="@color/cat_orange">
+                <ImageView style="@style/CategoryIcon" android:src="@drawable/ic_cat_palette" />
+                <TextView style="@style/CategoryText" android:text="@string/cat_culture" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/catNature"
+                style="@style/CategoryBox"
+                android:backgroundTint="@color/cat_green">
+                <ImageView style="@style/CategoryIcon" android:src="@drawable/ic_cat_sprout" />
+                <TextView style="@style/CategoryText" android:text="@string/cat_nature" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/catFestival"
+                style="@style/CategoryBox"
+                android:backgroundTint="@color/cat_blue">
+                <ImageView style="@style/CategoryIcon" android:src="@drawable/ic_cat_balloon" />
+                <TextView style="@style/CategoryText" android:text="@string/cat_festival" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/catFamily"
+                style="@style/CategoryBox"
+                android:backgroundTint="@color/cat_beige">
+                <ImageView style="@style/CategoryIcon" android:src="@drawable/ic_cat_bear" />
+                <TextView style="@style/CategoryText" android:text="@string/cat_family" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ============ 3. 연령 추천 배너 ============ -->
+        <LinearLayout
+            android:id="@+id/bannerRecommend"
+            android:layout_width="match_parent"
+            android:layout_height="112dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/bg_banner_pink"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="16dp"
+            android:paddingEnd="12dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvRecommendBadge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_pill_outline"
+                    android:paddingStart="10dp"
+                    android:paddingTop="3dp"
+                    android:paddingEnd="10dp"
+                    android:paddingBottom="3dp"
+                    android:textColor="@color/maru_pink"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    tools:text="지은이(6세)에게 추천해요!" />
+
+                <TextView
+                    android:id="@+id/tvRecommendTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:lineSpacingExtra="2sp"
+                    android:textColor="@color/text_dark"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    tools:text="6세가 배우면 좋은\n교육 주제를 확인해 보세요!" />
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="96dp"
+                android:layout_height="80dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/img_girl_reading" />
+
+            <ImageView
+                android:id="@+id/btnRecommendArrow"
+                style="@style/ArrowCircle" />
+        </LinearLayout>
+
+        <!-- ============ 4. 우리 아이 맞춤 추천 체험 ============ -->
+        <LinearLayout style="@style/SectionRow">
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_star_border"
+                app:tint="@color/maru_pink" />
+            <TextView
+                style="@style/SectionTitle"
+                android:text="@string/section_recommend" />
+            <TextView
+                android:id="@+id/tvMoreExperience"
+                style="@style/SeeAll" />
+        </LinearLayout>
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipToPadding="false"
+            android:paddingStart="16dp"
+            android:paddingEnd="6dp"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="4dp"
+                android:paddingBottom="6dp">
+
+                <!-- 카드 1 -->
+                <com.google.android.material.card.MaterialCardView style="@style/ExpCard">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+                        <FrameLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="108dp">
+                            <ImageView style="@style/ExpImage" android:src="@drawable/img_card_bubbles" />
+                            <ImageButton android:id="@+id/btnHeart1" style="@style/HeartButton" />
+                        </FrameLayout>
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="10dp">
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal">
+                                <TextView style="@style/Tag" android:backgroundTint="@color/tag_blue_bg"
+                                    android:text="@string/tag_culture" android:textColor="@color/tag_blue" />
+                                <TextView style="@style/Tag" android:backgroundTint="@color/tag_pink_bg"
+                                    android:text="@string/free" android:textColor="@color/maru_pink" />
+                            </LinearLayout>
+                            <TextView style="@style/CardTitle" android:text="@string/card1_title" />
+                            <TextView style="@style/CardInfo" android:drawableStart="@drawable/ic_calendar"
+                                android:text="@string/card1_date" />
+                            <TextView style="@style/CardInfo" android:drawableStart="@drawable/ic_location"
+                                android:text="@string/card1_place" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- 카드 2 -->
+                <com.google.android.material.card.MaterialCardView style="@style/ExpCard">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+                        <FrameLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="108dp">
+                            <ImageView style="@style/ExpImage" android:src="@drawable/img_card_art" />
+                            <ImageButton android:id="@+id/btnHeart2" style="@style/HeartButton" />
+                        </FrameLayout>
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="10dp">
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal">
+                                <TextView style="@style/Tag" android:backgroundTint="@color/tag_green_bg"
+                                    android:text="@string/tag_experience" android:textColor="@color/tag_green" />
+                                <TextView style="@style/Tag" android:backgroundTint="@color/tag_pink_bg"
+                                    android:text="@string/paid" android:textColor="@color/maru_pink" />
+                            </LinearLayout>
+                            <TextView style="@style/CardTitle" android:text="@string/card2_title" />
+                            <TextView style="@style/CardInfo" android:drawableStart="@drawable/ic_calendar"
+                                android:text="@string/card2_date" />
+                            <TextView style="@style/CardInfo" android:drawableStart="@drawable/ic_location"
+                                android:text="@string/card2_place" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- 카드 3 -->
+                <com.google.android.material.card.MaterialCardView style="@style/ExpCard">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+                        <FrameLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="108dp">
+                            <ImageView style="@style/ExpImage" android:src="@drawable/img_card_farm" />
+                            <ImageButton android:id="@+id/btnHeart3" style="@style/HeartButton" />
+                        </FrameLayout>
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="10dp">
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal">
+                                <TextView style="@style/Tag" android:backgroundTint="@color/tag_green_bg"
+                                    android:text="@string/tag_nature" android:textColor="@color/tag_green" />
+                                <TextView style="@style/Tag" android:backgroundTint="@color/tag_pink_bg"
+                                    android:text="@string/free" android:textColor="@color/maru_pink" />
+                            </LinearLayout>
+                            <TextView style="@style/CardTitle" android:text="@string/card3_title" />
+                            <TextView style="@style/CardInfo" android:drawableStart="@drawable/ic_calendar"
+                                android:text="@string/card3_date" />
+                            <TextView style="@style/CardInfo" android:drawableStart="@drawable/ic_location"
+                                android:text="@string/card3_place" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+        </HorizontalScrollView>
+
+        <!-- ============ 5. 지은이(6세)를 위한 연령별 교육 ============ -->
+        <LinearLayout style="@style/SectionRow">
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_menu_book"
+                app:tint="@color/maru_pink" />
+            <TextView
+                android:id="@+id/tvAgeSectionTitle"
+                style="@style/SectionTitle"
+                tools:text="지은이(6세)를 위한 연령별 교육" />
+            <TextView
+                android:id="@+id/tvMoreAge"
+                style="@style/SeeAll" />
+        </LinearLayout>
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipToPadding="false"
+            android:paddingStart="16dp"
+            android:paddingEnd="6dp"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <FrameLayout android:id="@+id/age6" style="@style/AgeCard" android:backgroundTint="@color/age6_bg">
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+                        <TextView style="@style/AgeBadge" android:backgroundTint="@color/age6" android:text="@string/age6_badge" />
+                        <TextView style="@style/AgeText" android:text="@string/age6_text" />
+                    </LinearLayout>
+                    <ImageView style="@style/AgeImage" android:src="@drawable/img_apple" />
+                </FrameLayout>
+
+                <FrameLayout android:id="@+id/age7" style="@style/AgeCard" android:backgroundTint="@color/age7_bg">
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+                        <TextView style="@style/AgeBadge" android:backgroundTint="@color/age7" android:text="@string/age7_badge" />
+                        <TextView style="@style/AgeText" android:text="@string/age7_text" />
+                    </LinearLayout>
+                    <ImageView style="@style/AgeImage" android:src="@drawable/img_traffic_light" />
+                </FrameLayout>
+
+                <FrameLayout android:id="@+id/age8" style="@style/AgeCard" android:backgroundTint="@color/age8_bg">
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+                        <TextView style="@style/AgeBadge" android:backgroundTint="@color/age8" android:text="@string/age8_badge" />
+                        <TextView style="@style/AgeText" android:text="@string/age8_text" />
+                    </LinearLayout>
+                    <ImageView style="@style/AgeImage" android:src="@drawable/img_chat" />
+                </FrameLayout>
+
+                <FrameLayout android:id="@+id/ageGuide" style="@style/AgeCard" android:backgroundTint="@color/guide_bg">
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+                        <TextView style="@style/AgeBadge" android:background="@drawable/bg_pill_outline"
+                            android:text="@string/guide_badge" android:textColor="@color/maru_pink" />
+                        <TextView style="@style/AgeText" android:text="@string/guide_text" />
+                    </LinearLayout>
+                    <ImageView style="@style/AgeImage" android:layout_width="66dp" android:layout_height="66dp"
+                        android:src="@drawable/img_parent_child" />
+                </FrameLayout>
+            </LinearLayout>
+        </HorizontalScrollView>
+
+        <!-- ============ 6. 준비물과 안전수칙 배너 ============ -->
+        <LinearLayout
+            android:id="@+id/bannerSafety"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/bg_round_20"
+            android:backgroundTint="@color/safety_bg"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="14dp"
+            android:paddingEnd="14dp">
+
+            <ImageView
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_shield" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/safety_small"
+                    android:textColor="@color/safety_blue"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:lineSpacingExtra="2sp"
+                    android:text="@string/safety_title"
+                    android:textColor="@color/text_dark"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="92dp"
+                android:layout_height="60dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/img_checklist" />
+
+            <ImageView
+                android:id="@+id/btnSafetyArrow"
+                style="@style/ArrowCircle" />
+        </LinearLayout>
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

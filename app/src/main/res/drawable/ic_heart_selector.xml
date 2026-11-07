@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 카드 하트: 선택(selected)되면 채워진 분홍 하트 -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/ic_favorite" android:state_selected="true" />
+    <item android:drawable="@drawable/ic_favorite_border" />
+</selector>

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 상단 영역 배경 (분홍 → 하늘색 그라데이션) -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <gradient android:angle="0" android:startColor="@color/hero_pink" android:centerColor="#FFFDEFF4" android:endColor="@color/hero_sky" />
+</shape>

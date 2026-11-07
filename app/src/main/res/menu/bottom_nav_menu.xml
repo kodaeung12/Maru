@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 하단 네비게이션 메뉴
+     ※ item 의 id 는 navigation/nav_graph.xml 의 fragment id 와 똑같아야 자동으로 화면이 연결됩니다. -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/homeFragment"
+        android:icon="@drawable/ic_home"
+        android:title="@string/title_home" />
+    <item
+        android:id="@+id/searchFragment"
+        android:icon="@drawable/ic_search"
+        android:title="@string/title_search" />
+    <item
+        android:id="@+id/communityFragment"
+        android:icon="@drawable/ic_edit"
+        android:title="@string/title_community" />
+    <item
+        android:id="@+id/myPageFragment"
+        android:icon="@drawable/ic_person"
+        android:title="@string/title_mypage" />
+</menu>

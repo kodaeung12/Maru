@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 알림 종: 선택(selected)=알림 켜짐, 아니면 알림 꺼짐 -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/ic_notifications" android:state_selected="true" />
+    <item android:drawable="@drawable/ic_notifications_off" />
+</selector>

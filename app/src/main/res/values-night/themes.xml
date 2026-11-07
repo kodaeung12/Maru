@@ -1,7 +1,11 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.Maru" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 다크모드에서도 사진처럼 밝은 화면을 쓰도록 같은 테마로 고정 -->
+    <style name="Base.Theme.Maru" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/maru_pink</item>
+        <item name="android:windowBackground">@color/page_bg</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <!-- 앱 전체 터치음 끄기 -->
+        <item name="android:soundEffectsEnabled">false</item>
     </style>
 </resources>

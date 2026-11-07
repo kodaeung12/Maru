@@ -43,8 +43,7 @@ class MainActivity : AppCompatActivity() {
             findViewById<View>(R.id.indicator1),
             findViewById<View>(R.id.indicator2),
             findViewById<View>(R.id.indicator3),
-            findViewById<View>(R.id.indicator4),
-            findViewById<View>(R.id.indicator5)
+            findViewById<View>(R.id.indicator4)
         )
 
         viewPager.adapter = OnboardingPagerAdapter(this)

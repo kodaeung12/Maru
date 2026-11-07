@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 앱 테마 (상단 액션바 없음, 밝은 테마 고정) -->
+    <style name="Base.Theme.Maru" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/maru_pink</item>
+        <item name="android:windowBackground">@color/page_bg</item>
+        <!-- 상태바 아이콘을 검정색으로 -->
+        <item name="android:windowLightStatusBar">true</item>
+        <!-- 앱 전체 터치음 끄기 -->
+        <item name="android:soundEffectsEnabled">false</item>
+    </style>
+
+    <style name="Theme.Maru" parent="Base.Theme.Maru" />
+
+    <!-- 하단 네비게이션 선택 표시(동그란 배경) 없애기 -->
+    <style name="NavIndicatorNone" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">@android:color/transparent</item>
+    </style>
+
+    <!-- 카테고리 버튼 -->
+    <style name="CategoryBox">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_marginStart">3dp</item>
+        <item name="android:layout_marginEnd">3dp</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingBottom">10dp</item>
+        <item name="android:background">@drawable/bg_round_14</item>
+        <item name="android:foreground">?attr/selectableItemBackground</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+    <style name="CategoryIcon">
+        <item name="android:layout_width">34dp</item>
+        <item name="android:layout_height">34dp</item>
+        <item name="android:importantForAccessibility">no</item>
+    </style>
+    <style name="CategoryText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">6dp</item>
+        <item name="android:textSize">10sp</item>
+        <item name="android:textColor">@color/text_dark</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:letterSpacing">-0.05</item>
+    </style>
+
+    <!-- 섹션 제목 줄 -->
+    <style name="SectionRow">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">12dp</item>
+        <item name="android:paddingTop">22dp</item>
+        <item name="android:paddingBottom">10dp</item>
+    </style>
+    <style name="SectionTitle">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_marginStart">6dp</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/text_dark</item>
+        <item name="android:maxLines">1</item>
+    </style>
+    <style name="SeeAll">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:padding">4dp</item>
+        <item name="android:text">@string/see_all</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/text_gray</item>
+        <item name="android:drawableEnd">@drawable/ic_chevron_right</item>
+        <item name="android:drawableTint">@color/text_gray</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+    </style>
+
+    <!-- 추천 체험 카드 -->
+    <style name="ExpCard">
+        <item name="android:layout_width">196dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginEnd">10dp</item>
+        <item name="cardCornerRadius">16dp</item>
+        <item name="cardElevation">3dp</item>
+        <item name="cardBackgroundColor">@color/white</item>
+        <item name="strokeWidth">0dp</item>
+    </style>
+    <style name="ExpImage">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:scaleType">centerCrop</item>
+        <item name="android:importantForAccessibility">no</item>
+    </style>
+    <style name="HeartButton">
+        <item name="android:layout_width">30dp</item>
+        <item name="android:layout_height">30dp</item>
+        <item name="android:layout_gravity">top|end</item>
+        <item name="android:layout_margin">8dp</item>
+        <item name="android:padding">6dp</item>
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:background">@drawable/bg_circle_white</item>
+        <item name="android:src">@drawable/ic_heart_selector</item>
+        <item name="android:contentDescription">@string/like</item>
+    </style>
+    <style name="Tag">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginEnd">6dp</item>
+        <item name="android:paddingStart">8dp</item>
+        <item name="android:paddingEnd">8dp</item>
+        <item name="android:paddingTop">2dp</item>
+        <item name="android:paddingBottom">2dp</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:background">@drawable/bg_pill</item>
+    </style>
+    <style name="CardTitle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">6dp</item>
+        <item name="android:layout_marginBottom">4dp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/text_dark</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+    <style name="CardInfo">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">2dp</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/text_gray</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:drawablePadding">4dp</item>
+        <item name="android:drawableTint">@color/maru_pink</item>
+        <item name="android:gravity">center_vertical</item>
+    </style>
+
+    <!-- 연령별 교육 카드 -->
+    <style name="AgeCard">
+        <item name="android:layout_width">150dp</item>
+        <item name="android:layout_height">132dp</item>
+        <item name="android:layout_marginEnd">10dp</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:background">@drawable/bg_round_16</item>
+        <item name="android:foreground">?attr/selectableItemBackground</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+    <style name="AgeBadge">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingStart">10dp</item>
+        <item name="android:paddingEnd">10dp</item>
+        <item name="android:paddingTop">1dp</item>
+        <item name="android:paddingBottom">1dp</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:background">@drawable/bg_pill</item>
+    </style>
+    <style name="AgeText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">6dp</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">@color/text_dark</item>
+        <item name="android:lineSpacingExtra">2sp</item>
+    </style>
+    <style name="AgeImage">
+        <item name="android:layout_width">50dp</item>
+        <item name="android:layout_height">50dp</item>
+        <item name="android:layout_gravity">bottom|end</item>
+        <item name="android:importantForAccessibility">no</item>
+    </style>
+
+    <!-- 흰 동그라미 (>) 버튼 -->
+    <style name="ArrowCircle">
+        <item name="android:layout_width">36dp</item>
+        <item name="android:layout_height">36dp</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:elevation">2dp</item>
+        <item name="android:background">@drawable/bg_circle_white</item>
+        <item name="android:src">@drawable/ic_chevron_right</item>
+        <item name="android:contentDescription">@string/see_all</item>
+        <item name="tint">@color/maru_pink</item>
+    </style>
+</resources>

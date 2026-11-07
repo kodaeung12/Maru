@@ -12,7 +12,8 @@
     <!-- 내용 (여기에 화면을 채워나가면 됩니다) -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:gravity="center"
         android:orientation="vertical">
 

@@ -1,5 +1,8 @@
 <resources>
-<color name="community_bg">#FFFAFB</color><color name="community_ink">#203451</color>
-<color name="community_muted">#8190A5</color><color name="community_pink">#FF5D7C</color>
-<color name="community_line">#F2E4E8</color><color name="community_soft">#FFF0F3</color>
+    <color name="community_bg">@color/page_bg</color>
+    <color name="community_ink">@color/text_dark</color>
+    <color name="community_muted">@color/text_gray</color>
+    <color name="community_pink">@color/maru_pink</color>
+    <color name="community_line">#FFF0F1</color>
+    <color name="community_soft">@color/cat_pink</color>
 </resources>

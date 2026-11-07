@@ -30,10 +30,6 @@
         <activity android:name=".HomeActivity" android:exported="false" />
 
         <activity
-            android:name=".community.CommunityActivity"
-            android:exported="false" />
-
-        <activity
             android:name=".community.CommunityWriteActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />

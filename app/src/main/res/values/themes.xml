@@ -193,4 +193,18 @@
         <item name="android:contentDescription">@string/see_all</item>
         <item name="tint">@color/maru_pink</item>
     </style>
+
+    <style name="CommunityCategoryChip">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">36dp</item>
+        <item name="android:layout_marginEnd">7dp</item>
+        <item name="android:background">@drawable/community_chip_off</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingStart">14dp</item>
+        <item name="android:paddingEnd">14dp</item>
+        <item name="android:textColor">@color/community_pink</item>
+        <item name="android:textSize">12sp</item>
+    </style>
 </resources>

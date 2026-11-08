@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+
+    <!-- 서울시 문화행사 API 서버에 대해서만 HTTP 통신 허용 -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain>openapi.seoul.go.kr</domain>
+    </domain-config>
+
+</network-security-config>

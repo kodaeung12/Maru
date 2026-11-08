@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 하단 네비게이션 바 : 홈 / 체험·행사 / 커뮤니티 / 마이페이지
+     (다른 화면에서도 <include layout="@layout/layout_bottom_nav" /> 로 재사용 가능) -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="72dp"
+    android:orientation="horizontal"
+    android:background="#FFFFFF">
+
+    <!-- 홈 -->
+    <LinearLayout
+        android:id="@+id/navHome"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <ImageView
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:src="@drawable/ic_nav_home"
+            app:tint="#F0506E"
+            android:contentDescription="홈" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="홈"
+            android:textSize="13sp"
+            android:textColor="#F0506E" />
+    </LinearLayout>
+
+    <!-- 체험·행사 -->
+    <LinearLayout
+        android:id="@+id/navEvent"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <ImageView
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:src="@drawable/ic_nav_event"
+            app:tint="#666666"
+            android:contentDescription="체험·행사" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="체험·행사"
+            android:textSize="13sp"
+            android:textColor="#666666" />
+    </LinearLayout>
+
+    <!-- 커뮤니티 -->
+    <LinearLayout
+        android:id="@+id/navCommunity"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <ImageView
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:src="@drawable/ic_nav_community"
+            app:tint="#666666"
+            android:contentDescription="커뮤니티" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="커뮤니티"
+            android:textSize="13sp"
+            android:textColor="#666666" />
+    </LinearLayout>
+
+    <!-- 마이페이지 -->
+    <LinearLayout
+        android:id="@+id/navMypage"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <ImageView
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:src="@drawable/ic_nav_mypage"
+            app:tint="#666666"
+            android:contentDescription="마이페이지" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="마이페이지"
+            android:textSize="13sp"
+            android:textColor="#666666" />
+    </LinearLayout>
+
+</LinearLayout>

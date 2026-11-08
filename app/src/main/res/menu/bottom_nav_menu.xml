@@ -6,10 +6,13 @@
         android:id="@+id/homeFragment"
         android:icon="@drawable/ic_home"
         android:title="@string/title_home" />
+
+    <!-- 통합 중 수정: 검색 탭을 체험·행사 탭으로 변경 -->
     <item
-        android:id="@+id/searchFragment"
-        android:icon="@drawable/ic_search"
-        android:title="@string/title_search" />
+        android:id="@+id/experienceFragment"
+        android:icon="@drawable/ic_experience_event"
+        android:title="@string/title_experience" />
+
     <item
         android:id="@+id/communityFragment"
         android:icon="@drawable/ic_edit"

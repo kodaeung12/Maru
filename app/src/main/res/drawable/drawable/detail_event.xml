@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 임시 이미지입니다.
+     직접 만든 detail_event.png 를 drawable 폴더에 넣을 때 이 파일(detail_event.xml)은 삭제하세요.
+     (같은 이름의 xml과 png가 같이 있으면 빌드 오류가 납니다) -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#FFE4E6" />
+</shape>

@@ -204,7 +204,9 @@ class DetailActivity : AppCompatActivity() {
     //       예) startActivity(Intent(this, HomeActivity::class.java))
     private fun setupBottomNav() {
         findViewById<View>(R.id.navHome).setOnClickListener { showPreparing() }
-        findViewById<View>(R.id.navSearch).setOnClickListener { showPreparing() }
+        findViewById<View>(R.id.navEvent).setOnClickListener {
+            finish()   // 체험·행사 목록에서 들어왔으므로 닫으면 목록 화면으로 돌아감
+        }
         findViewById<View>(R.id.navCommunity).setOnClickListener { showPreparing() }
         findViewById<View>(R.id.navMypage).setOnClickListener { showPreparing() }
     }

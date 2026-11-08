@@ -1,0 +1,461 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 행사 상세보기 화면 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#FFFFFF">
+
+    <!-- ===== 상단바 (뒤로가기 + 제목) ===== -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="12dp"
+        android:paddingEnd="20dp">
+
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="8dp"
+            android:src="@drawable/ic_back"
+            app:tint="#222222"
+            android:contentDescription="뒤로가기" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="행사 상세보기"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="#222222" />
+    </LinearLayout>
+
+    <!-- ===== 스크롤 되는 내용 ===== -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="16dp">
+
+            <!-- 대표 이미지 (모서리 둥글게) -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_marginTop="4dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
+
+                <ImageView
+                    android:id="@+id/imageDetail"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/detail_event"
+                    android:contentDescription="행사 대표 이미지" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 행사명 -->
+            <TextView
+                android:id="@+id/textDetailTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="행사명"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="#222222" />
+
+            <!-- 행사 소개 -->
+            <TextView
+                android:id="@+id/textDetailDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="행사 소개"
+                android:textSize="13sp"
+                android:lineSpacingExtra="4dp"
+                android:textColor="#666666" />
+
+            <!-- 별점 -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:src="@drawable/ic_star"
+                    app:tint="#FFB300"
+                    android:contentDescription="별점" />
+
+                <TextView
+                    android:id="@+id/textRating"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="4.8"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#222222" />
+
+                <TextView
+                    android:id="@+id/textReviewCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="(0개의 후기)"
+                    android:textSize="12sp"
+                    android:textColor="#777777" />
+            </LinearLayout>
+
+            <!-- ===== 탭 (행사 안내 / 행사 리뷰) ===== -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:id="@+id/tabInfo"
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tabInfoText"
+                        android:layout_width="match_parent"
+                        android:layout_height="44dp"
+                        android:gravity="center"
+                        android:text="행사 안내"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="#FF858A" />
+
+                    <View
+                        android:id="@+id/tabInfoLine"
+                        android:layout_width="match_parent"
+                        android:layout_height="3dp"
+                        android:background="#FF858A" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/tabReview"
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tabReviewText"
+                        android:layout_width="match_parent"
+                        android:layout_height="44dp"
+                        android:gravity="center"
+                        android:text="행사 리뷰"
+                        android:textSize="14sp"
+                        android:textColor="#777777" />
+
+                    <View
+                        android:id="@+id/tabReviewLine"
+                        android:layout_width="match_parent"
+                        android:layout_height="3dp"
+                        android:background="#FF858A"
+                        android:visibility="invisible" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#EEEEEE" />
+
+            <!-- ===== [탭1] 행사 안내 ===== -->
+            <LinearLayout
+                android:id="@+id/layoutInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="8dp">
+
+                <!-- 행사 일정 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:layout_marginTop="4dp"
+                        android:src="@drawable/ic_calendar"
+                        app:tint="#FF858A"
+                        android:contentDescription="행사 일정" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="행사 일정"
+                            android:textSize="12sp"
+                            android:textColor="#777777" />
+
+                        <TextView
+                            android:id="@+id/textDetailDate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="일정"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            android:textColor="#222222" />
+
+                        <TextView
+                            android:id="@+id/textDetailTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="시간"
+                            android:textSize="12sp"
+                            android:textColor="#555555" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- 행사 장소 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:layout_marginTop="4dp"
+                        android:src="@drawable/ic_location"
+                        app:tint="#FF858A"
+                        android:contentDescription="행사 장소" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="행사 장소"
+                            android:textSize="12sp"
+                            android:textColor="#777777" />
+
+                        <TextView
+                            android:id="@+id/textDetailPlace"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="장소"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            android:textColor="#222222" />
+
+                        <TextView
+                            android:id="@+id/textDetailRegion"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="지역"
+                            android:textSize="12sp"
+                            android:textColor="#555555" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- 추천 연령 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:layout_marginTop="4dp"
+                        android:src="@drawable/ic_age"
+                        app:tint="#FF858A"
+                        android:contentDescription="추천 연령" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="추천 연령"
+                            android:textSize="12sp"
+                            android:textColor="#777777" />
+
+                        <TextView
+                            android:id="@+id/textDetailAge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="연령"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            android:textColor="#222222" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- 이용 요금 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:layout_marginTop="4dp"
+                        android:src="@drawable/ic_fee"
+                        app:tint="#FF858A"
+                        android:contentDescription="이용 요금" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="이용 요금"
+                            android:textSize="12sp"
+                            android:textColor="#777777" />
+
+                        <TextView
+                            android:id="@+id/textDetailFee"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="요금"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            android:textColor="#222222" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- 문의 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:layout_marginTop="4dp"
+                        android:src="@drawable/ic_phone"
+                        app:tint="#FF858A"
+                        android:contentDescription="문의" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="문의"
+                            android:textSize="12sp"
+                            android:textColor="#777777" />
+
+                        <TextView
+                            android:id="@+id/textDetailContact"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="문의처"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            android:textColor="#222222" />
+
+                        <TextView
+                            android:id="@+id/textDetailPhone"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="전화번호"
+                            android:textSize="12sp"
+                            android:textColor="#555555" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- ===== [탭2] 행사 리뷰 (처음엔 숨김) ===== -->
+            <LinearLayout
+                android:id="@+id/layoutReview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="12dp"
+                android:visibility="gone">
+
+                <!-- 코드에서 item_review.xml 을 여기에 하나씩 추가함 -->
+                <LinearLayout
+                    android:id="@+id/layoutReviewList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- ===== 공식 사이트 보러가기 버튼 ===== -->
+    <Button
+        android:id="@+id/btnOfficialSite"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="12dp"
+        android:backgroundTint="#FF9494"
+        android:text="공식 사이트 보러가기"
+        android:textColor="#FFFFFF"
+        android:textSize="17sp"
+        android:textStyle="bold"
+        app:cornerRadius="12dp" />
+
+    <!-- ===== 하단 네비게이션 바 ===== -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#EEEEEE" />
+
+    <include
+        android:id="@+id/bottomNav"
+        layout="@layout/layout_bottom_nav" />
+
+</LinearLayout>

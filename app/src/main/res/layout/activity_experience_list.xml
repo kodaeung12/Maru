@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#FFFFFF">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="20dp">
+
+        <TextView
+            android:layout_width="32dp"
+            android:layout_height="wrap_content"
+            android:text="‹"
+            android:textSize="30sp"
+            android:textColor="#333333"
+            android:gravity="center" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="행사/체험"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-black"
+            android:textColor="#333333"
+            android:layout_marginStart="12dp" />
+
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/editSearch"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginBottom="12dp"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:hint="체험 이름을 검색하세요"
+        android:textSize="14sp"
+        android:singleLine="true"
+        android:background="#FFFFFF" />
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/categoryAll"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_marginEnd="5dp"
+                android:minWidth="0dp"
+                android:text="전체"
+                android:textSize="11sp"
+                android:background="@drawable/bg_category_selected"
+                android:backgroundTintMode="src_over"
+                android:backgroundTint="@null"
+                style="@android:style/Widget.Button"
+                android:textColor="#FFFFFF" />
+
+            <Button
+                android:id="@+id/categoryExperience"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_marginEnd="5dp"
+                android:minWidth="0dp"
+                android:text="체험"
+                android:textSize="11sp"
+                android:background="@drawable/bg_category_unselected"
+                android:backgroundTint="@null"
+                android:textColor="#FF858A" />
+
+            <Button
+                android:id="@+id/categoryEducation"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_marginEnd="5dp"
+                android:minWidth="0dp"
+                android:text="교육"
+                android:textSize="11sp"
+                android:background="@drawable/bg_category_unselected"
+                android:backgroundTint="@null"
+                android:textColor="#FF858A" />
+
+            <Button
+                android:id="@+id/categoryCulture"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_marginEnd="5dp"
+                android:minWidth="0dp"
+                android:text="문화/예술"
+                android:textSize="11sp"
+                android:background="@drawable/bg_category_unselected"
+                android:backgroundTint="@null"
+                android:textColor="#FF858A" />
+
+            <Button
+                android:id="@+id/categoryNature"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:minWidth="0dp"
+                android:text="자연"
+                android:textSize="11sp"
+                android:background="@drawable/bg_category_unselected"
+                android:backgroundTint="@null"
+                android:textColor="#FF858A" />
+
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:orientation="horizontal"
+        android:layout_marginBottom="12dp"
+        android:weightSum="3">
+
+        <Button
+            android:id="@+id/filterRegion"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="4dp"
+            android:minWidth="0dp"
+            android:text="지역  ⌄"
+            android:textSize="11sp"
+            android:textColor="#555555"
+            android:backgroundTint="#FFFFFF" />
+
+        <Button
+            android:id="@+id/filterPeriod"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="4dp"
+            android:minWidth="0dp"
+            android:text="기간  ⌄"
+            android:textSize="11sp"
+            android:textColor="#555555"
+            android:backgroundTint="#FFFFFF" />
+
+        <Button
+            android:id="@+id/filterAge"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:minWidth="0dp"
+            android:text="연령  ⌄"
+            android:textSize="11sp"
+            android:textColor="#555555"
+            android:backgroundTint="#FFFFFF" />
+
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerExperience"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false" />
+
+</LinearLayout>

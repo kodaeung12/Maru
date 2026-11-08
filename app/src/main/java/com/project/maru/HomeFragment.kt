@@ -9,6 +9,7 @@ import androidx.core.os.bundleOf
 import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.project.maru.AppState
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
 

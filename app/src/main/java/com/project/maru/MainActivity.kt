@@ -23,6 +23,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_splash)
+
         Handler(Looper.getMainLooper()).postDelayed({
             if (preferences.getBoolean(KEY_ONBOARDING_COMPLETED, false)) {
                 showLoginScreen()
@@ -85,6 +86,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showLoginScreen() {
+        // 로그인 화면으로 이동하여 실제 계정 인증을 진행
         startActivity(Intent(this, LoginActivity::class.java))
         finish()
     }

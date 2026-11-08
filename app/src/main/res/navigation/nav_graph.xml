@@ -21,11 +21,12 @@
     </fragment>
 
     <!-- 1. 체험·행사 (category: 문화·예술 / 자연·생태 등 어떤 버튼으로 왔는지) -->
+    <!-- 통합 기능: 기존 임시 화면 대신 실제 행사 목록 Fragment 연결 -->
     <fragment
         android:id="@+id/experienceFragment"
-        android:name="com.project.maru.ExperienceFragment"
+        android:name="com.project.maru.ExperienceListFragment"
         android:label="@string/title_experience"
-        tools:layout="@layout/fragment_experience">
+        tools:layout="@layout/fragment_experience_list">
         <argument
             android:name="category"
             android:defaultValue=""

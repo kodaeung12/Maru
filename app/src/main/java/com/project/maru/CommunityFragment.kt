@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.firebase.auth.FirebaseAuth
 import com.project.maru.community.CommunityDetailActivity
 import com.project.maru.community.CommunityPostAdapter
 import com.project.maru.community.CommunityWriteActivity
@@ -22,7 +23,8 @@ class CommunityFragment : Fragment(R.layout.fragment_community) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentCommunityBinding.bind(view)
 
-        adapter = CommunityPostAdapter("local") { post ->
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: "local"
+        adapter = CommunityPostAdapter(currentUserId) { post ->
             startActivity(Intent(requireContext(), CommunityDetailActivity::class.java).apply {
                 putExtra("postId", post.id)
             })

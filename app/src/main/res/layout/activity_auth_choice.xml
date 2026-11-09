@@ -47,12 +47,12 @@
             android:layout_width="280dp"
             android:layout_height="51dp"
             android:layout_marginTop="10dp"
-            android:background="@drawable/bg_choice_button_outline"
+            android:background="@drawable/bg_choice_button_primary"
             android:backgroundTint="@null"
             android:stateListAnimator="@null"
             android:text="@string/signup"
             android:textAllCaps="false"
-            android:textColor="#FF9494"
+            android:textColor="#FFFFFF"
             android:textSize="20sp" />
     </LinearLayout>
 </FrameLayout>

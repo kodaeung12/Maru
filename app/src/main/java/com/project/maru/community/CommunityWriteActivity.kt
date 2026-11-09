@@ -9,6 +9,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.firebase.auth.FirebaseAuth
 import com.project.maru.R
 import com.project.maru.databinding.ActivityCommunityWriteBinding
 import kotlin.concurrent.thread
@@ -49,12 +50,15 @@ class CommunityWriteActivity : AppCompatActivity() {
             binding.etContent.requestFocus()
             return
         }
+        val user = FirebaseAuth.getInstance().currentUser
         val post = CommunityPost(
             category = binding.spinnerCategory.selectedItem.toString(),
             title = title,
             content = content,
-            ownerId = "local",
-            authorName = "로컬 사용자",
+            ownerId = user?.uid ?: "local",
+            authorName = user?.displayName?.takeIf { it.isNotBlank() }
+                ?: user?.email?.substringBefore("@")
+                ?: "로컬 사용자",
             createdAt = System.currentTimeMillis()
         )
         setButtonsEnabled(false)

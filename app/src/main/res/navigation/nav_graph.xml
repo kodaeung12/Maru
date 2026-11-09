@@ -66,7 +66,17 @@
         android:id="@+id/myPageFragment"
         android:name="com.project.maru.MyPageFragment"
         android:label="@string/title_mypage"
-        tools:layout="@layout/fragment_mypage" />
+        tools:layout="@layout/fragment_mypage">
+        <action
+            android:id="@+id/action_myPage_to_myInfo"
+            app:destination="@id/myInfoFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/myInfoFragment"
+        android:name="com.project.maru.MyInfoFragment"
+        android:label="@string/my_info_title"
+        tools:layout="@layout/fragment_my_info" />
 
     <!-- 7. 즐겨찾기 -->
     <fragment

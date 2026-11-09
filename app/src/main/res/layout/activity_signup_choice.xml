@@ -35,25 +35,14 @@
             android:layout_width="280dp"
             android:layout_height="51dp"
             android:layout_marginTop="20dp"
-            android:background="@drawable/bg_choice_button_outline"
+            android:background="@drawable/bg_choice_button_primary"
             android:backgroundTint="@null"
             android:stateListAnimator="@null"
             android:text="@string/email_signup"
             android:textAllCaps="false"
-            android:textColor="#FF9494"
+            android:textColor="#FFFFFF"
             android:textSize="20sp" />
-        <Button
-            android:id="@+id/buttonSignupEmailAlternative"
-            android:layout_width="280dp"
-            android:layout_height="51dp"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/bg_choice_button_outline"
-            android:backgroundTint="@null"
-            android:stateListAnimator="@null"
-            android:text="@string/email_signup"
-            android:textAllCaps="false"
-            android:textColor="#FF9494"
-            android:textSize="20sp" />
+
         <Button
             android:id="@+id/buttonSignupChoiceBack"
             android:layout_width="280dp"

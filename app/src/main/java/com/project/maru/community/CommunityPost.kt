@@ -7,5 +7,7 @@ data class CommunityPost(
     var content: String = "",
     var ownerId: String = "",
     var authorName: String = "",
-    var createdAt: Long = 0L
+    var createdAt: Long = 0L,
+    var imageKey: String = "child",
+    var deleting: Boolean = false
 )

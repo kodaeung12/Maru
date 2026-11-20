@@ -1,16 +1,15 @@
 package com.project.maru.community
 
-import android.content.Context
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.project.maru.databinding.ItemCommunityPostBinding
+import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.Source
+import com.project.maru.MyApplication.Companion.db
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import kotlin.concurrent.thread
 
 
 class CommunityPostViewHolder(
@@ -19,6 +18,7 @@ class CommunityPostViewHolder(
     private val onItemClick: (CommunityPost) -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
     fun bind(item: CommunityPost) = with(binding) {
+        CommunityImages.show(ivRepresentative, item.imageKey)
         tvCategory.text = item.category
         tvTitle.text = item.title
         val name = if (item.authorName.isBlank()) "마루 이용자" else item.authorName
@@ -38,6 +38,7 @@ class CommunityPostAdapter(
     private var allItems: MutableList<CommunityPost> = mutableListOf()
     private var items: MutableList<CommunityPost> = mutableListOf()
     private var categoryFilter = "전체"
+    private var loadNumber = 0
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CommunityPostViewHolder {
         val binding = ItemCommunityPostBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -67,21 +68,30 @@ class CommunityPostAdapter(
     }
 
 
-    fun loadItems(context: Context, onSuccess: (Int) -> Unit, onFailure: () -> Unit) {
-        thread {
-            val helper = CommunityDatabaseHelper(context.applicationContext)
-            try {
-                val list = helper.getAllPosts()
-                Handler(Looper.getMainLooper()).post {
-                    allItems = list.toMutableList()
-                    val count = applyFilter(categoryFilter)
-                    onSuccess(count)
+    // 수업의 get -> toObject -> notifyDataSetChanged 방식
+    fun loadItems(onSuccess: (Int) -> Unit, onFailure: (Exception) -> Unit) {
+        loadNumber++
+        val requestNumber = loadNumber
+        db.collection(CommunityFirestore.POSTS)
+            .orderBy("createdAt", Query.Direction.DESCENDING)
+            .get(Source.SERVER)
+            .addOnSuccessListener { snapshot ->
+                if (requestNumber != loadNumber) return@addOnSuccessListener
+                try {
+                    val list = mutableListOf<CommunityPost>()
+                    for (document in snapshot) {
+                        val post = document.toObject(CommunityPost::class.java)
+                        post.id = document.id
+                        list.add(post)
+                    }
+                    allItems = list
+                    onSuccess(applyFilter(categoryFilter))
+                } catch (error: Exception) {
+                    onFailure(error)
                 }
-            } catch (error: Exception) {
-                Handler(Looper.getMainLooper()).post { onFailure() }
-            } finally {
-                helper.close()
             }
-        }
+            .addOnFailureListener { error ->
+                if (requestNumber == loadNumber) onFailure(error)
+            }
     }
 }

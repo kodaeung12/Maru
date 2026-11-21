@@ -5,11 +5,22 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.project.maru.experience.Experience
+import com.project.maru.experience.ExperienceAdapter
+import com.project.maru.experience.ExperienceCategoryPicker
+import com.project.maru.experience.ExperiencePeriod
+import com.project.maru.experience.ExperiencePeriodPicker
+import com.project.maru.experience.SeoulCultureResponse
+import com.project.maru.experience.SeoulCultureRetrofit
+import com.project.maru.experience.SimilarEventsActivity
+import com.project.maru.experience.experienceList
+import com.project.maru.experience.isSuitableForAge5To8
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -21,22 +32,32 @@ class ExperienceListActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_experience_list)
 
+        findViewById<View>(R.id.btnBack).setOnClickListener {
+            startActivity(HomeActivity.homeIntent(this))
+            finish()
+        }
+
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerExperience)
 
         val searchEditText = findViewById<EditText>(R.id.editSearch)
 
-        val categoryAll = findViewById<Button>(R.id.categoryAll)
-        val categoryExperience = findViewById<Button>(R.id.categoryExperience)
-        val categoryEducation = findViewById<Button>(R.id.categoryEducation)
-        val categoryCulture = findViewById<Button>(R.id.categoryCulture)
-        val categoryNature = findViewById<Button>(R.id.categoryNature)
-
+        val filterCategory = findViewById<Button>(R.id.filterCategory)
         val filterRegion = findViewById<Button>(R.id.filterRegion)
+
+        val btnSimilarEvents = findViewById<Button>(R.id.btnSimilarEvents)
+        var recommendationCandidates: List<Experience>? = null
+        btnSimilarEvents.isEnabled = false
+
+        btnSimilarEvents.setOnClickListener {
+            val intent = SimilarEventsActivity.createIntent(this, recommendationCandidates)
+            startActivity(intent)
+        }
 
         recyclerView.layoutManager = GridLayoutManager(this, 2)
 
         val experienceAdapter = ExperienceAdapter(experienceList)
         recyclerView.adapter = experienceAdapter
+        ExperiencePeriodPicker.bind(findViewById(R.id.filterPeriod), experienceAdapter)
 
         SeoulCultureRetrofit.apiService.getCultureEvents(
             BuildConfig.SEOUL_API_KEY,
@@ -48,6 +69,7 @@ class ExperienceListActivity : AppCompatActivity() {
                 call: Call<SeoulCultureResponse>,
                 response: Response<SeoulCultureResponse>
             ) {
+                btnSimilarEvents.isEnabled = true
                 if (response.isSuccessful) {
                     val cultureData = response.body()?.aiViewCulture
 
@@ -98,6 +120,8 @@ class ExperienceListActivity : AppCompatActivity() {
                                 title = event.TITLE,
                                 location = event.PLACE,
                                 date = event.DATE,
+                                startDate = ExperiencePeriod.parseApiDate(event.STRTDATE),
+                                endDate = ExperiencePeriod.parseApiDate(event.END_DATE),
                                 category = when (event.CODENAME) {
 
                                     "교육/체험" -> {
@@ -141,6 +165,7 @@ class ExperienceListActivity : AppCompatActivity() {
                             )
                         }
 
+                        recommendationCandidates = filteredExperienceList
                         experienceAdapter.updateData(filteredExperienceList)
 
                         Log.d(
@@ -176,6 +201,7 @@ class ExperienceListActivity : AppCompatActivity() {
                 call: Call<SeoulCultureResponse>,
                 t: Throwable
             ) {
+                btnSimilarEvents.isEnabled = true
                 Log.e("SeoulCultureAPI", "API 연결 실패", t)
             }
         })
@@ -203,69 +229,7 @@ class ExperienceListActivity : AppCompatActivity() {
             }
         })
 
-        val categoryButtons = listOf(
-            categoryAll,
-            categoryExperience,
-            categoryEducation,
-            categoryCulture,
-            categoryNature
-        )
-
-        categoryButtons.forEach { button ->
-            button.setBackgroundResource(R.drawable.bg_category_unselected)
-            button.backgroundTintList = null
-
-            button.setTextColor(
-                android.graphics.Color.parseColor("#FF858A")
-            )
-        }
-
-        categoryAll.setBackgroundResource(R.drawable.bg_category_selected)
-        categoryAll.backgroundTintList = null
-        categoryAll.setTextColor(
-            android.graphics.Color.WHITE
-        )
-
-        fun selectCategory(selectedButton: Button, category: String) {
-
-            categoryButtons.forEach { button ->
-                button.setBackgroundResource(R.drawable.bg_category_unselected)
-                button.backgroundTintList = null
-
-                button.setTextColor(
-                    android.graphics.Color.parseColor("#FF858A")
-                )
-            }
-
-            selectedButton.setBackgroundResource(R.drawable.bg_category_selected)
-            selectedButton.backgroundTintList = null
-
-            selectedButton.setTextColor(
-                android.graphics.Color.parseColor("#FFFFFF")
-            )
-
-            experienceAdapter.filterCategory(category)
-        }
-
-        categoryAll.setOnClickListener {
-            selectCategory(categoryAll, "전체")
-        }
-
-        categoryExperience.setOnClickListener {
-            selectCategory(categoryExperience, "체험")
-        }
-
-        categoryEducation.setOnClickListener {
-            selectCategory(categoryEducation, "교육")
-        }
-
-        categoryCulture.setOnClickListener {
-            selectCategory(categoryCulture, "문화/예술")
-        }
-
-        categoryNature.setOnClickListener {
-            selectCategory(categoryNature, "자연")
-        }
+        ExperienceCategoryPicker.bind(filterCategory, experienceAdapter)
 
         filterRegion.setOnClickListener {
 

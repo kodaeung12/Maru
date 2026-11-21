@@ -1,4 +1,4 @@
-package com.project.maru
+package com.project.maru.experience
 
 import android.app.AlertDialog
 import android.os.Bundle
@@ -9,37 +9,46 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.project.maru.BuildConfig
+import com.project.maru.R
+import com.project.maru.showHome
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-// 통합 기능: 행사 목록을 하단 내비게이션 내부에서 표시하는 Fragment
 class ExperienceListFragment : Fragment(R.layout.fragment_experience_list) {
 
-    // Fragment의 화면이 생성된 후 행사 목록과 필터 기능을 초기화
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Fragment 화면 내부의 UI 요소 연결
+        view.findViewById<View>(R.id.btnBack).setOnClickListener {
+            findNavController().showHome()
+        }
+
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerExperience)
         val searchEditText = view.findViewById<EditText>(R.id.editSearch)
 
-        val categoryAll = view.findViewById<Button>(R.id.categoryAll)
-        val categoryExperience = view.findViewById<Button>(R.id.categoryExperience)
-        val categoryEducation = view.findViewById<Button>(R.id.categoryEducation)
-        val categoryCulture = view.findViewById<Button>(R.id.categoryCulture)
-        val categoryNature = view.findViewById<Button>(R.id.categoryNature)
+        val filterCategory = view.findViewById<Button>(R.id.filterCategory)
         val filterRegion = view.findViewById<Button>(R.id.filterRegion)
 
-        // 기존 행사 목록과 동일한 2열 카드형 RecyclerView 구성
+        val btnSimilarEvents = view.findViewById<Button>(R.id.btnSimilarEvents)
+        var recommendationCandidates: List<Experience>? = null
+        btnSimilarEvents.isEnabled = false
+
+        btnSimilarEvents.setOnClickListener {
+            val intent = SimilarEventsActivity.createIntent(requireContext(), recommendationCandidates)
+            startActivity(intent)
+        }
+
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
 
         val experienceAdapter = ExperienceAdapter(experienceList)
         recyclerView.adapter = experienceAdapter
+        ExperiencePeriodPicker.bind(view.findViewById(R.id.filterPeriod), experienceAdapter)
 
-        // 서울시 문화행사 API 호출 및 5~8세 대상 행사 선별
         SeoulCultureRetrofit.apiService.getCultureEvents(
             BuildConfig.SEOUL_API_KEY,
             1,
@@ -50,6 +59,7 @@ class ExperienceListFragment : Fragment(R.layout.fragment_experience_list) {
                 call: Call<SeoulCultureResponse>,
                 response: Response<SeoulCultureResponse>
             ) {
+                btnSimilarEvents.isEnabled = true
                 if (response.isSuccessful) {
                     val cultureData = response.body()?.aiViewCulture
 
@@ -95,12 +105,13 @@ class ExperienceListFragment : Fragment(R.layout.fragment_experience_list) {
                                 )
                             }
 
-                        // API 응답을 기존 Experience 데이터 모델로 변환
                         val apiExperienceList = cultureData.row.map { event ->
                             Experience(
                                 title = event.TITLE,
                                 location = event.PLACE,
                                 date = event.DATE,
+                                startDate = ExperiencePeriod.parseApiDate(event.STRTDATE),
+                                endDate = ExperiencePeriod.parseApiDate(event.END_DATE),
                                 category = when (event.CODENAME) {
 
                                     "교육/체험" -> {
@@ -122,7 +133,9 @@ class ExperienceListFragment : Fragment(R.layout.fragment_experience_list) {
                                     "국악", "영화" -> "문화/예술"
 
                                     "축제-관광/체육" -> "체험"
+
                                     "축제-기타" -> "문화/예술"
+
                                     else -> "기타"
                                 },
                                 imageUrl = event.MAIN_IMG,
@@ -131,7 +144,6 @@ class ExperienceListFragment : Fragment(R.layout.fragment_experience_list) {
                             )
                         }
 
-                        // 5~8세 대상 행사만 화면에 표시
                         val filteredExperienceList = apiExperienceList.filter { experience ->
                             isSuitableForAge5To8(experience.targetAge)
                         }
@@ -143,7 +155,7 @@ class ExperienceListFragment : Fragment(R.layout.fragment_experience_list) {
                             )
                         }
 
-                        // API에서 선별한 행사 목록을 어댑터에 전달
+                        recommendationCandidates = filteredExperienceList
                         experienceAdapter.updateData(filteredExperienceList)
 
                         Log.d(
@@ -173,11 +185,11 @@ class ExperienceListFragment : Fragment(R.layout.fragment_experience_list) {
                 call: Call<SeoulCultureResponse>,
                 t: Throwable
             ) {
+                btnSimilarEvents.isEnabled = true
                 Log.e("SeoulCultureAPI", "API 연결 실패", t)
             }
         })
 
-        // 행사명 검색창 입력에 따라 목록 필터링
         searchEditText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(
                 s: CharSequence?,
@@ -200,61 +212,8 @@ class ExperienceListFragment : Fragment(R.layout.fragment_experience_list) {
             }
         })
 
-        // 카테고리 버튼 목록과 기본 선택 상태 설정
-        val categoryButtons = listOf(
-            categoryAll,
-            categoryExperience,
-            categoryEducation,
-            categoryCulture,
-            categoryNature
-        )
+        ExperienceCategoryPicker.bind(filterCategory, experienceAdapter)
 
-        categoryButtons.forEach { button ->
-            button.setBackgroundResource(R.drawable.bg_category_unselected)
-            button.backgroundTintList = null
-            button.setTextColor(android.graphics.Color.parseColor("#FF858A"))
-        }
-
-        categoryAll.setBackgroundResource(R.drawable.bg_category_selected)
-        categoryAll.backgroundTintList = null
-        categoryAll.setTextColor(android.graphics.Color.WHITE)
-
-        // 카테고리 선택 시 버튼 색상과 행사 목록을 함께 변경
-        fun selectCategory(selectedButton: Button, category: String) {
-            categoryButtons.forEach { button ->
-                button.setBackgroundResource(R.drawable.bg_category_unselected)
-                button.backgroundTintList = null
-                button.setTextColor(android.graphics.Color.parseColor("#FF858A"))
-            }
-
-            selectedButton.setBackgroundResource(R.drawable.bg_category_selected)
-            selectedButton.backgroundTintList = null
-            selectedButton.setTextColor(android.graphics.Color.WHITE)
-
-            experienceAdapter.filterCategory(category)
-        }
-
-        categoryAll.setOnClickListener {
-            selectCategory(categoryAll, "전체")
-        }
-
-        categoryExperience.setOnClickListener {
-            selectCategory(categoryExperience, "체험")
-        }
-
-        categoryEducation.setOnClickListener {
-            selectCategory(categoryEducation, "교육")
-        }
-
-        categoryCulture.setOnClickListener {
-            selectCategory(categoryCulture, "문화/예술")
-        }
-
-        categoryNature.setOnClickListener {
-            selectCategory(categoryNature, "자연")
-        }
-
-        // 지역 버튼을 누르면 서울시 자치구 선택 팝업 표시
         filterRegion.setOnClickListener {
             val regions = arrayOf(
                 "전체 지역",

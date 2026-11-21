@@ -1,4 +1,4 @@
-package com.project.maru
+package com.project.maru.experience
 
 import android.view.LayoutInflater
 import android.view.View
@@ -8,6 +8,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import android.content.Intent
+import com.project.maru.DetailActivity
+import com.project.maru.R
 
 class ExperienceAdapter(
     experienceList: List<Experience>
@@ -22,6 +24,8 @@ class ExperienceAdapter(
     private var selectedCategory = "전체"
 
     private var selectedRegion = "전체 지역"
+
+    private var selectedPeriod: ExperiencePeriod? = null
 
     fun updateData(newList: List<Experience>) {
         originalList.clear()
@@ -45,6 +49,11 @@ class ExperienceAdapter(
         updateFilteredList()
     }
 
+    internal fun filterPeriod(period: ExperiencePeriod?) {
+        selectedPeriod = period
+        updateFilteredList()
+    }
+
     private fun updateFilteredList() {
         filteredList.clear()
 
@@ -61,7 +70,8 @@ class ExperienceAdapter(
                     selectedRegion == "전체 지역" ||
                             experience.region.trim().equals(selectedRegion, ignoreCase = true)
 
-                matchesQuery && matchesCategory && matchesRegion
+                matchesQuery && matchesCategory && matchesRegion &&
+                    (selectedPeriod?.includes(experience) ?: true)
             }
         )
 
@@ -110,6 +120,7 @@ class ExperienceAdapter(
         holder.categoryText.text = experience.category
 
         holder.itemView.setOnClickListener {
+            RecentExperienceStore.recordView(holder.itemView.context, experience)
             val intent = Intent(holder.itemView.context, DetailActivity::class.java).apply {
                 putExtra(DetailActivity.EXTRA_TITLE, experience.title)
                 putExtra(DetailActivity.EXTRA_DATE, experience.date)

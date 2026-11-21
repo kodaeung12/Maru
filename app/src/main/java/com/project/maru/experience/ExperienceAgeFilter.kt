@@ -1,4 +1,4 @@
-package com.project.maru
+package com.project.maru.experience
 
 fun isSuitableForAge5To8(targetAge: String): Boolean {
 

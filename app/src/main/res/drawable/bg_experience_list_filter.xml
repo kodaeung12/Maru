@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="?attr/colorControlHighlight">
+    <item>
+        <inset
+            android:drawable="@drawable/community_chip_off"
+            android:insetTop="6dp"
+            android:insetBottom="6dp" />
+    </item>
+</ripple>

@@ -1,4 +1,4 @@
-package com.project.maru
+package com.project.maru.experience
 
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory

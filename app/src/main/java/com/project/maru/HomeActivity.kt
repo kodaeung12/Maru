@@ -1,15 +1,22 @@
 package com.project.maru   // ← 내 프로젝트 패키지명과 다르면 이 줄만 바꿔주세요
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.navOptions
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class HomeActivity : AppCompatActivity() {
+    private val navController: NavController
+        get() = (supportFragmentManager.findFragmentById(R.id.nav_host) as NavHostFragment).navController
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -23,8 +30,37 @@ class HomeActivity : AppCompatActivity() {
         }
 
         // 하단 네비게이션 바 ↔ nav_graph.xml 연결
-        val navHost = supportFragmentManager.findFragmentById(R.id.nav_host) as NavHostFragment
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_nav)
-        bottomNav.setupWithNavController(navHost.navController)
+        bottomNav.setupWithNavController(navController)
+        handleHomeRequest(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleHomeRequest(intent)
+    }
+
+    private fun handleHomeRequest(intent: Intent) {
+        if (intent.getBooleanExtra(EXTRA_SHOW_HOME, false)) {
+            intent.removeExtra(EXTRA_SHOW_HOME)
+            navController.showHome()
+        }
+    }
+
+    companion object {
+        private const val EXTRA_SHOW_HOME = "com.project.maru.SHOW_HOME"
+
+        internal fun homeIntent(context: Context): Intent = Intent(context, HomeActivity::class.java)
+            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            .putExtra(EXTRA_SHOW_HOME, true)
+    }
+}
+
+internal fun NavController.showHome() {
+    if (currentDestination?.id != R.id.homeFragment && !popBackStack(R.id.homeFragment, false)) {
+        navigate(R.id.homeFragment, null, navOptions {
+            launchSingleTop = true
+            popUpTo(graph.id)
+        })
     }
 }

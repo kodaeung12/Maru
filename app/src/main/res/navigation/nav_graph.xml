@@ -24,7 +24,7 @@
     <!-- 통합 기능: 기존 임시 화면 대신 실제 행사 목록 Fragment 연결 -->
     <fragment
         android:id="@+id/experienceFragment"
-        android:name="com.project.maru.ExperienceListFragment"
+        android:name="com.project.maru.experience.ExperienceListFragment"
         android:label="@string/title_experience"
         tools:layout="@layout/fragment_experience_list">
         <argument

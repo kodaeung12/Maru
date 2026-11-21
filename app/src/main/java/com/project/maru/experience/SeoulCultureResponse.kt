@@ -1,4 +1,4 @@
-package com.project.maru
+package com.project.maru.experience
 
 data class SeoulCultureResponse(
     val aiViewCulture: SeoulCultureData
@@ -16,5 +16,7 @@ data class SeoulCultureEvent(
     val CODENAME: String,
     val GUNAME: String,
     val USE_TRGT: String,
-    val MAIN_IMG: String
+    val MAIN_IMG: String,
+    val STRTDATE: String? = null,
+    val END_DATE: String? = null
 )

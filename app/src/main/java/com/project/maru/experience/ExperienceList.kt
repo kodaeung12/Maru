@@ -1,4 +1,4 @@
-package com.project.maru
+package com.project.maru.experience
 
 val experienceList = listOf(
     Experience(

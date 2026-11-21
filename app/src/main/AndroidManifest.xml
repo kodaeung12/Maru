@@ -46,6 +46,10 @@
         <activity
             android:name=".ExperienceListActivity"
             android:exported="false" />
+        <activity
+            android:name=".experience.SimilarEventsActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
 
     </application>
 

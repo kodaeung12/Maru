@@ -1,4 +1,6 @@
-package com.project.maru
+package com.project.maru.experience
+
+import java.time.LocalDate
 
 data class Experience(
     val title: String,
@@ -12,5 +14,7 @@ data class Experience(
 
     val targetAge: String = "",
 
-    val region: String = ""
+    val region: String = "",
+    val startDate: LocalDate? = null,
+    val endDate: LocalDate? = null
 )

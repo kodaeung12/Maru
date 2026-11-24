@@ -6,8 +6,15 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.EditText
+import android.widget.RatingBar
+import com.google.firebase.auth.FirebaseAuth
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.ImageButton
+import com.project.maru.experience.Experience
+import com.project.maru.experience.ExperiencePeriod
+import com.project.maru.experience.FavoriteStore
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -30,6 +37,8 @@ class DetailActivity : AppCompatActivity() {
         const val EXTRA_TARGET_AGE = "extra_target_age"   // USE_TRGT
         const val EXTRA_FEE = "extra_fee"                 // USE_FEE
         const val EXTRA_HOMEPAGE = "extra_homepage"       // HMPG_ADDR
+        const val EXTRA_START_DATE = "extra_start_date"
+        const val EXTRA_END_DATE = "extra_end_date"
         const val EXTRA_CATEGORY = "extra_category"       // CODENAME
     }
 
@@ -39,6 +48,8 @@ class DetailActivity : AppCompatActivity() {
     private lateinit var tabReviewLine: View
     private lateinit var layoutInfo: LinearLayout
     private lateinit var layoutReview: LinearLayout
+
+    private var reviewEventId = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,6 +74,29 @@ class DetailActivity : AppCompatActivity() {
         val fee = getData(EXTRA_FEE, "무료")
         val homepage = getData(EXTRA_HOMEPAGE, "https://culture.seoul.go.kr")
         val category = getData(EXTRA_CATEGORY, "축제")
+        val favorite = findViewById<ImageButton>(R.id.buttonDetailFavorite)
+        favorite.visibility = if (isFromList()) View.VISIBLE else View.GONE
+        val event = Experience(title, place, date, category,
+            imageUrl = imageUrl.takeIf { it.isNotBlank() }, targetAge = targetAge, region = region,
+            startDate = ExperiencePeriod.parseApiDate(intent.getStringExtra(EXTRA_START_DATE)),
+            endDate = ExperiencePeriod.parseApiDate(intent.getStringExtra(EXTRA_END_DATE)))
+        val scheduleButton = Button(this).apply {
+            text = "내 일정에 추가"
+            setOnClickListener { ScheduleUi.showEditor(this@DetailActivity,
+                date = event.startDate?.takeIf { !it.isBefore(java.time.LocalDate.now()) } ?: java.time.LocalDate.now(),
+                initialTitle = title, initialNote = place, eventId = eventReviewId(title, place, date)) }
+        }
+        val officialButton = findViewById<Button>(R.id.btnOfficialSite)
+        (officialButton.parent as android.view.ViewGroup).addView(scheduleButton,
+            (officialButton.parent as android.view.ViewGroup).indexOfChild(officialButton) + 1)
+        val favorites = FavoriteStore(this) { message -> Toast.makeText(this, message, Toast.LENGTH_SHORT).show() }
+        favorites.onChanged = {
+            favorite.isSelected = favorites.isSaved(event)
+            favorite.isEnabled = !favorites.isPending(event)
+            favorite.alpha = if (favorites.ready && !favorites.isPending(event)) 1f else 0.5f
+            favorite.contentDescription = getString(if (favorite.isSelected) R.string.favorite_remove else R.string.favorite_add)
+        }
+        favorite.setOnClickListener { favorites.toggle(event) }
 
         // ---------- 2. 화면에 데이터 표시 ----------
         findViewById<TextView>(R.id.textDetailTitle).text = title
@@ -107,7 +141,12 @@ class DetailActivity : AppCompatActivity() {
         }
 
         // ---------- 3. 별점 + 리뷰 목록 ----------
-        showReviews(sampleReviews)
+        reviewEventId = if (isFromList()) eventReviewId(title, place, date) else ""
+        showReviews(emptyList())
+        findViewById<Button>(R.id.buttonRefreshReviews).setOnClickListener { loadReviews() }
+        findViewById<Button>(R.id.buttonSaveReview).setOnClickListener { saveReview() }
+        findViewById<Button>(R.id.buttonSaveReview).isEnabled = reviewEventId.isNotBlank()
+        loadReviews()
 
         // ---------- 4. 탭 (행사 안내 / 행사 리뷰) ----------
         tabInfoText = findViewById(R.id.tabInfoText)
@@ -129,6 +168,71 @@ class DetailActivity : AppCompatActivity() {
         }
 
         setupBottomNav()
+    }
+
+    private fun loadReviews() {
+        val status = findViewById<TextView>(R.id.textReviewStatus)
+        if (reviewEventId.isBlank()) {
+            status.text = "행사 목록에서 선택한 행사의 리뷰를 볼 수 있어요."
+            return
+        }
+        val refresh = findViewById<Button>(R.id.buttonRefreshReviews)
+        refresh.isEnabled = false
+        status.text = "온라인 리뷰를 불러오는 중…"
+        ReviewRepository.load(reviewEventId).addOnCompleteListener(this) { task ->
+            refresh.isEnabled = true
+            if (task.isSuccessful) {
+                showReviews(task.result)
+                val ownReview = task.result.firstOrNull { it.ownerId == FirebaseAuth.getInstance().currentUser?.uid }
+                val input = findViewById<EditText>(R.id.editReviewContent)
+                if (ownReview != null && input.text.isBlank()) {
+                    input.setText(ownReview.content)
+                    findViewById<RatingBar>(R.id.ratingReviewInput).rating = ownReview.rating.toFloat()
+                }
+                status.text = if (task.result.isEmpty()) "첫 리뷰를 작성해 보세요." else "한 행사에 내 리뷰를 하나씩 작성·수정할 수 있어요."
+            } else {
+                status.text = "리뷰를 불러오지 못했어요. 로그인과 연결 상태를 확인하고 새로고침해 주세요."
+            }
+        }
+    }
+
+    private fun saveReview() {
+        val status = findViewById<TextView>(R.id.textReviewStatus)
+        if (FirebaseAuth.getInstance().currentUser == null) {
+            status.text = "로그인 후 리뷰를 작성해 주세요."
+            return
+        }
+        if (reviewEventId.isBlank()) return
+        val input = findViewById<EditText>(R.id.editReviewContent)
+        val ratingInput = findViewById<RatingBar>(R.id.ratingReviewInput)
+        val content = input.text.toString().trim()
+        if (content.isBlank()) {
+            input.error = "리뷰 내용을 입력해 주세요."
+            return
+        }
+        if (ContentPolicy.containsAbuse(content)) {
+            input.error = ContentPolicy.MESSAGE
+            return
+        }
+        val button = findViewById<Button>(R.id.buttonSaveReview)
+        if (!button.isEnabled) return
+        button.isEnabled = false
+        input.isEnabled = false
+        ratingInput.isEnabled = false
+        status.text = "온라인으로 리뷰를 저장하는 중…"
+        ReviewRepository.save(reviewEventId, ratingInput.rating.toInt().coerceIn(1, 5), content)
+            .addOnCompleteListener(this) { task ->
+                button.isEnabled = true
+                input.isEnabled = true
+                ratingInput.isEnabled = true
+                if (task.isSuccessful) {
+                    input.text.clear()
+                    Toast.makeText(this, "리뷰를 온라인으로 저장했어요.", Toast.LENGTH_SHORT).show()
+                    loadReviews()
+                } else {
+                    status.text = "리뷰 저장에 실패했어요. 연결 상태를 확인하고 다시 시도해 주세요."
+                }
+            }
     }
 
     // 목록 화면에서 넘어왔는지 확인 (행사명이 넘어왔으면 목록에서 온 것)

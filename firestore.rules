@@ -1,0 +1,170 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+      match /favorites/{eventId} {
+        function owner() { return request.auth != null && request.auth.uid == uid; }
+        function validFavorite() {
+          let f = request.resource.data;
+          return f.keys().hasAll(['eventId', 'title', 'location', 'date', 'category', 'imageUrl', 'targetAge', 'region', 'startDate', 'endDate', 'savedAt'])
+            && f.keys().hasOnly(['eventId', 'title', 'location', 'date', 'category', 'imageUrl', 'targetAge', 'region', 'startDate', 'endDate', 'savedAt'])
+            && f.eventId == eventId && eventId.matches('[0-9a-f]{64}')
+            && f.title is string && f.title.size() > 0 && f.title.size() <= 5000
+            && f.location is string && f.location.size() <= 5000
+            && f.date is string && f.date.size() <= 500
+            && f.category is string && f.category.size() <= 500
+            && f.imageUrl is string && f.imageUrl.size() <= 5000
+            && f.targetAge is string && f.targetAge.size() <= 5000
+            && f.region is string && f.region.size() <= 500
+            && f.startDate is string && f.startDate.size() <= 10
+            && f.endDate is string && f.endDate.size() <= 10
+            && f.savedAt is timestamp;
+        }
+        allow read, delete: if owner();
+        allow create: if owner() && validFavorite() && request.resource.data.savedAt == request.time;
+        allow update: if owner() && validFavorite() && request.resource.data.savedAt == resource.data.savedAt;
+      }
+      match /schedules/{scheduleId} {
+        function owner() { return request.auth != null && request.auth.uid == uid; }
+        function validSchedule() {
+          let s = request.resource.data;
+          return s.keys().hasAll(['title','note','startsAt','reminderMinutes','revision','eventId','createdAt','updatedAt'])
+            && s.keys().hasOnly(['title','note','startsAt','reminderMinutes','revision','eventId','createdAt','updatedAt'])
+            && s.title is string && s.title.size() > 0 && s.title.size() <= 100
+            && s.note is string && s.note.size() <= 1000
+            && s.startsAt is int && s.startsAt > 0
+            && s.reminderMinutes in [-1,0,60,1440]
+            && s.revision is string && s.revision.size() == 36
+            && s.eventId is string && s.eventId.size() <= 64
+            && s.createdAt is timestamp && s.updatedAt == request.time;
+        }
+        allow read, delete: if owner();
+        allow create: if owner() && validSchedule() && request.resource.data.createdAt == request.time;
+        allow update: if owner() && validSchedule() && request.resource.data.createdAt == resource.data.createdAt;
+      }
+      match /children/{childId} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+    }
+
+
+    function cleanText(text) {
+      return text is string && !text.matches('(?is).*(씨[ ._*·-]*발|개[ ._*·-]*새[ ._*·-]*끼|병[ ._*·-]*신|미[ ._*·-]*친[ ._*·-]*놈|미[ ._*·-]*친[ ._*·-]*년|좆|ㅅ[ ._*·-]*ㅂ|ㅂ[ ._*·-]*ㅅ|(^|[^가-힣])시[ ._*·-]*발($|[^가-힣])|(^|[^a-z])fuck(ing|er|ers)?($|[^a-z])|(^|[^a-z])shit($|[^a-z])).*');
+    }
+
+    match /searchTerms/{termId} {
+      function signedIn() { return request.auth != null; }
+      function validTerm() {
+        let s = request.resource.data;
+        return s.keys().hasAll(['term','count','updatedAt'])
+          && s.keys().hasOnly(['term','count','updatedAt'])
+          && termId.matches('[0-9a-f]{64}')
+          && s.term is string && s.term.size() > 0 && s.term.size() <= 50 && cleanText(s.term)
+          && s.count is int && s.count > 0
+          && s.updatedAt == request.time
+          && getAfter(/databases/$(database)/documents/searchTerms/$(termId)/contributors/$(request.auth.uid)).data.countedAt == request.time;
+      }
+      allow read: if signedIn();
+      allow create: if signedIn() && validTerm() && request.resource.data.count == 1;
+      allow update: if signedIn() && validTerm()
+        && request.resource.data.term == resource.data.term && request.resource.data.count == resource.data.count + 1;
+      allow delete: if false;
+      match /contributors/{uid} {
+        function validContribution() {
+          return request.auth != null && request.auth.uid == uid
+            && request.resource.data.keys().hasOnly(['countedAt'])
+            && request.resource.data.countedAt == request.time
+            && getAfter(/databases/$(database)/documents/searchTerms/$(termId)).data.updatedAt == request.time;
+        }
+        allow read: if request.auth != null && request.auth.uid == uid;
+        allow create: if validContribution();
+        allow update: if validContribution() && request.time >= resource.data.countedAt + duration.value(60,'s');
+        allow delete: if false;
+      }
+    }
+
+    match /communityPosts/{postId} {
+      function validPost() {
+        let p = request.resource.data;
+        return p.keys().hasOnly(['id', 'category', 'title', 'content', 'ownerId', 'authorName', 'createdAt', 'imageKey', 'deleting'])
+          && (p.get('deleting', false) == true || (cleanText(p.title) && cleanText(p.content)))
+          && p.id == postId
+          && p.ownerId is string
+          && p.category in ['육아정보', '일상공유', '고민상담', '지역정보']
+          && p.title is string && p.title.size() > 0 && p.title.size() <= 50
+          && p.content is string && p.content.size() > 0 && p.content.size() <= 5000
+          && p.authorName is string && p.authorName.size() > 0 && p.authorName.size() <= 100
+          && p.createdAt is int && p.createdAt > 0
+          && p.get('deleting', false) is bool
+          && p.imageKey in ['child', 'meal', 'health', 'play', 'sleep', 'growth', 'emotion', 'social', 'school', 'daily'];
+      }
+      allow read: if request.auth != null;
+      allow create: if request.auth != null
+                    && request.resource.data.ownerId == request.auth.uid
+                    && request.resource.data.get('deleting', false) == false
+                    && validPost();
+      allow update: if request.auth != null
+                    && resource.data.ownerId == request.auth.uid
+                    && request.resource.data.ownerId == resource.data.ownerId
+                    && request.resource.data.id == resource.data.id
+                    && request.resource.data.createdAt == resource.data.createdAt
+                    && ((resource.data.get('deleting', false) == false
+                         && request.resource.data.get('deleting', false) == false
+                         && request.resource.data.diff(resource.data).affectedKeys()
+                              .hasOnly(['title', 'content', 'category', 'imageKey']))
+                        || (request.resource.data.get('deleting', false) == true
+                            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['deleting'])))
+                    && validPost();
+      allow delete: if request.auth != null && resource.data.ownerId == request.auth.uid
+                    && resource.data.get('deleting', false) == true;
+
+
+      match /comments/{commentId} {
+        function parentExists() {
+          return exists(/databases/$(database)/documents/communityPosts/$(postId));
+        }
+        function validComment() {
+          let c = request.resource.data;
+          return c.keys().hasOnly(['id', 'postId', 'ownerId', 'authorName', 'content', 'createdAt'])
+            && c.id == commentId && c.postId == postId
+            && c.ownerId == request.auth.uid
+            && c.authorName is string && c.authorName.size() > 0 && c.authorName.size() <= 100
+            && cleanText(c.content)
+            && c.content is string && c.content.size() > 0 && c.content.size() <= 500
+            && c.createdAt is int && c.createdAt > 0;
+        }
+        allow read: if request.auth != null && parentExists();
+        allow create: if request.auth != null && parentExists()
+                      && get(/databases/$(database)/documents/communityPosts/$(postId)).data.get('deleting', false) == false
+                      && validComment();
+        allow update: if false;
+        allow delete: if request.auth != null && parentExists()
+                      && (resource.data.ownerId == request.auth.uid
+                          || (get(/databases/$(database)/documents/communityPosts/$(postId)).data.ownerId == request.auth.uid
+                              && get(/databases/$(database)/documents/communityPosts/$(postId)).data.get('deleting', false) == true));
+      }
+    }
+    match /events/{eventId}/reviews/{reviewId} {
+      function validReview() {
+        let r = request.resource.data;
+        return r.keys().hasAll(['ownerId', 'authorName', 'rating', 'content', 'createdAt', 'updatedAt'])
+          && r.keys().hasOnly(['ownerId', 'authorName', 'rating', 'content', 'createdAt', 'updatedAt'])
+          && r.ownerId == request.auth.uid && reviewId == request.auth.uid
+          && r.authorName is string && r.authorName.size() > 0 && r.authorName.size() <= 100
+          && r.rating is int && r.rating >= 1 && r.rating <= 5
+          && cleanText(r.content)
+          && r.content is string && r.content.size() > 0 && r.content.size() <= 2000
+          && r.createdAt is timestamp && r.updatedAt == request.time;
+      }
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && validReview()
+                    && request.resource.data.createdAt == request.time;
+      allow update: if request.auth != null && resource.data.ownerId == request.auth.uid
+                    && validReview() && request.resource.data.createdAt == resource.data.createdAt;
+      allow delete: if request.auth != null && resource.data.ownerId == request.auth.uid;
+    }
+
+  }
+}

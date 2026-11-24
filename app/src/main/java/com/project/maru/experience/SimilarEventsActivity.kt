@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.IntentCompat
 import androidx.core.view.isVisible
@@ -19,7 +20,9 @@ class SimilarEventsActivity : AppCompatActivity() {
         internal fun createIntent(context: Context, candidates: List<Experience>?): Intent =
             Intent(context, SimilarEventsActivity::class.java).apply {
                 if (candidates != null) {
-                    putParcelableArrayListExtra(EXTRA_CANDIDATES, candidates.mapTo(ArrayList()) { event ->
+                    val recommendations = SimilarExperienceRecommender.recommend(
+                        RecentExperienceStore.readRecent(context), candidates)
+                    putParcelableArrayListExtra(EXTRA_CANDIDATES, recommendations.mapTo(ArrayList()) { event ->
                         Bundle().apply {
                             putString("title", event.title)
                             putString("location", event.location)
@@ -28,6 +31,8 @@ class SimilarEventsActivity : AppCompatActivity() {
                             putString("imageUrl", event.imageUrl)
                             putString("targetAge", event.targetAge)
                             putString("region", event.region)
+                            putString("startDate", event.startDate?.toString())
+                            putString("endDate", event.endDate?.toString())
                         }
                     })
                 }
@@ -55,12 +60,17 @@ class SimilarEventsActivity : AppCompatActivity() {
                     category = event.getString("category").orEmpty(),
                     imageUrl = event.getString("imageUrl"),
                     targetAge = event.getString("targetAge").orEmpty(),
-                    region = event.getString("region").orEmpty()
+                    region = event.getString("region").orEmpty(),
+                    startDate = ExperiencePeriod.parseApiDate(event.getString("startDate")),
+                    endDate = ExperiencePeriod.parseApiDate(event.getString("endDate"))
                 )
             }
         val recommendations = SimilarExperienceRecommender.recommend(history, candidates.orEmpty())
         recyclerSimilarEvents.layoutManager = GridLayoutManager(this, 2)
-        recyclerSimilarEvents.adapter = ExperienceAdapter(recommendations)
+        val favorites = FavoriteStore(this) { message -> Toast.makeText(this, message, Toast.LENGTH_SHORT).show() }
+        val adapter = ExperienceAdapter(recommendations, favorites)
+        favorites.onChanged = { adapter.notifyDataSetChanged() }
+        recyclerSimilarEvents.adapter = adapter
         recyclerSimilarEvents.isVisible = recommendations.isNotEmpty()
 
         textEmptyRecommendation.isVisible = recommendations.isEmpty()

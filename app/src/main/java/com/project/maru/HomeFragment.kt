@@ -9,10 +9,8 @@ import androidx.core.os.bundleOf
 import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.project.maru.AppState
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val nav = findNavController()
@@ -28,29 +26,14 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         view.findViewById<TextView>(R.id.tvAgeSectionTitle).text =
             HtmlCompat.fromHtml(getString(R.string.section_age, userName, age), HtmlCompat.FROM_HTML_MODE_LEGACY)
 
-        // ---------- 알림 버튼: 누를 때마다 ON/OFF ----------
-        val btnBell = view.findViewById<ImageButton>(R.id.btnBell)
-        val bellDot = view.findViewById<View>(R.id.viewBellDot)
-        btnBell.isSelected = AppState.notificationOn
-        bellDot.visibility = if (AppState.notificationOn) View.VISIBLE else View.GONE
-
-        btnBell.setOnClickListener {
-            AppState.notificationOn = !AppState.notificationOn
-            btnBell.isSelected = AppState.notificationOn
-            bellDot.visibility = if (AppState.notificationOn) View.VISIBLE else View.GONE
-            val msg = if (AppState.notificationOn) R.string.notification_on else R.string.notification_off
-            Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
-        }
+        ScheduleUi.bindHome(this, view)
 
         // ---------- 하트(즐겨찾기) → 즐겨찾기 화면 ----------
         view.findViewById<View>(R.id.btnFavorite).setOnClickListener {
             nav.navigate(R.id.action_home_to_favorites)
         }
 
-        // ---------- 검색바 → 검색 화면 ----------
-        view.findViewById<View>(R.id.searchBar).setOnClickListener {
-            nav.navigate(R.id.action_home_to_search)
-        }
+        HomeSearch.bind(this, view)
 
         // ---------- 카테고리 버튼 6개 ----------
         view.findViewById<View>(R.id.catExperience).setOnClickListener {
@@ -82,14 +65,11 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             nav.navigate(R.id.action_home_to_experience)
         }
 
-        // ---------- 카드 하트: 누르면 채워지고, 다시 누르면 비워짐 ----------
-        val heartIds = listOf(R.id.btnHeart1, R.id.btnHeart2, R.id.btnHeart3)
-        heartIds.forEachIndexed { index, id ->
-            val heart = view.findViewById<ImageButton>(id)
-            heart.isSelected = AppState.likedCards[index]   // selected=true 이면 채워진 하트 (ic_heart_selector.xml)
-            heart.setOnClickListener {
-                AppState.likedCards[index] = !AppState.likedCards[index]
-                heart.isSelected = AppState.likedCards[index]
+        // 홈의 소개용 카드에서는 실제 API 행사를 선택하도록 안내한다.
+        listOf(R.id.btnHeart1, R.id.btnHeart2, R.id.btnHeart3).forEach { id ->
+            view.findViewById<ImageButton>(id).setOnClickListener {
+                Toast.makeText(requireContext(), R.string.favorite_choose_event, Toast.LENGTH_SHORT).show()
+                nav.navigate(R.id.action_home_to_experience)
             }
         }
 

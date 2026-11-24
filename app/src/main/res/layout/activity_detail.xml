@@ -30,10 +30,19 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
+            android:layout_weight="1"
             android:text="행사 상세보기"
             android:textSize="22sp"
             android:textStyle="bold"
             android:textColor="#222222" />
+        <ImageButton
+            android:id="@+id/buttonDetailFavorite"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:padding="12dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_heart_selector"
+            android:contentDescription="@string/favorite_add" />
     </LinearLayout>
 
     <!-- ===== 스크롤 되는 내용 ===== -->
@@ -420,6 +429,40 @@
                 android:orientation="vertical"
                 android:paddingTop="12dp"
                 android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/textReviewStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:accessibilityLiveRegion="polite"
+                    android:textColor="#666666" />
+                <Button
+                    android:id="@+id/buttonRefreshReviews"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/reviews_refresh" />
+                <RatingBar
+                    android:id="@+id/ratingReviewInput"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:numStars="5"
+                    android:stepSize="1"
+                    android:rating="5"
+                    android:contentDescription="@string/reviews_rating" />
+                <EditText
+                    android:id="@+id/editReviewContent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="80dp"
+                    android:inputType="textMultiLine|textCapSentences"
+                    android:gravity="top"
+                    android:maxLength="2000"
+                    android:hint="@string/reviews_hint" />
+                <Button
+                    android:id="@+id/buttonSaveReview"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/reviews_save" />
 
                 <!-- 코드에서 item_review.xml 을 여기에 하나씩 추가함 -->
                 <LinearLayout

@@ -8,13 +8,26 @@
     android:background="@drawable/community_card"
     android:clipToOutline="true">
 
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="150dp">
     <ImageView
         android:id="@+id/imageExperience"
         android:layout_width="match_parent"
-        android:layout_height="150dp"
+        android:layout_height="match_parent"
         android:background="#DDEBE9"
         android:scaleType="centerCrop"
         android:contentDescription="체험 대표 이미지" />
+        <ImageButton
+            android:id="@+id/buttonFavoriteEvent"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="top|end"
+            android:padding="12dp"
+            android:background="@drawable/community_card"
+            android:src="@drawable/ic_heart_selector"
+            android:contentDescription="@string/favorite_add" />
+    </FrameLayout>
 
     <LinearLayout
         android:layout_width="match_parent"

@@ -17,5 +17,7 @@ class MyApplication : Application() {
         auth = FirebaseAuth.getInstance()
         auth.useAppLanguage()
         db = FirebaseFirestore.getInstance()
+        ScheduleAlarms.initialize(this)
+        ScheduleSync.initialize(this)
     }
 }

@@ -1,8 +1,6 @@
 package com.project.maru.community
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -12,7 +10,6 @@ import com.project.maru.databinding.ActivityCommunityDetailBinding
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import kotlin.concurrent.thread
 
 class CommunityDetailActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCommunityDetailBinding
@@ -42,35 +39,25 @@ class CommunityDetailActivity : AppCompatActivity() {
     private fun loadPost() {
         binding.btnRetry.visibility = View.GONE
         binding.btnRetry.isEnabled = false
-        binding.tvStatus.text = "기기에서 게시글을 불러오는 중…"
-        thread {
-            val helper = CommunityDatabaseHelper(applicationContext)
-            try {
-                val post = helper.getPostById(postId)
-                Handler(Looper.getMainLooper()).post {
-                    binding.btnRetry.isEnabled = true
-                    if (post == null) {
-                        binding.tvStatus.text = "기기에 저장된 게시글을 찾지 못했어요."
-                        binding.btnRetry.visibility = View.VISIBLE
-                    } else {
-                        binding.tvCategory.text = post.category
-                        binding.tvTitle.text = post.title
-                        binding.tvOwner.text = post.authorName
-                        binding.tvDate.text = SimpleDateFormat("yyyy.MM.dd HH:mm", Locale.KOREA)
-                            .format(Date(post.createdAt))
-                        binding.tvContent.text = post.content
-                        binding.tvStatus.text = "이 게시글은 현재 기기에 저장되어 있어요."
-                    }
-                }
-            } catch (error: Exception) {
-                Handler(Looper.getMainLooper()).post {
-                    binding.btnRetry.isEnabled = true
-                    binding.tvStatus.text = "게시글을 읽지 못했어요. 다시 불러와 주세요."
-                    binding.btnRetry.visibility = View.VISIBLE
-                }
-            } finally {
-                helper.close()
+        binding.tvStatus.text = "온라인 게시글을 불러오는 중…"
+        CommunityRepository.loadPost(postId).addOnCompleteListener(this) { task ->
+            binding.btnRetry.isEnabled = true
+            if (!task.isSuccessful) {
+                binding.tvStatus.text = "게시글을 읽지 못했어요. 연결 상태를 확인하고 다시 불러와 주세요."
+                binding.btnRetry.visibility = View.VISIBLE
+                return@addOnCompleteListener
             }
+            val post = task.result
+            if (post == null) {
+                binding.tvStatus.text = "게시글을 찾지 못했어요. 삭제되었을 수 있어요."
+                return@addOnCompleteListener
+            }
+            binding.tvCategory.text = post.category
+            binding.tvTitle.text = post.title
+            binding.tvOwner.text = post.authorName
+            binding.tvDate.text = SimpleDateFormat("yyyy.MM.dd HH:mm", Locale.KOREA).format(Date(post.createdAt))
+            binding.tvContent.text = post.content
+            binding.tvStatus.text = "온라인 게시글"
         }
     }
 }

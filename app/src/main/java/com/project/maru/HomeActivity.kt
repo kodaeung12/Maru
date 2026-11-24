@@ -32,12 +32,35 @@ class HomeActivity : AppCompatActivity() {
         // 하단 네비게이션 바 ↔ nav_graph.xml 연결
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_nav)
         bottomNav.setupWithNavController(navController)
+        // 검색 같은 하위 화면에서는 홈 탭이 이미 선택되어 있으므로 재선택도 처리한다.
+        bottomNav.setOnItemReselectedListener { item ->
+            if (item.itemId == R.id.homeFragment) {
+                navController.showHome()
+            }
+        }
         handleHomeRequest(intent)
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        setIntent(intent)
         handleHomeRequest(intent)
+        window.decorView.post { openNotificationSchedule() }
+    }
+
+    override fun onPostResume() {
+        super.onPostResume()
+        openNotificationSchedule()
+    }
+
+    private fun openNotificationSchedule() {
+        val id = intent.getStringExtra("openScheduleId") ?: return
+        val uid = intent.getStringExtra("scheduleUid")
+        intent.removeExtra("openScheduleId")
+        if (uid == com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid) {
+            val item = ScheduleSync.items.firstOrNull { it.id == id }
+            if (item != null) ScheduleUi.showEditor(this, item = item) else ScheduleUi.showNotifications(this)
+        }
     }
 
     private fun handleHomeRequest(intent: Intent) {

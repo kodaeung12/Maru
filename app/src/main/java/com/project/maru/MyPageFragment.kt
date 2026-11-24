@@ -2,8 +2,6 @@ package com.project.maru
 
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
@@ -12,11 +10,10 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
-import com.project.maru.community.CommunityDatabaseHelper
+import com.project.maru.community.CommunityRepository
 import com.project.maru.community.CommunityDetailActivity
 import com.project.maru.community.CommunityPostAdapter
 import com.project.maru.databinding.FragmentMypageBinding
-import kotlin.concurrent.thread
 
 class MyPageFragment : Fragment(R.layout.fragment_mypage) {
     private var _binding: FragmentMypageBinding? = null
@@ -46,7 +43,7 @@ class MyPageFragment : Fragment(R.layout.fragment_mypage) {
         binding.tabSavedPosts.setOnClickListener { selectTab(TAB_SAVED) }
         binding.tabMyComments.setOnClickListener { selectTab(TAB_COMMENTS) }
         binding.btnNotification.setOnClickListener {
-            Toast.makeText(requireContext(), "알림 기능은 준비 중이에요.", Toast.LENGTH_SHORT).show()
+            ScheduleUi.showNotifications(requireActivity())
         }
         binding.btnSettings.setOnClickListener {
             findNavController().navigate(R.id.action_myPage_to_myInfo)
@@ -101,37 +98,24 @@ class MyPageFragment : Fragment(R.layout.fragment_mypage) {
     }
 
     private fun loadMyPosts() {
-        val context = context?.applicationContext ?: return
-        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "local"
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: run {
+            showEmpty("로그인 후 내 글을 볼 수 있어요.")
+            return
+        }
         binding.layoutMyPageEmpty.visibility = View.GONE
-        binding.tvMyPageStatus.text = "게시글을 불러오는 중…"
-
-        thread {
-            val helper = CommunityDatabaseHelper(context)
-            val result = runCatching {
-                helper.getAllPosts().filter { post ->
-                    post.ownerId == userId || post.ownerId == "local"
-                }
+        binding.tvMyPageStatus.text = "내 온라인 게시글을 불러오는 중…"
+        CommunityRepository.loadPosts(userId).addOnCompleteListener { task ->
+            val currentBinding = _binding ?: return@addOnCompleteListener
+            if (selectedTab != TAB_POSTS) return@addOnCompleteListener
+            if (!task.isSuccessful) {
+                showEmpty("내 글을 불러오지 못했어요. 연결 상태를 확인해 주세요.")
+                return@addOnCompleteListener
             }
-            helper.close()
-
-            Handler(Looper.getMainLooper()).post {
-                val currentBinding = _binding ?: return@post
-                if (selectedTab != TAB_POSTS) return@post
-                result.onSuccess { posts ->
-                    adapter.submitList(posts)
-                    currentBinding.layoutMyPageEmpty.visibility =
-                        if (posts.isEmpty()) View.VISIBLE else View.GONE
-                    currentBinding.tvMyPageEmpty.text = getString(R.string.mypage_empty_posts)
-                    currentBinding.tvMyPageStatus.text =
-                        if (posts.isEmpty()) "" else "내가 작성한 글 ${posts.size}개"
-                }.onFailure {
-                    adapter.submitList(emptyList())
-                    currentBinding.layoutMyPageEmpty.visibility = View.VISIBLE
-                    currentBinding.tvMyPageEmpty.text = "게시글을 불러오지 못했어요."
-                    currentBinding.tvMyPageStatus.text = ""
-                }
-            }
+            val posts = task.result
+            adapter.submitList(posts)
+            currentBinding.layoutMyPageEmpty.visibility = if (posts.isEmpty()) View.VISIBLE else View.GONE
+            currentBinding.tvMyPageEmpty.text = getString(R.string.mypage_empty_posts)
+            currentBinding.tvMyPageStatus.text = if (posts.isEmpty()) "" else "내가 작성한 글 ${posts.size}개"
         }
     }
 

@@ -1,8 +1,6 @@
 package com.project.maru.community
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -12,13 +10,16 @@ import androidx.core.view.WindowInsetsCompat
 import com.google.firebase.auth.FirebaseAuth
 import com.project.maru.R
 import com.project.maru.databinding.ActivityCommunityWriteBinding
-import kotlin.concurrent.thread
+import java.util.UUID
 
 class CommunityWriteActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCommunityWriteBinding
 
+    private var draftId = ""
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        draftId = savedInstanceState?.getString("draftId") ?: UUID.randomUUID().toString()
         enableEdgeToEdge()
         binding = ActivityCommunityWriteBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -50,46 +51,52 @@ class CommunityWriteActivity : AppCompatActivity() {
             binding.etContent.requestFocus()
             return
         }
+        if (com.project.maru.ContentPolicy.containsAbuse(title) || com.project.maru.ContentPolicy.containsAbuse(content)) {
+            binding.tvStatus.text = com.project.maru.ContentPolicy.MESSAGE
+            return
+        }
+        if (!binding.btnSave.isEnabled) return
+        if (title.length > 50 || content.length > 5000) {
+            binding.tvStatus.text = "제목은 50자, 내용은 5000자까지 입력해 주세요."
+            return
+        }
         val user = FirebaseAuth.getInstance().currentUser
+        if (user == null) {
+            binding.tvStatus.text = "로그인 후 게시글을 작성해 주세요."
+            return
+        }
         val post = CommunityPost(
+            id = draftId,
             category = binding.spinnerCategory.selectedItem.toString(),
             title = title,
             content = content,
-            ownerId = user?.uid ?: "local",
-            authorName = user?.displayName?.takeIf { it.isNotBlank() }
-                ?: user?.email?.substringBefore("@")
-                ?: "로컬 사용자",
+            ownerId = user.uid,
+            authorName = user.displayName?.takeIf { it.isNotBlank() }
+                ?: user.email?.substringBefore("@")
+                ?: "마루 이용자",
             createdAt = System.currentTimeMillis()
         )
         setButtonsEnabled(false)
-        binding.tvStatus.text = "기기에 저장하는 중…"
-
-
-        thread {
-            val helper = CommunityDatabaseHelper(applicationContext)
-            try {
-                val newId = helper.insertPost(post)
-                Handler(Looper.getMainLooper()).post {
-                    if (newId == -1L) {
-                        showSaveError()
-                    } else {
-                        setButtonsEnabled(true)
-                        Toast.makeText(this, "기기에 게시글을 저장했어요.", Toast.LENGTH_SHORT).show()
-                        setResult(RESULT_OK)
-                        finish()
-                    }
-                }
-            } catch (error: Exception) {
-                Handler(Looper.getMainLooper()).post { showSaveError() }
-            } finally {
-                helper.close()
+        binding.tvStatus.text = "온라인으로 등록하는 중…"
+        CommunityRepository.createPost(post).addOnCompleteListener(this) { task ->
+            if (task.isSuccessful) {
+                Toast.makeText(this, "게시글을 온라인으로 등록했어요.", Toast.LENGTH_SHORT).show()
+                setResult(RESULT_OK)
+                finish()
+            } else {
+                showSaveError()
             }
         }
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putString("draftId", draftId)
+        super.onSaveInstanceState(outState)
+    }
+
     private fun showSaveError() {
         setButtonsEnabled(true)
-        binding.tvStatus.text = "기기에 저장하지 못했어요. 저장 공간을 확인하고 다시 시도해 주세요."
+        binding.tvStatus.text = "온라인 등록에 실패했어요. 인터넷 연결과 로그인 상태를 확인하고 다시 시도해 주세요."
     }
 
     private fun setButtonsEnabled(enabled: Boolean) {

@@ -1,8 +1,5 @@
 package com.project.maru.community
 
-import android.content.Context
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -10,7 +7,6 @@ import com.project.maru.databinding.ItemCommunityPostBinding
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import kotlin.concurrent.thread
 
 
 class CommunityPostViewHolder(
@@ -67,21 +63,10 @@ class CommunityPostAdapter(
     }
 
 
-    fun loadItems(context: Context, onSuccess: (Int) -> Unit, onFailure: () -> Unit) {
-        thread {
-            val helper = CommunityDatabaseHelper(context.applicationContext)
-            try {
-                val list = helper.getAllPosts()
-                Handler(Looper.getMainLooper()).post {
-                    allItems = list.toMutableList()
-                    val count = applyFilter(categoryFilter)
-                    onSuccess(count)
-                }
-            } catch (error: Exception) {
-                Handler(Looper.getMainLooper()).post { onFailure() }
-            } finally {
-                helper.close()
-            }
-        }
+    fun loadItems(onSuccess: (Int) -> Unit, onFailure: () -> Unit) {
+        CommunityRepository.loadPosts().addOnSuccessListener { posts ->
+            allItems = posts.toMutableList()
+            onSuccess(applyFilter(categoryFilter))
+        }.addOnFailureListener { onFailure() }
     }
 }

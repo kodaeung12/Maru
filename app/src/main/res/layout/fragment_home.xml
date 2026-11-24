@@ -11,7 +11,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingBottom="16dp">
+        android:paddingBottom="16dp"
+        android:focusable="true" android:focusableInTouchMode="true">
 
         <!-- ============ 1. 상단 (로고 / 인사말 / 가족 그림 / 알림·하트 / 검색바) ============ -->
         <FrameLayout
@@ -141,9 +142,9 @@
                 android:layout_marginEnd="16dp"
                 android:layout_marginBottom="4dp"
                 android:background="@drawable/bg_search"
-                android:clickable="true"
+                android:clickable="false"
                 android:elevation="6dp"
-                android:focusable="true"
+                android:focusable="false"
                 android:foreground="?attr/selectableItemBackground"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
@@ -157,24 +158,33 @@
                     android:src="@drawable/ic_search"
                     app:tint="@color/maru_pink" />
 
-                <TextView
+                <EditText android:id="@+id/editHomeSearch"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:layout_weight="1"
                     android:maxLines="1"
-                    android:text="@string/search_hint"
+                    android:hint="@string/search_hint"
+                    android:inputType="text" android:imeOptions="actionSearch" android:singleLine="true" android:maxLength="50" android:background="@null" android:minHeight="48dp"
                     android:textColor="@color/text_gray"
                     android:textSize="14sp" />
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:importantForAccessibility="no"
-                    android:src="@drawable/ic_tune"
-                    app:tint="@color/maru_pink" />
+                <ImageButton android:id="@+id/buttonHomeSearch"
+                    android:layout_width="48dp" android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:padding="12dp" android:contentDescription="검색 실행"
+                    android:src="@drawable/ic_search" app:tint="@color/maru_pink" />
             </LinearLayout>
         </FrameLayout>
+
+        <LinearLayout android:id="@+id/panelPopularSearches" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone" android:background="@drawable/bg_round_20" android:padding="16dp" android:layout_marginHorizontal="16dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
+                <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="인기 검색어 TOP 10" android:textSize="18sp" android:textStyle="bold" android:textColor="@color/text_dark" />
+                <Button android:id="@+id/buttonClosePopularSearches" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="닫기" />
+            </LinearLayout>
+            <TextView android:id="@+id/textPopularSearchStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="12sp" android:textColor="@color/text_sub" />
+            <LinearLayout android:id="@+id/layoutPopularSearches" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
+        </LinearLayout>
 
         <!-- ============ 2. 카테고리 버튼 6개 ============ -->
         <LinearLayout
@@ -292,6 +302,19 @@
             <ImageView
                 android:id="@+id/btnRecommendArrow"
                 style="@style/ArrowCircle" />
+        </LinearLayout>
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp" android:layout_margin="16dp" android:background="@drawable/bg_round_20">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
+                <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="우리 가족 일정" android:textSize="20sp" android:textStyle="bold" android:textColor="#292929" />
+                <Button android:id="@+id/buttonAddSchedule" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="+ 일정" />
+            </LinearLayout>
+            <Button android:id="@+id/buttonToggleCalendar" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="달력 접기" />
+            <CalendarView android:id="@+id/calendarSchedules" android:layout_width="match_parent" android:layout_height="320dp" />
+            <TextView android:id="@+id/textScheduleDate" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="16sp" android:textStyle="bold" />
+            <LinearLayout android:id="@+id/layoutScheduleItems" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
+            <TextView android:id="@+id/textScheduleState" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="13sp" />
+            <Button android:id="@+id/buttonScheduleSettings" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="알림 설정" />
         </LinearLayout>
 
         <!-- ============ 4. 우리 아이 맞춤 추천 체험 ============ -->

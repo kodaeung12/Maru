@@ -196,7 +196,7 @@
     <string name="experience_period_start">시작일 선택</string>
     <string name="experience_period_end">종료일 선택</string>
     <string name="experience_period_invalid_range">종료일은 시작일과 같거나 이후여야 해요.</string>
-    <string name="experience_list_search_hint">체험 이름을 검색하세요</string>
+    <string name="experience_list_search_hint">행사명, 장소, 지역, 분류 검색</string>
     <string name="experience_list_filter_region">지역  ⌄</string>
     <string name="experience_list_filter_period">기간  ⌄</string>
     <string name="experience_list_filter_category">카테고리  ⌄</string>
@@ -209,4 +209,20 @@
     <string name="experience_list_recommend">비슷한 행사 추천</string>
     <string name="experience_list_recommend_description">최근 본 행사와 비슷한 체험을 찾아보세요</string>
     <string name="experience_list_recommend_accessibility">비슷한 행사 추천. 최근 본 행사와 비슷한 체험을 찾아보세요</string>
+    <string name="search_retry">다시 불러오기</string>
+    <string name="search_loading">체험·행사를 불러오는 중이에요…</string>
+    <string name="search_failed">행사를 불러오지 못했어요. 연결 상태를 확인하고 다시 시도해 주세요.</string>
+    <string name="search_key_missing">행사 데이터를 이용하려면 서울시 API 키 설정이 필요해요.</string>
+    <string name="search_count">검색 결과 %1$d개</string>
+    <string name="search_no_results">검색 결과가 없어요. 검색어나 필터를 바꿔 보세요.</string>
+    <string name="reviews_refresh">리뷰 새로고침</string>
+    <string name="reviews_rating">리뷰 별점</string>
+    <string name="reviews_hint">직접 경험한 행사 후기를 작성해 주세요</string>
+    <string name="reviews_save">내 리뷰 저장·수정</string>
+    <string name="community_upload_local">내 기기 글 온라인으로 올리기</string>
+    <string name="favorite_add">즐겨찾기에 저장</string>
+    <string name="favorite_remove">즐겨찾기에서 해제</string>
+    <string name="favorites_loading">즐겨찾기를 불러오는 중이에요…</string>
+    <string name="favorites_empty">저장한 행사가 없어요. 체험·행사에서 하트를 눌러 보세요.</string>
+    <string name="favorite_choose_event">체험·행사에서 저장할 행사를 선택해 주세요.</string>
 </resources>

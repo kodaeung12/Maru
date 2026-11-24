@@ -3,6 +3,7 @@ package com.project.maru
 import android.content.Context
 import android.os.SystemClock
 import android.widget.Button
+import androidx.navigation.fragment.NavHostFragment
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
@@ -88,7 +89,11 @@ class SimilarEventsActivityInstrumentedTest {
         assumeTrue(BuildConfig.SEOUL_API_KEY.isNotBlank())
         RecentExperienceStore.recordView(context, viewed)
 
-        ActivityScenario.launch(ExperienceListActivity::class.java).use { scenario ->
+        ActivityScenario.launch(HomeActivity::class.java).use { scenario ->
+            scenario.onActivity { activity ->
+                val host = activity.supportFragmentManager.findFragmentById(R.id.nav_host) as NavHostFragment
+                host.navController.navigate(R.id.experienceFragment)
+            }
             val deadline = SystemClock.elapsedRealtime() + 20_000
             var ready = false
             while (!ready && SystemClock.elapsedRealtime() < deadline) {
@@ -103,6 +108,21 @@ class SimilarEventsActivityInstrumentedTest {
         }
     }
 
+    @Test
+    fun largeCandidateListDoesNotOverflowIntent() {
+        RecentExperienceStore.recordView(context, viewed)
+        val candidates = (1..5000).map { index ->
+            candidate.copy(title = "도자기 공방 $index", imageUrl = "https://example.com/" + "a".repeat(2000))
+        }
+        val intent = SimilarEventsActivity.createIntent(context, candidates)
+        val parcel = android.os.Parcel.obtain()
+        try {
+            intent.writeToParcel(parcel, 0)
+            assertTrue("추천 화면 전송 데이터가 너무 큽니다.", parcel.dataSize() < 256 * 1024)
+        } finally {
+            parcel.recycle()
+        }
+    }
     private fun launch(candidates: List<Experience>?) = ActivityScenario.launch<SimilarEventsActivity>(
         SimilarEventsActivity.createIntent(context, candidates)
     )

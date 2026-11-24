@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -11,8 +12,9 @@ import android.content.Intent
 import com.project.maru.DetailActivity
 import com.project.maru.R
 
-class ExperienceAdapter(
-    experienceList: List<Experience>
+internal class ExperienceAdapter(
+    experienceList: List<Experience>,
+    private val favorites: FavoriteStore
 ) : RecyclerView.Adapter<ExperienceAdapter.ExperienceViewHolder>() {
 
     private val originalList = experienceList.toMutableList()
@@ -60,7 +62,7 @@ class ExperienceAdapter(
         filteredList.addAll(
             originalList.filter { experience ->
                 val matchesQuery =
-                    experience.title.contains(currentQuery, ignoreCase = true)
+                    experience.matchesSearch(currentQuery)
 
                 val matchesCategory =
                     selectedCategory == "전체" ||
@@ -80,6 +82,8 @@ class ExperienceAdapter(
 
     class ExperienceViewHolder(itemView: View) :
         RecyclerView.ViewHolder(itemView) {
+
+        val favoriteButton: ImageButton = itemView.findViewById(R.id.buttonFavoriteEvent)
 
         val imageView: ImageView =
             itemView.findViewById(R.id.imageExperience)
@@ -118,6 +122,13 @@ class ExperienceAdapter(
         holder.locationText.text = experience.location
         holder.dateText.text = experience.date
         holder.categoryText.text = experience.category
+        holder.favoriteButton.isSelected = favorites.isSaved(experience)
+        holder.favoriteButton.isEnabled = !favorites.isPending(experience)
+        holder.favoriteButton.alpha = if (favorites.ready && !favorites.isPending(experience)) 1f else 0.5f
+        holder.favoriteButton.contentDescription = holder.itemView.context.getString(
+            if (favorites.isSaved(experience)) R.string.favorite_remove else R.string.favorite_add
+        )
+        holder.favoriteButton.setOnClickListener { favorites.toggle(experience) }
 
         holder.itemView.setOnClickListener {
             RecentExperienceStore.recordView(holder.itemView.context, experience)
@@ -129,6 +140,8 @@ class ExperienceAdapter(
                 putExtra(DetailActivity.EXTRA_IMAGE_URL, experience.imageUrl.orEmpty())
                 putExtra(DetailActivity.EXTRA_TARGET_AGE, experience.targetAge)
                 putExtra(DetailActivity.EXTRA_CATEGORY, experience.category)
+                putExtra(DetailActivity.EXTRA_START_DATE, experience.startDate?.toString().orEmpty())
+                putExtra(DetailActivity.EXTRA_END_DATE, experience.endDate?.toString().orEmpty())
             }
 
             holder.itemView.context.startActivity(intent)

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:orientation="vertical" android:background="@color/page_bg">
+    <include layout="@layout/layout_top_bar" />
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:fillViewport="true">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp">
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="약관 및 정책" android:textStyle="bold" android:textSize="18sp" android:textColor="@color/text_dark" android:paddingVertical="12dp" />
+            <Button android:id="@+id/buttonServiceTerms" style="@style/SettingsMenuRow" android:text="서비스 이용약관  ›" />
+            <Button android:id="@+id/buttonPrivacyPolicy" style="@style/SettingsMenuRow" android:text="개인정보 처리방침  ›" />
+            <Button android:id="@+id/buttonLocationTerms" style="@style/SettingsMenuRow" android:text="위치기반 서비스 이용약관  ›" />
+            <Button android:id="@+id/buttonLocationPrivacy" style="@style/SettingsMenuRow" android:text="개인위치정보 처리방침  ›" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="알림" android:textStyle="bold" android:textSize="18sp" android:textColor="@color/text_dark" android:paddingTop="24dp" android:paddingBottom="12dp" />
+            <Button android:id="@+id/buttonPushSettings" style="@style/SettingsMenuRow" android:text="앱 푸시알림 설정  ›" />
+            <TextView android:id="@+id/textPushSettingsStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/text_sub" android:textSize="13sp" android:padding="8dp" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="계정" android:textStyle="bold" android:textSize="18sp" android:textColor="@color/text_dark" android:paddingTop="24dp" android:paddingBottom="12dp" />
+            <Button android:id="@+id/buttonSettingsLogout" style="@style/SettingsMenuRow" android:text="로그아웃" />
+            <Button android:id="@+id/buttonDeleteAccount" style="@style/SettingsMenuRow" android:text="회원탈퇴" android:textColor="#B3261E" />
+            <TextView android:id="@+id/textAccountDeletionStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/text_sub" android:textSize="13sp" android:padding="8dp" android:visibility="gone" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

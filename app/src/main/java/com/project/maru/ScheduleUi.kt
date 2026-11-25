@@ -1,13 +1,9 @@
 package com.project.maru
 
 import android.Manifest
-import android.app.AlarmManager
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.provider.Settings
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
@@ -31,22 +27,62 @@ internal object ScheduleUi {
         val rows = view.findViewById<LinearLayout>(R.id.layoutScheduleItems)
         var selected = LocalDate.now()
         val render: () -> Unit = {
-            view.findViewById<TextView>(R.id.textScheduleDate).text = "${selected} 일정"
+            val textScheduleDate = view.findViewById<TextView>(R.id.textScheduleDate)
+            val dateItems = ScheduleSync.items.filter { it.date == selected }
+            textScheduleDate.text = "${selected} 일정"
+            view.findViewById<View>(R.id.viewSelectedDateDot).visibility =
+                if (dateItems.isNotEmpty()) View.VISIBLE else View.GONE
             rows.removeAllViews()
-            val items = ScheduleSync.items.filter { it.date == selected }
-            if (items.isEmpty()) rows.addView(TextView(activity).apply { text = "등록된 일정이 없어요. + 버튼으로 추가해 보세요."; setPadding(0,16,0,16) })
-            items.forEach { item -> rows.addView(Button(activity).apply {
-                text = "${timeLabel(item.startsAt).takeLast(5)}  ${item.title}\n${reminderLabel(item.reminderMinutes)}"
-                isAllCaps = false
-                setOnClickListener { showEditor(activity, item = item) }
-            }) }
-            val upcoming = ScheduleSync.items.count { it.startsAt >= System.currentTimeMillis() }
-            view.findViewById<View>(R.id.viewBellDot).visibility = if(upcoming > 0) View.VISIBLE else View.GONE
-            view.findViewById<TextView>(R.id.textScheduleState).text = ScheduleSync.error ?: when {
-                !ScheduleSync.ready -> "일정을 불러오는 중이에요."
-                !ScheduleAlarms.notificationsEnabled(activity) -> "휴대폰 알림이 꺼져 있어요. 알림 설정을 확인해 주세요."
-                !activity.getSystemService(AlarmManager::class.java).canScheduleExactAlarms() -> "정확한 알림을 허용하지 않으면 알림이 늦을 수 있어요."
-                else -> "다가오는 일정 ${upcoming}개 · 일정을 눌러 수정하거나 삭제하세요."
+            dateItems.forEach { item ->
+                val row = LinearLayout(activity).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    gravity = android.view.Gravity.CENTER_VERTICAL
+                    setPadding(dp(activity, 12), dp(activity, 10), dp(activity, 12), dp(activity, 10))
+                    background = androidx.core.content.ContextCompat.getDrawable(activity, R.drawable.bg_mypage_profile)
+                    isClickable = true
+                    isFocusable = true
+                    setOnClickListener { showEditor(activity, item = item) }
+                }
+                row.addView(View(activity).apply {
+                    background = androidx.core.content.ContextCompat.getDrawable(activity, R.drawable.bg_red_dot)
+                }, LinearLayout.LayoutParams(dp(activity, 8), dp(activity, 8)))
+                val textColumn = LinearLayout(activity).apply {
+                    orientation = LinearLayout.VERTICAL
+                    setPadding(dp(activity, 10), 0, 0, 0)
+                }
+                textColumn.addView(TextView(activity).apply {
+                    text = "${timeLabel(item.startsAt).takeLast(5)}  ${item.title}"
+                    setTextColor(android.graphics.Color.rgb(48, 48, 48))
+                    textSize = 14f
+                    setTypeface(typeface, android.graphics.Typeface.BOLD)
+                })
+                textColumn.addView(TextView(activity).apply {
+                    text = reminderLabel(item.reminderMinutes)
+                    setTextColor(android.graphics.Color.rgb(135, 128, 126))
+                    textSize = 12f
+                    setPadding(0, dp(activity, 3), 0, 0)
+                })
+                row.addView(textColumn, LinearLayout.LayoutParams(0, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+                val rowParams = LinearLayout.LayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT)
+                rowParams.bottomMargin = dp(activity, 8)
+                rows.addView(row, rowParams)
+            }
+            val now = System.currentTimeMillis()
+            val hasScheduledAlert = ScheduleSync.ready && ScheduleSync.items.any {
+                it.startsAt >= now && it.alarmAt?.let { alarmAt -> alarmAt >= now } == true
+            }
+            view.findViewById<View>(R.id.viewBellDot).visibility = if (hasScheduledAlert) View.VISIBLE else View.GONE
+            val stateText = view.findViewById<TextView>(R.id.textScheduleState)
+            when {
+                ScheduleSync.error != null -> {
+                    stateText.text = ScheduleSync.error
+                    stateText.visibility = View.VISIBLE
+                }
+                !ScheduleSync.ready -> {
+                    stateText.text = "일정을 불러오는 중이에요."
+                    stateText.visibility = View.VISIBLE
+                }
+                else -> stateText.visibility = View.GONE
             }
         }
         calendar.setOnDateChangeListener { _, y, m, d -> selected = LocalDate.of(y,m+1,d); render() }
@@ -56,7 +92,6 @@ internal object ScheduleUi {
             (it as Button).text = if(calendar.visibility == View.VISIBLE) "달력 접기" else "달력 펼치기"
         }
         view.findViewById<View>(R.id.btnBell).setOnClickListener { showNotifications(activity) }
-        view.findViewById<View>(R.id.buttonScheduleSettings).setOnClickListener { showSettings(activity) }
         fragment.viewLifecycleOwner.lifecycle.addObserver(object: DefaultLifecycleObserver {
             override fun onStart(owner: LifecycleOwner) { ScheduleSync.subscribe(render) }
             override fun onStop(owner: LifecycleOwner) { ScheduleSync.unsubscribe(render) }
@@ -70,16 +105,21 @@ internal object ScheduleUi {
         if(items.isEmpty()) dialog.setMessage(ScheduleSync.error ?: "다가오는 일정이 없어요. 달력에 일정을 추가해 보세요.")
         else dialog.setItems(items.map { "${timeLabel(it.startsAt)}  ${it.title}\n${reminderLabel(it.reminderMinutes)}" }.toTypedArray()) { _, index -> showEditor(activity,item=items[index]) }
         dialog.setPositiveButton("일정 추가") { _, _ -> showEditor(activity) }
-            .setNeutralButton("알림 설정") { _, _ -> showSettings(activity) }.setNegativeButton("닫기",null).show()
+            .setNegativeButton("닫기",null).show()
     }
 
-    fun showSettings(activity: FragmentActivity) {
-        AlertDialog.Builder(activity).setTitle("일정 알림 설정")
-            .setMessage("휴대폰 알림과 정확한 알림을 허용하면 지정한 시간에 일정을 알려드려요. 정확한 알림을 허용하지 않으면 늦게 도착할 수 있어요.")
-            .setPositiveButton("휴대폰 알림") { _, _ ->
-                activity.startActivity(Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE,activity.packageName))
-            }.setNeutralButton("정확한 알림") { _, _ -> activity.startActivity(Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,Uri.parse("package:${activity.packageName}"))) }
-            .setNegativeButton("닫기",null).show()
+    fun bindBellBadge(fragment: Fragment, dot: View) {
+        val update: () -> Unit = {
+            val now = System.currentTimeMillis()
+            val hasScheduledAlert = ScheduleSync.ready && ScheduleSync.items.any {
+                it.startsAt >= now && it.alarmAt?.let { alarmAt -> alarmAt >= now } == true
+            }
+            dot.visibility = if (hasScheduledAlert) View.VISIBLE else View.GONE
+        }
+        fragment.viewLifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onStart(owner: LifecycleOwner) { ScheduleSync.subscribe(update) }
+            override fun onStop(owner: LifecycleOwner) { ScheduleSync.unsubscribe(update) }
+        })
     }
 
     fun showEditor(activity: FragmentActivity, date: LocalDate = LocalDate.now(), initialTitle: String = "", initialNote: String = "", eventId: String = "", item: Schedule? = null) {
@@ -129,4 +169,7 @@ internal object ScheduleUi {
         }
         dialog.show()
     }
+
+    private fun dp(activity: FragmentActivity, value: Int): Int =
+        (value * activity.resources.displayMetrics.density).toInt()
 }

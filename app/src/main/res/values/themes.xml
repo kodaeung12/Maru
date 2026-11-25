@@ -175,6 +175,19 @@
         <item name="android:textColor">@color/text_dark</item>
         <item name="android:lineSpacingExtra">2sp</item>
     </style>
+    <style name="AgeEducationTab">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">36dp</item>
+        <item name="android:layout_marginEnd">8dp</item>
+        <item name="android:background">@drawable/community_chip_off</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingStart">14dp</item>
+        <item name="android:paddingEnd">14dp</item>
+        <item name="android:textColor">@color/maru_pink</item>
+        <item name="android:textSize">13sp</item>
+    </style>
     <style name="AgeImage">
         <item name="android:layout_width">50dp</item>
         <item name="android:layout_height">50dp</item>

@@ -35,14 +35,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         HomeSearch.bind(this, view)
 
-        // ---------- 카테고리 버튼 6개 ----------
-        view.findViewById<View>(R.id.catExperience).setOnClickListener {
-            nav.navigate(R.id.action_home_to_experience)
-        }
-        view.findViewById<View>(R.id.catAgeEdu).setOnClickListener {
-            nav.navigate(R.id.action_home_to_ageEdu)
-        }
-        // 문화·예술 / 자연·생태 / 축제·행사 / 가족 나들이 → 체험·행사 화면 (어떤 카테고리인지 같이 전달)
+        // ---------- 홈 카테고리: 문화·예술 / 자연·생태 / 축제·행사 / 가족 나들이 ----------
         view.findViewById<View>(R.id.catCulture).setOnClickListener {
             nav.navigate(R.id.action_home_to_experience, bundleOf("category" to getString(R.string.cat_culture)))
         }
@@ -57,8 +50,13 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         }
 
         // ---------- 연령 추천 배너 (>) → 연령별 교육 ----------
-        view.findViewById<View>(R.id.bannerRecommend).setOnClickListener { nav.navigate(R.id.action_home_to_ageEdu) }
-        view.findViewById<View>(R.id.btnRecommendArrow).setOnClickListener { nav.navigate(R.id.action_home_to_ageEdu) }
+        val defaultAgeCategory = resources.getInteger(R.integer.child_age).toString()
+        view.findViewById<View>(R.id.bannerRecommend).setOnClickListener {
+            nav.navigate(R.id.action_home_to_ageEdu, bundleOf("category" to defaultAgeCategory))
+        }
+        view.findViewById<View>(R.id.btnRecommendArrow).setOnClickListener {
+            nav.navigate(R.id.action_home_to_ageEdu, bundleOf("category" to defaultAgeCategory))
+        }
 
         // ---------- 추천 체험 "전체보기 >" → 체험·행사 ----------
         view.findViewById<View>(R.id.tvMoreExperience).setOnClickListener {
@@ -74,8 +72,13 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         }
 
         // ---------- 연령별 교육 "전체보기 >" 와 카드들 → 연령별 교육 ----------
-        listOf(R.id.tvMoreAge, R.id.age6, R.id.age7, R.id.age8, R.id.ageGuide).forEach { id ->
-            view.findViewById<View>(id).setOnClickListener { nav.navigate(R.id.action_home_to_ageEdu) }
+        view.findViewById<View>(R.id.tvMoreAge).setOnClickListener {
+            nav.navigate(R.id.action_home_to_ageEdu, bundleOf("category" to defaultAgeCategory))
+        }
+        listOf(R.id.age6 to "6", R.id.age7 to "7", R.id.age8 to "8", R.id.ageGuide to "parent").forEach { (id, category) ->
+            view.findViewById<View>(id).setOnClickListener {
+                nav.navigate(R.id.action_home_to_ageEdu, bundleOf("category" to category))
+            }
         }
 
         // ---------- 준비물과 안전수칙 (>) → 준비물과 안전수칙 ----------

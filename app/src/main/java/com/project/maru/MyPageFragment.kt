@@ -29,6 +29,7 @@ class MyPageFragment : Fragment(R.layout.fragment_mypage) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentMypageBinding.bind(view)
+        ScheduleUi.bindBellBadge(this, binding.viewBellDot)
 
         val user = auth.currentUser
         val currentUserId = user?.uid ?: ""

@@ -105,6 +105,7 @@
     <integer name="child_age">6</integer>
     <string name="title_home">홈</string>
     <string name="title_experience">체험·행사</string>
+    <string name="title_education">교육</string>
     <string name="title_age_edu">연령별 교육</string>
     <string name="title_safety">준비물과 안전수칙</string>
     <string name="title_search">검색</string>
@@ -180,6 +181,12 @@
    <string name="age8_text">친구와의 관계와\n감정 표현을\n배워요</string>
    <string name="guide_badge">부모 가이드</string>
    <string name="guide_text">아이와의\n대화 방법을\n배워보세요</string>
+   <string name="age_education_choose_title">우리 아이 나이에 맞는 교육</string>
+   <string name="age_education_choose_description">나이를 선택하면 해당 연령의 교육 주제를 확인할 수 있어요.</string>
+   <string name="age_education_title">%1$d세 교육 주제</string>
+   <string name="age_education_parent_title">부모 가이드</string>
+   <string name="age_education_topic_label">이 연령에 맞는 주제</string>
+   <string name="age_education_tab_description">%1$d세 교육 선택</string>
    <string name="safety_small">체험 전 꼭 확인하세요!</string>
    <string name="safety_title">준비물과 안전수칙을\n미리 확인해요.</string>
     <string name="similar_events_no_history">행사 상세를 먼저 확인해 주세요.</string>

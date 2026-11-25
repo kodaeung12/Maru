@@ -151,17 +151,20 @@
                 android:paddingStart="18dp"
                 android:paddingEnd="18dp">
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:importantForAccessibility="no"
+                <ImageButton
+                    android:id="@+id/buttonHomeSearch"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="검색 실행"
+                    android:padding="6dp"
                     android:src="@drawable/ic_search"
                     app:tint="@color/maru_pink" />
 
                 <EditText android:id="@+id/editHomeSearch"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
+                    android:layout_marginStart="6dp"
                     android:layout_weight="1"
                     android:maxLines="1"
                     android:hint="@string/search_hint"
@@ -169,11 +172,6 @@
                     android:textColor="@color/text_gray"
                     android:textSize="14sp" />
 
-                <ImageButton android:id="@+id/buttonHomeSearch"
-                    android:layout_width="48dp" android:layout_height="48dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:padding="12dp" android:contentDescription="검색 실행"
-                    android:src="@drawable/ic_search" app:tint="@color/maru_pink" />
             </LinearLayout>
         </FrameLayout>
 
@@ -186,7 +184,7 @@
             <LinearLayout android:id="@+id/layoutPopularSearches" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
         </LinearLayout>
 
-        <!-- ============ 2. 카테고리 버튼 6개 ============ -->
+        <!-- ============ 2. 카테고리 버튼 4개 ============ -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -195,22 +193,6 @@
             android:paddingTop="14dp"
             android:paddingEnd="13dp"
             android:paddingBottom="14dp">
-
-            <LinearLayout
-                android:id="@+id/catExperience"
-                style="@style/CategoryBox"
-                android:backgroundTint="@color/cat_pink">
-                <ImageView style="@style/CategoryIcon" android:src="@drawable/ic_cat_tent" />
-                <TextView style="@style/CategoryText" android:text="@string/cat_experience" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/catAgeEdu"
-                style="@style/CategoryBox"
-                android:backgroundTint="@color/cat_purple">
-                <ImageView style="@style/CategoryIcon" android:src="@drawable/ic_cat_book" />
-                <TextView style="@style/CategoryText" android:text="@string/cat_age_edu" />
-            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/catCulture"
@@ -311,10 +293,12 @@
             </LinearLayout>
             <Button android:id="@+id/buttonToggleCalendar" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="달력 접기" />
             <CalendarView android:id="@+id/calendarSchedules" android:layout_width="match_parent" android:layout_height="320dp" />
-            <TextView android:id="@+id/textScheduleDate" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="16sp" android:textStyle="bold" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center_vertical" android:orientation="horizontal">
+                <View android:id="@+id/viewSelectedDateDot" android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/bg_red_dot" android:visibility="gone" />
+                <TextView android:id="@+id/textScheduleDate" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:textSize="16sp" android:textStyle="bold" />
+            </LinearLayout>
             <LinearLayout android:id="@+id/layoutScheduleItems" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
             <TextView android:id="@+id/textScheduleState" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="13sp" />
-            <Button android:id="@+id/buttonScheduleSettings" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="알림 설정" />
         </LinearLayout>
 
         <!-- ============ 4. 우리 아이 맞춤 추천 체험 ============ -->

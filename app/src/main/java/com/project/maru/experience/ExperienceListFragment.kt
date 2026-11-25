@@ -118,11 +118,12 @@ class ExperienceListFragment : Fragment(R.layout.fragment_experience_list) {
             loading = false
             failed = true
             similar.isEnabled = false
-            status.setText(R.string.search_failed)
+            status.text = if (candidates.isEmpty()) getString(R.string.search_failed)
+                else "일부 행사만 불러왔어요. 다시 시도하면 전체 목록을 불러옵니다."
             retry.visibility = View.VISIBLE
         }
 
-        // 페이지별로 모두 받은 뒤 한 번에 반영하여 부분 결과를 전체 결과로 표시하지 않는다.
+        // 받은 행사부터 보여 주고, 전체 조회가 끝날 때까지 진행 상태를 표시한다.
         fun loadPage(start: Int, collected: MutableList<Experience>) {
             val call = SeoulCultureRetrofit.apiService.getCultureEvents(BuildConfig.SEOUL_API_KEY, start, start + API_PAGE_SIZE - 1)
             activeCall = call
@@ -135,13 +136,14 @@ class ExperienceListFragment : Fragment(R.layout.fragment_experience_list) {
                         return
                     }
                     collected.addAll(data.row.map { it.toExperience() }.filter { isSuitableForAge5To8(it.targetAge) })
+                    candidates = collected.distinctBy { listOf(it.title, it.location, it.date) }
+                    adapter.updateData(candidates)
+                    status.text = "체험·행사를 불러오는 중이에요… (${candidates.size}개 표시)"
                     val next = start + data.row.size
                     if (next <= data.list_total_count && data.row.isNotEmpty()) {
                         loadPage(next, collected)
                     } else {
                         loading = false
-                        candidates = collected.distinctBy { listOf(it.title, it.location, it.date) }
-                        adapter.updateData(candidates)
                         similar.isEnabled = true
                         showResultCount()
                     }
@@ -153,6 +155,8 @@ class ExperienceListFragment : Fragment(R.layout.fragment_experience_list) {
         }
         fun loadEvents() {
             activeCall?.cancel()
+            candidates = emptyList()
+            adapter.updateData(candidates)
             loading = true
             failed = false
             similar.isEnabled = false

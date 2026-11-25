@@ -189,13 +189,6 @@
         android:textSize="12sp" />
 
     <Button
-        android:id="@+id/buttonUploadLocalPosts"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="20dp"
-        android:text="@string/community_upload_local" />
-
-    <Button
         android:id="@+id/btnWrite"
         android:layout_width="match_parent"
         android:layout_height="52dp"

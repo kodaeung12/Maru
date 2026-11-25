@@ -219,7 +219,6 @@
     <string name="reviews_rating">리뷰 별점</string>
     <string name="reviews_hint">직접 경험한 행사 후기를 작성해 주세요</string>
     <string name="reviews_save">내 리뷰 저장·수정</string>
-    <string name="community_upload_local">내 기기 글 온라인으로 올리기</string>
     <string name="favorite_add">즐겨찾기에 저장</string>
     <string name="favorite_remove">즐겨찾기에서 해제</string>
     <string name="favorites_loading">즐겨찾기를 불러오는 중이에요…</string>

@@ -9,7 +9,11 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.firebase.auth.FirebaseAuth
+import com.project.maru.MyApplication.Companion.auth
+import com.project.maru.MyApplication.Companion.db
+import com.google.firebase.firestore.Source
+import com.project.maru.community.CommunityFirestore
+import com.project.maru.community.CommunityPost
 import com.project.maru.community.CommunityRepository
 import com.project.maru.community.CommunityDetailActivity
 import com.project.maru.community.CommunityPostAdapter
@@ -20,13 +24,14 @@ class MyPageFragment : Fragment(R.layout.fragment_mypage) {
     private val binding get() = requireNotNull(_binding)
     private lateinit var adapter: CommunityPostAdapter
     private var selectedTab = TAB_POSTS
+    private var loadNumber = 0
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentMypageBinding.bind(view)
 
-        val user = FirebaseAuth.getInstance().currentUser
-        val currentUserId = user?.uid ?: "local"
+        val user = auth.currentUser
+        val currentUserId = user?.uid ?: ""
         binding.tvProfileName.text = user?.displayName?.takeIf { it.isNotBlank() }
             ?: user?.email?.substringBefore("@")
             ?: "마루맘"
@@ -49,12 +54,12 @@ class MyPageFragment : Fragment(R.layout.fragment_mypage) {
             findNavController().navigate(R.id.action_myPage_to_myInfo)
         }
         binding.buttonLogoutFromHome.setOnClickListener {
-            FirebaseAuth.getInstance().signOut()
+            auth.signOut()
             startActivity(Intent(requireContext(), LoginActivity::class.java))
             requireActivity().finish()
         }
 
-        selectTab(TAB_POSTS)
+        selectTab(TAB_POSTS, false)
     }
 
     override fun onResume() {
@@ -70,7 +75,8 @@ class MyPageFragment : Fragment(R.layout.fragment_mypage) {
         super.onDestroyView()
     }
 
-    private fun selectTab(tab: String) {
+    private fun selectTab(tab: String, loadPosts: Boolean = true) {
+        loadNumber++
         selectedTab = tab
         val tabs = listOf(
             binding.tabMyPosts to TAB_POSTS,
@@ -91,32 +97,56 @@ class MyPageFragment : Fragment(R.layout.fragment_mypage) {
         }
 
         when (tab) {
-            TAB_POSTS -> loadMyPosts()
+            TAB_POSTS -> if (loadPosts) loadMyPosts()
             TAB_SAVED -> showEmpty(getString(R.string.mypage_empty_saved))
             TAB_COMMENTS -> showEmpty(getString(R.string.mypage_empty_comments))
         }
     }
 
     private fun loadMyPosts() {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: run {
-            showEmpty("로그인 후 내 글을 볼 수 있어요.")
+        val currentBinding = _binding ?: return
+        loadNumber++
+        val requestNumber = loadNumber
+        val userId = auth.currentUser?.uid
+        if (userId == null) {
+            showEmpty("로그인 후 내 글을 확인해 주세요.")
             return
         }
-        binding.layoutMyPageEmpty.visibility = View.GONE
-        binding.tvMyPageStatus.text = "내 온라인 게시글을 불러오는 중…"
-        CommunityRepository.loadPosts(userId).addOnCompleteListener { task ->
-            val currentBinding = _binding ?: return@addOnCompleteListener
-            if (selectedTab != TAB_POSTS) return@addOnCompleteListener
-            if (!task.isSuccessful) {
-                showEmpty("내 글을 불러오지 못했어요. 연결 상태를 확인해 주세요.")
-                return@addOnCompleteListener
+        adapter.submitList(emptyList())
+        currentBinding.layoutMyPageEmpty.visibility = View.GONE
+        currentBinding.tvMyPageStatus.text = "게시글을 불러오는 중…"
+
+        // 수업 예제처럼 get -> toObject -> Adapter 갱신 순서로 조회한다.
+        db.collection(CommunityFirestore.POSTS)
+            .whereEqualTo("ownerId", userId)
+            .get(Source.SERVER)
+            .addOnSuccessListener { snapshot ->
+                if (_binding !== currentBinding || selectedTab != TAB_POSTS ||
+                    requestNumber != loadNumber || auth.currentUser?.uid != userId) return@addOnSuccessListener
+                try {
+                    val posts = mutableListOf<CommunityPost>()
+                    for (document in snapshot) {
+                        val post = CommunityRepository.readPost(document)
+                        post.id = document.id
+                        posts.add(post)
+                    }
+                    // 내 글만 받은 뒤 최신순 정렬: 별도의 복합 색인이 필요하지 않다.
+                    posts.sortByDescending { it.createdAt }
+                    adapter.submitList(posts)
+                    currentBinding.layoutMyPageEmpty.visibility =
+                        if (posts.isEmpty()) View.VISIBLE else View.GONE
+                    currentBinding.tvMyPageEmpty.text = getString(R.string.mypage_empty_posts)
+                    currentBinding.tvMyPageStatus.text =
+                        if (posts.isEmpty()) "" else "내가 작성한 글 ${posts.size}개"
+                } catch (error: Exception) {
+                    showEmpty(CommunityFirestore.errorMessage(error))
+                }
             }
-            val posts = task.result
-            adapter.submitList(posts)
-            currentBinding.layoutMyPageEmpty.visibility = if (posts.isEmpty()) View.VISIBLE else View.GONE
-            currentBinding.tvMyPageEmpty.text = getString(R.string.mypage_empty_posts)
-            currentBinding.tvMyPageStatus.text = if (posts.isEmpty()) "" else "내가 작성한 글 ${posts.size}개"
-        }
+            .addOnFailureListener { error ->
+                if (_binding !== currentBinding || selectedTab != TAB_POSTS ||
+                    requestNumber != loadNumber || auth.currentUser?.uid != userId) return@addOnFailureListener
+                showEmpty(CommunityFirestore.errorMessage(error))
+            }
     }
 
     private fun showEmpty(message: String) {

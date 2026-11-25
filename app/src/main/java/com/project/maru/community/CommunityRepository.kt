@@ -44,7 +44,7 @@ object CommunityRepository {
                 transaction.set(ref, mapOf(
                     "id" to post.id, "category" to post.category, "title" to post.title,
                     "content" to post.content, "ownerId" to uid, "authorName" to post.authorName.ifBlank { "마루 이용자" }.take(100),
-                    "createdAt" to (post.createdAt.takeIf { it > 0L } ?: System.currentTimeMillis()), "imageKey" to "daily", "deleting" to false
+                    "createdAt" to (post.createdAt.takeIf { it > 0L } ?: System.currentTimeMillis()), "imageKey" to post.imageKey, "deleting" to false
                 ))
             } else {
                 check(existing.getString("ownerId") == uid) { "다른 사용자의 글이에요." }
@@ -53,7 +53,7 @@ object CommunityRepository {
         }
     }
 
-    private fun readPost(document: DocumentSnapshot): CommunityPost = CommunityPost(
+    fun readPost(document: DocumentSnapshot): CommunityPost = CommunityPost(
         id = document.id,
         category = document.getString("category") ?: "육아정보",
         title = document.getString("title").orEmpty(),
@@ -64,6 +64,8 @@ object CommunityRepository {
             is com.google.firebase.Timestamp -> value.toDate().time
             is Number -> value.toLong()
             else -> 0L
-        }
+        },
+        imageKey = document.getString("imageKey") ?: "child",
+        deleting = document.getBoolean("deleting") ?: false
     )
 }

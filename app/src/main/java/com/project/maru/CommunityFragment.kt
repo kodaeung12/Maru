@@ -16,8 +16,9 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.firebase.auth.FirebaseAuth
+import com.project.maru.MyApplication.Companion.auth
 import com.project.maru.community.CommunityDetailActivity
+import com.project.maru.community.CommunityFirestore
 import com.project.maru.community.CommunityPostAdapter
 import com.project.maru.community.CommunityWriteActivity
 import com.project.maru.databinding.FragmentCommunityBinding
@@ -31,7 +32,7 @@ class CommunityFragment : Fragment(R.layout.fragment_community) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentCommunityBinding.bind(view)
 
-        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: "local"
+        val currentUserId = auth.currentUser?.uid ?: ""
         adapter = CommunityPostAdapter(currentUserId) { post ->
             startActivity(Intent(requireContext(), CommunityDetailActivity::class.java).apply {
                 putExtra("postId", post.id)
@@ -41,6 +42,10 @@ class CommunityFragment : Fragment(R.layout.fragment_community) {
         binding.recyclerView.adapter = adapter
 
         binding.btnWrite.setOnClickListener {
+            if (auth.currentUser == null) {
+                Toast.makeText(requireContext(), "로그인 후 글을 작성해 주세요.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             startActivity(Intent(requireContext(), CommunityWriteActivity::class.java))
         }
         binding.btnRefresh.setOnClickListener { loadPosts() }
@@ -93,6 +98,12 @@ class CommunityFragment : Fragment(R.layout.fragment_community) {
 
     private fun loadPosts() {
         val currentBinding = _binding ?: return
+        if (auth.currentUser == null) {
+            currentBinding.tvStatus.text = "로그인 후 커뮤니티를 이용해 주세요."
+            currentBinding.layoutEmpty.visibility = View.GONE
+            adapter.submitList(emptyList())
+            return
+        }
         setButtonsEnabled(false)
         currentBinding.layoutEmpty.visibility = View.GONE
         currentBinding.tvStatus.text = "게시글을 불러오는 중…"
@@ -100,10 +111,10 @@ class CommunityFragment : Fragment(R.layout.fragment_community) {
             if (_binding !== currentBinding) return@loadItems
             setButtonsEnabled(true)
             showCount(count)
-        }, {
+        }, { error ->
             if (_binding !== currentBinding) return@loadItems
             setButtonsEnabled(true)
-            binding.tvStatus.text = "온라인 게시글을 불러오지 못했어요. 인터넷 연결과 로그인 상태를 확인해 주세요."
+            currentBinding.tvStatus.text = CommunityFirestore.errorMessage(error)
         })
     }
 
@@ -111,14 +122,14 @@ class CommunityFragment : Fragment(R.layout.fragment_community) {
         val currentBinding = _binding ?: return
         currentBinding.layoutEmpty.visibility = if (count == 0) View.VISIBLE else View.GONE
         currentBinding.tvStatus.text = if (count == 0) {
-            "등록된 게시글이 없어요. 첫 글을 작성해 보세요."
+            "아직 게시글이 없어요. 첫 글을 작성해 보세요."
         } else {
             "게시글 ${count}개"
         }
     }
 
     private fun offerLocalPostUpload() {
-        val user = FirebaseAuth.getInstance().currentUser ?: return
+        val user = auth.currentUser ?: return
         val currentBinding = _binding ?: return
         val appContext = requireContext().applicationContext
         currentBinding.buttonUploadLocalPosts.isEnabled = false

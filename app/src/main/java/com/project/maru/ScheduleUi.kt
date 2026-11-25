@@ -23,28 +23,37 @@ internal object ScheduleUi {
 
     fun bindHome(fragment: Fragment, view: View) {
         val activity = fragment.requireActivity()
-        val calendar = view.findViewById<CalendarView>(R.id.calendarSchedules)
+        val calendar = view.findViewById<FamilyCalendarView>(R.id.calendarSchedules)
         val rows = view.findViewById<LinearLayout>(R.id.layoutScheduleItems)
-        var selected = LocalDate.now()
+        var selected = calendar.selectedDate
         val render: () -> Unit = {
             val textScheduleDate = view.findViewById<TextView>(R.id.textScheduleDate)
             val dateItems = ScheduleSync.items.filter { it.date == selected }
-            textScheduleDate.text = "${selected} 일정"
+            textScheduleDate.text = selected.format(DateTimeFormatter.ofPattern("M월 d일", java.util.Locale.KOREAN)) + " 일정"
+            calendar.setScheduleDates(ScheduleSync.items.map { it.date }.toSet())
+            val addDescription = "${selected.monthValue}월 ${selected.dayOfMonth}일에 일정 추가"
+            view.findViewById<View>(R.id.buttonAddSelectedDateSchedule).contentDescription = addDescription
             view.findViewById<View>(R.id.viewSelectedDateDot).visibility =
                 if (dateItems.isNotEmpty()) View.VISIBLE else View.GONE
             rows.removeAllViews()
+            if (dateItems.isEmpty() && ScheduleSync.ready && ScheduleSync.error == null) rows.addView(TextView(activity).apply {
+                text = "등록된 일정이 없어요."
+                textSize = 13f
+                setTextColor(android.graphics.Color.rgb(156,144,151))
+                setPadding(dp(activity,12), dp(activity,16), dp(activity,12), dp(activity,16))
+            })
             dateItems.forEach { item ->
                 val row = LinearLayout(activity).apply {
                     orientation = LinearLayout.HORIZONTAL
                     gravity = android.view.Gravity.CENTER_VERTICAL
                     setPadding(dp(activity, 12), dp(activity, 10), dp(activity, 12), dp(activity, 10))
-                    background = androidx.core.content.ContextCompat.getDrawable(activity, R.drawable.bg_mypage_profile)
+                    background = androidx.core.content.ContextCompat.getDrawable(activity, R.drawable.bg_calendar_agenda)
                     isClickable = true
                     isFocusable = true
                     setOnClickListener { showEditor(activity, item = item) }
                 }
                 row.addView(View(activity).apply {
-                    background = androidx.core.content.ContextCompat.getDrawable(activity, R.drawable.bg_red_dot)
+                    background = androidx.core.content.ContextCompat.getDrawable(activity, R.drawable.bg_calendar_dot)
                 }, LinearLayout.LayoutParams(dp(activity, 8), dp(activity, 8)))
                 val textColumn = LinearLayout(activity).apply {
                     orientation = LinearLayout.VERTICAL
@@ -57,7 +66,7 @@ internal object ScheduleUi {
                     setTypeface(typeface, android.graphics.Typeface.BOLD)
                 })
                 textColumn.addView(TextView(activity).apply {
-                    text = reminderLabel(item.reminderMinutes)
+                    text = listOf(item.note.takeIf { it.isNotBlank() }, reminderLabel(item.reminderMinutes)).filterNotNull().joinToString(" · ")
                     setTextColor(android.graphics.Color.rgb(135, 128, 126))
                     textSize = 12f
                     setPadding(0, dp(activity, 3), 0, 0)
@@ -85,12 +94,8 @@ internal object ScheduleUi {
                 else -> stateText.visibility = View.GONE
             }
         }
-        calendar.setOnDateChangeListener { _, y, m, d -> selected = LocalDate.of(y,m+1,d); render() }
-        view.findViewById<View>(R.id.buttonAddSchedule).setOnClickListener { showEditor(activity, selected) }
-        view.findViewById<Button>(R.id.buttonToggleCalendar).setOnClickListener {
-            calendar.visibility = if(calendar.visibility == View.VISIBLE) View.GONE else View.VISIBLE
-            (it as Button).text = if(calendar.visibility == View.VISIBLE) "달력 접기" else "달력 펼치기"
-        }
+        calendar.onDateSelected = { date -> selected = date; render() }
+        view.findViewById<View>(R.id.buttonAddSelectedDateSchedule).setOnClickListener { showEditor(activity, selected) }
         view.findViewById<View>(R.id.btnBell).setOnClickListener { showNotifications(activity) }
         fragment.viewLifecycleOwner.lifecycle.addObserver(object: DefaultLifecycleObserver {
             override fun onStart(owner: LifecycleOwner) { ScheduleSync.subscribe(render) }

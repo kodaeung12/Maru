@@ -37,7 +37,7 @@ class CommunityWriteActivity : AppCompatActivity() {
 
         val categories = resources.getStringArray(R.array.community_categories)
         val aadapter = ArrayAdapter(this, R.layout.community_spinner_item, categories)
-        aadapter.setDropDownViewResource(R.layout.community_spinner_dropdown)
+        aadapter.setDropDownViewResource(R.layout.community_spinner_item)
         binding.spinnerCategory.adapter = aadapter
         binding.spinnerCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) { updatePreview() }

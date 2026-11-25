@@ -108,13 +108,13 @@
                         android:contentDescription="@string/notification"
                         android:padding="10dp"
                         android:scaleType="fitCenter"
-                        android:src="@drawable/ic_bell_selector" />
+                        android:src="@drawable/community_ic_bell" />
 
-                    <!-- 알림 켜짐 표시 빨간 점 -->
+                        <!-- 알림 켜짐 표시 빨간 점 -->
                     <View
                         android:id="@+id/viewBellDot"
                         android:layout_width="8dp"
-                        android:layout_height="8dp"
+                        android:layout_height="5dp"
                         android:layout_gravity="top|end"
                         android:layout_marginTop="10dp"
                         android:layout_marginEnd="12dp"
@@ -287,17 +287,20 @@
         </LinearLayout>
 
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp" android:layout_margin="16dp" android:background="@drawable/bg_round_20">
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
-                <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="우리 가족 일정" android:textSize="20sp" android:textStyle="bold" android:textColor="#292929" />
-                <Button android:id="@+id/buttonAddSchedule" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="+ 일정" />
-            </LinearLayout>
-            <Button android:id="@+id/buttonToggleCalendar" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="달력 접기" />
-            <CalendarView android:id="@+id/calendarSchedules" android:layout_width="match_parent" android:layout_height="320dp" />
+
+            <com.project.maru.FamilyCalendarView android:id="@+id/calendarSchedules" android:layout_width="match_parent" android:layout_height="wrap_content" />
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center_vertical" android:orientation="horizontal">
-                <View android:id="@+id/viewSelectedDateDot" android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/bg_red_dot" android:visibility="gone" />
-                <TextView android:id="@+id/textScheduleDate" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:textSize="16sp" android:textStyle="bold" />
+                <View android:id="@+id/viewSelectedDateDot" android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/bg_calendar_dot" android:visibility="gone" />
+                <TextView android:id="@+id/textScheduleDate" android:layout_width="0dp" android:layout_weight="1" android:maxLines="1" android:ellipsize="end" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:textSize="16sp" android:textStyle="bold" />
+                <TextView android:id="@+id/buttonAddSelectedDateSchedule"
+                    android:layout_width="wrap_content" android:layout_height="48dp"
+                    android:gravity="center" android:paddingStart="10dp" android:paddingEnd="2dp"
+                    android:text="＋ 일정 추가" android:textSize="13sp" android:textColor="#D65F82"
+                    android:clickable="true" android:focusable="true"
+                    android:background="?attr/selectableItemBackground" />
             </LinearLayout>
             <LinearLayout android:id="@+id/layoutScheduleItems" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
+
             <TextView android:id="@+id/textScheduleState" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="13sp" />
         </LinearLayout>
 
@@ -517,63 +520,29 @@
             </LinearLayout>
         </HorizontalScrollView>
 
-        <!-- ============ 6. 준비물과 안전수칙 배너 ============ -->
+        <!-- 최신 커뮤니티 글 -->
         <LinearLayout
-            android:id="@+id/bannerSafety"
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:background="@drawable/bg_round_20"
-            android:backgroundTint="@color/safety_bg"
-            android:clickable="true"
-            android:focusable="true"
-            android:foreground="?attr/selectableItemBackground"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingStart="14dp"
-            android:paddingEnd="14dp">
-
-            <ImageView
-                android:layout_width="42dp"
-                android:layout_height="42dp"
-                android:importantForAccessibility="no"
-                android:src="@drawable/ic_shield" />
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/safety_small"
-                    android:textColor="@color/safety_blue"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:lineSpacingExtra="2sp"
-                    android:text="@string/safety_title"
-                    android:textColor="@color/text_dark"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp" android:layout_marginTop="16dp"
+            android:padding="16dp" android:orientation="vertical"
+            android:background="@drawable/bg_round_20">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
+                <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                    android:text="@string/home_community_title" android:textSize="20sp" android:textStyle="bold" android:textColor="@color/text_dark" />
+                <TextView android:id="@+id/buttonMoreHomeCommunity" android:layout_width="wrap_content" android:layout_height="48dp"
+                    android:gravity="center" android:paddingHorizontal="8dp" android:text="@string/home_community_more"
+                    android:textColor="@color/maru_pink" android:clickable="true" android:focusable="true"
+                    android:background="?attr/selectableItemBackground" />
             </LinearLayout>
-
-            <ImageView
-                android:layout_width="92dp"
-                android:layout_height="60dp"
-                android:importantForAccessibility="no"
-                android:src="@drawable/img_checklist" />
-
-            <ImageView
-                android:id="@+id/btnSafetyArrow"
-                style="@style/ArrowCircle" />
+            <TextView android:id="@+id/textHomeCommunityStatus" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:paddingVertical="12dp" android:text="@string/home_community_loading" android:textColor="@color/text_sub" />
+            <Button android:id="@+id/buttonRetryHomeCommunity" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:visibility="gone" android:text="@string/home_community_retry" />
+            <HorizontalScrollView android:id="@+id/scrollHomeCommunityPosts"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:scrollbars="none" android:clipToPadding="false" android:paddingVertical="8dp">
+                <LinearLayout android:id="@+id/layoutHomeCommunityPosts" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" />
+            </HorizontalScrollView>
         </LinearLayout>
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

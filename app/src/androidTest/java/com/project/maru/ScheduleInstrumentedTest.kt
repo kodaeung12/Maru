@@ -24,13 +24,21 @@ import java.util.concurrent.TimeUnit
 
 @RunWith(AndroidJUnit4::class)
 class ScheduleInstrumentedTest {
-    @Test fun homeBellOpensSchedulesAndCalendarCanCollapse() {
+    @Test fun homeBellOpensSchedulesAndCalendarSupportsMonthNavigation() {
         ActivityScenario.launch(HomeActivity::class.java).use { scenario ->
             scenario.onActivity { activity ->
-                val calendar=activity.findViewById<CalendarView>(R.id.calendarSchedules)
+                val calendar=activity.findViewById<FamilyCalendarView>(R.id.calendarSchedules)
                 assertEquals(View.VISIBLE,calendar.visibility)
-                activity.findViewById<View>(R.id.buttonToggleCalendar).performClick()
-                assertEquals(View.GONE,calendar.visibility)
+                val today=java.time.LocalDate.now()
+                calendar.selectDate(java.time.LocalDate.of(2028,1,31))
+                calendar.findViewWithTag<View>("calendar-next").performClick()
+                assertEquals(java.time.LocalDate.of(2028,2,29),calendar.selectedDate)
+                calendar.setScheduleDates(setOf(calendar.selectedDate))
+                assertNotNull(calendar.findViewWithTag<View>("calendar-dot-2028-02-29"))
+                assertNull(calendar.findViewWithTag<View>("calendar-today"))
+                assertNotNull(calendar.findViewWithTag<View>("calendar-title"))
+                calendar.selectDate(today)
+                assertEquals(today,calendar.selectedDate)
                 activity.findViewById<View>(R.id.btnBell).performClick()
             }
             onView(withText("다가오는 일정")).check(matches(isDisplayed()))

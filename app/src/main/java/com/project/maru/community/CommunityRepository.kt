@@ -19,6 +19,25 @@ object CommunityRepository {
         }
     }
 
+    // 삭제 중인 글은 건너뛰고 최신 공개 글 네 개를 채운다. 별도 복합 색인은 필요 없다.
+    fun loadLatestPosts(): Task<List<CommunityPost>> {
+        fun page(after: DocumentSnapshot?, collected: List<CommunityPost>): Task<List<CommunityPost>> {
+            var query = posts.orderBy("createdAt", com.google.firebase.firestore.Query.Direction.DESCENDING).limit(12)
+            if (after != null) query = query.startAfter(after)
+            return query.get(Source.SERVER).continueWithTask { task ->
+                if (!task.isSuccessful) {
+                    com.google.android.gms.tasks.Tasks.forException(task.exception ?: IllegalStateException("게시글 조회 실패"))
+                } else {
+                    val documents = task.result.documents
+                    val latest = collected + documents.filter { it.getBoolean("deleting") != true }.map(::readPost)
+                    if (latest.size >= 4 || documents.size < 12) com.google.android.gms.tasks.Tasks.forResult(latest.take(4))
+                    else page(documents.last(), latest)
+                }
+            }
+        }
+        return page(null, emptyList())
+    }
+
     fun loadPost(id: String): Task<CommunityPost?> = posts.document(id).get(Source.SERVER)
         .continueWith { task ->
             val document = task.result

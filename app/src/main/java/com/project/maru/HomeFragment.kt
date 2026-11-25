@@ -81,8 +81,61 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             }
         }
 
-        // ---------- 준비물과 안전수칙 (>) → 준비물과 안전수칙 ----------
-        view.findViewById<View>(R.id.bannerSafety).setOnClickListener { nav.navigate(R.id.action_home_to_safety) }
-        view.findViewById<View>(R.id.btnSafetyArrow).setOnClickListener { nav.navigate(R.id.action_home_to_safety) }
+        bindCommunityPreview(view)
+    }
+
+    private fun bindCommunityPreview(view: View) {
+        val rows = view.findViewById<android.widget.LinearLayout>(R.id.layoutHomeCommunityPosts)
+        val status = view.findViewById<TextView>(R.id.textHomeCommunityStatus)
+        val retry = view.findViewById<View>(R.id.buttonRetryHomeCommunity)
+        val auth = com.google.firebase.auth.FirebaseAuth.getInstance()
+        var requestNumber = 0
+        fun load() {
+            val request = ++requestNumber
+            rows.removeAllViews()
+            retry.visibility = View.GONE
+            status.visibility = View.VISIBLE
+            val uid = auth.currentUser?.uid
+            if (uid == null) {
+                status.setText(R.string.home_community_signin)
+                return
+            }
+            status.setText(R.string.home_community_loading)
+            com.project.maru.community.CommunityRepository.loadLatestPosts().addOnCompleteListener { task ->
+                if (request != requestNumber || this.view !== view || auth.currentUser?.uid != uid) return@addOnCompleteListener
+                if (!task.isSuccessful) {
+                    status.setText(R.string.home_community_failed)
+                    retry.visibility = View.VISIBLE
+                    return@addOnCompleteListener
+                }
+                val posts = task.result
+                status.visibility = if (posts.isEmpty()) View.VISIBLE else View.GONE
+                status.setText(R.string.home_community_empty)
+                val dateFormat = java.text.SimpleDateFormat("yyyy.MM.dd HH:mm", java.util.Locale.KOREA)
+                posts.forEach { post ->
+                    val row = layoutInflater.inflate(R.layout.item_home_community_post, rows, false)
+                    row.findViewById<TextView>(R.id.textHomePostCategory).text = post.category
+                    row.findViewById<TextView>(R.id.textHomePostTitle).text = post.title
+                    row.findViewById<TextView>(R.id.textHomePostTime).text = dateFormat.format(java.util.Date(post.createdAt))
+                    row.setOnClickListener {
+                        startActivity(android.content.Intent(requireContext(), com.project.maru.community.CommunityDetailActivity::class.java)
+                            .putExtra("postId", post.id))
+                    }
+                    rows.addView(row)
+                }
+            }
+        }
+        retry.setOnClickListener { load() }
+        view.findViewById<View>(R.id.buttonMoreHomeCommunity).setOnClickListener {
+            findNavController().navigate(R.id.communityFragment)
+        }
+        val authListener = com.google.firebase.auth.FirebaseAuth.AuthStateListener { load() }
+        viewLifecycleOwner.lifecycle.addObserver(object : androidx.lifecycle.DefaultLifecycleObserver {
+            override fun onResume(owner: androidx.lifecycle.LifecycleOwner) { auth.addAuthStateListener(authListener) }
+            override fun onPause(owner: androidx.lifecycle.LifecycleOwner) {
+                auth.removeAuthStateListener(authListener)
+                requestNumber++
+            }
+        })
     }
 }

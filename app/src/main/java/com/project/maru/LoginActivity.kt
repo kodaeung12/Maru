@@ -80,30 +80,8 @@ class LoginActivity : AppCompatActivity() {
             showAuthChoiceScreen()
             toast(getString(R.string.logged_out))
         }
-        // 기존 Google 버튼의 준비 중 상태를 유지한다.
-        binding.btnGoogleLogin.setOnClickListener { toast(getString(R.string.google_login_pending)) }
-        showInitialScreen()
-    }
-
-    private fun showInitialScreen() {
-        val user = auth.currentUser
-        if (user == null) {
-            showAuthChoiceScreen()
-            return
-        }
-        setButtonsEnabled(false)
-        // 저장된 인증 상태 대신 서버에서 이메일 인증 상태를 새로 확인한다.
-        user.reload().addOnCompleteListener(this) { task ->
-            setButtonsEnabled(true)
-            val refreshedUser = auth.currentUser
-            if (task.isSuccessful && refreshedUser != null && refreshedUser.isEmailVerified) {
-                showHomeScreen()
-            } else {
-                auth.signOut()
-                showAuthChoiceScreen()
-                if (!task.isSuccessful) showError(task.exception)
-            }
-        }
+        // Automatic session verification is handled once by MainActivity.
+        showAuthChoiceScreen()
     }
 
     private fun createEmailAccount() {
@@ -454,7 +432,7 @@ class LoginActivity : AppCompatActivity() {
 
     private fun setButtonsEnabled(enabled: Boolean) {
         busy = !enabled
-        listOf(binding.buttonLogin, binding.btnGoogleLogin, binding.buttonGoSignup,
+        listOf(binding.buttonLogin, binding.buttonGoSignup,
             binding.buttonSignup, binding.buttonBackLogin, binding.buttonSignupComplete,
             binding.buttonChildAdd, binding.buttonChildBack, binding.buttonLogout,
             binding.buttonChildBasicNext, binding.buttonChildBasicBack, binding.buttonChildBirthDate,

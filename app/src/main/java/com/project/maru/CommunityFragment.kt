@@ -32,6 +32,7 @@ class CommunityFragment : Fragment(R.layout.fragment_community) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentCommunityBinding.bind(view)
+        ScheduleUi.bindBellBadge(this, binding.viewBellDot)
 
         val currentUserId = auth.currentUser?.uid ?: ""
         adapter = CommunityPostAdapter(currentUserId) { post ->

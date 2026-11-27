@@ -34,6 +34,14 @@
                     android:contentDescription="알림"
                     android:padding="11dp"
                     android:src="@drawable/community_ic_bell" />
+                <View
+                    android:id="@+id/viewBellDot"
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginStart="30dp"
+                    android:background="@drawable/bg_red_dot"
+                    android:visibility="gone" />
                 <TextView
                     android:id="@+id/tvUnread"
                     android:layout_width="wrap_content"

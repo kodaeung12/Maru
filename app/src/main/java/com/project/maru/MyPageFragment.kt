@@ -29,6 +29,7 @@ class MyPageFragment : Fragment(R.layout.fragment_mypage) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentMypageBinding.bind(view)
+        ScheduleUi.bindBellBadge(this, binding.viewBellDot)
 
         val user = auth.currentUser
         val currentUserId = user?.uid ?: ""
@@ -50,13 +51,11 @@ class MyPageFragment : Fragment(R.layout.fragment_mypage) {
         binding.btnNotification.setOnClickListener {
             ScheduleUi.showNotifications(requireActivity())
         }
-        binding.btnSettings.setOnClickListener {
+        binding.tvProfileName.setOnClickListener {
             findNavController().navigate(R.id.action_myPage_to_myInfo)
         }
-        binding.buttonLogoutFromHome.setOnClickListener {
-            auth.signOut()
-            startActivity(Intent(requireContext(), LoginActivity::class.java))
-            requireActivity().finish()
+        binding.btnSettings.setOnClickListener {
+            findNavController().navigate(R.id.settingsFragment)
         }
 
         selectTab(TAB_POSTS, false)

@@ -30,14 +30,29 @@
             android:padding="11dp"
             android:src="@drawable/ic_settings" />
 
-        <ImageButton
-            android:id="@+id/btnNotification"
+        <FrameLayout
             android:layout_width="42dp"
-            android:layout_height="42dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/notification"
-            android:padding="11dp"
-            android:src="@drawable/community_ic_bell" />
+            android:layout_height="42dp">
+
+            <ImageButton
+                android:id="@+id/btnNotification"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/notification"
+                android:padding="11dp"
+                android:src="@drawable/community_ic_bell" />
+
+            <View
+                android:id="@+id/viewBellDot"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:layout_gravity="top|end"
+                android:layout_marginTop="7dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/bg_red_dot"
+                android:visibility="gone" />
+        </FrameLayout>
     </LinearLayout>
 
     <LinearLayout
@@ -90,17 +105,7 @@
                 android:textSize="11sp" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/buttonLogoutFromHome"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:background="?attr/selectableItemBackground"
-            android:gravity="center"
-            android:paddingStart="8dp"
-            android:paddingEnd="4dp"
-            android:text="@string/logout"
-            android:textColor="#9B9290"
-            android:textSize="11sp" />
+
     </LinearLayout>
 
     <LinearLayout

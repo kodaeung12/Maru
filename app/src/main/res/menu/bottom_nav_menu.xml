@@ -14,6 +14,11 @@
         android:title="@string/title_experience" />
 
     <item
+        android:id="@+id/ageEduFragment"
+        android:icon="@drawable/ic_menu_book"
+        android:title="@string/title_education" />
+
+    <item
         android:id="@+id/communityFragment"
         android:icon="@drawable/ic_edit"
         android:title="@string/title_community" />

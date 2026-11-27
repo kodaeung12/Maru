@@ -64,6 +64,12 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun handleHomeRequest(intent: Intent) {
+        val destinationId = intent.getIntExtra(EXTRA_NAV_DESTINATION, INVALID_DESTINATION)
+        if (destinationId != INVALID_DESTINATION) {
+            intent.removeExtra(EXTRA_NAV_DESTINATION)
+            navController.showDestination(destinationId)
+            return
+        }
         if (intent.getBooleanExtra(EXTRA_SHOW_HOME, false)) {
             intent.removeExtra(EXTRA_SHOW_HOME)
             navController.showHome()
@@ -72,16 +78,33 @@ class HomeActivity : AppCompatActivity() {
 
     companion object {
         private const val EXTRA_SHOW_HOME = "com.project.maru.SHOW_HOME"
+        private const val EXTRA_NAV_DESTINATION = "com.project.maru.NAV_DESTINATION"
+        private const val INVALID_DESTINATION = -1
 
         internal fun homeIntent(context: Context): Intent = Intent(context, HomeActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
             .putExtra(EXTRA_SHOW_HOME, true)
+
+        internal fun sectionIntent(context: Context, destinationId: Int): Intent =
+            Intent(context, HomeActivity::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                .putExtra(EXTRA_NAV_DESTINATION, destinationId)
     }
 }
 
 internal fun NavController.showHome() {
     if (currentDestination?.id != R.id.homeFragment && !popBackStack(R.id.homeFragment, false)) {
         navigate(R.id.homeFragment, null, navOptions {
+            launchSingleTop = true
+            popUpTo(graph.id)
+        })
+    }
+}
+
+internal fun NavController.showDestination(destinationId: Int) {
+    if (currentDestination?.id == destinationId) return
+    if (!popBackStack(destinationId, false)) {
+        navigate(destinationId, null, navOptions {
             launchSingleTop = true
             popUpTo(graph.id)
         })

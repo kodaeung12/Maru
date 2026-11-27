@@ -303,19 +303,22 @@ class DetailActivity : AppCompatActivity() {
         }
     }
 
-    // 하단 네비게이션 바 (홈 / 검색 / 커뮤니티 / 마이페이지)
-    // TODO: 병합할 때 각 화면 Activity가 생기면 showPreparing() 대신 startActivity(...)로 바꾸기
-    //       예) startActivity(Intent(this, HomeActivity::class.java))
+    // 하단 메뉴에서 홈을 누르면 앱의 실제 홈 화면으로 돌아간다.
     private fun setupBottomNav() {
-        findViewById<View>(R.id.navHome).setOnClickListener { showPreparing() }
+        findViewById<View>(R.id.navHome).setOnClickListener {
+            startActivity(HomeActivity.homeIntent(this))
+        }
         findViewById<View>(R.id.navEvent).setOnClickListener {
             finish()   // 체험·행사 목록에서 들어왔으므로 닫으면 목록 화면으로 돌아감
         }
-        findViewById<View>(R.id.navCommunity).setOnClickListener { showPreparing() }
-        findViewById<View>(R.id.navMypage).setOnClickListener { showPreparing() }
-    }
-
-    private fun showPreparing() {
-        Toast.makeText(this, "준비 중인 화면입니다.", Toast.LENGTH_SHORT).show()
+        findViewById<View>(R.id.navStudy).setOnClickListener {
+            startActivity(HomeActivity.sectionIntent(this, R.id.ageEduFragment))
+        }
+        findViewById<View>(R.id.navCommunity).setOnClickListener {
+            startActivity(HomeActivity.sectionIntent(this, R.id.communityFragment))
+        }
+        findViewById<View>(R.id.navMypage).setOnClickListener {
+            startActivity(HomeActivity.sectionIntent(this, R.id.myPageFragment))
+        }
     }
 }

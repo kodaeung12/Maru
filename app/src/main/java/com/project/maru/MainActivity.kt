@@ -1,8 +1,6 @@
 package com.project.maru
 
 import android.content.Intent
-import android.os.Handler
-import android.os.Looper
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
@@ -14,6 +12,9 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.viewpager2.widget.ViewPager2
 
 class MainActivity : AppCompatActivity() {
+    private var onboardingShown = false
+    private var navigating = false
+    private var checkingSession = false
 
     private val preferences by lazy {
         getSharedPreferences(PREFERENCES_NAME, MODE_PRIVATE)
@@ -24,16 +25,47 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_splash)
 
-        Handler(Looper.getMainLooper()).postDelayed({
-            if (preferences.getBoolean(KEY_ONBOARDING_COMPLETED, false)) {
-                showLoginScreen()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (!onboardingShown && !navigating) checkInitialDestination()
+    }
+
+    override fun onStop() {
+        checkingSession = false
+        super.onStop()
+    }
+
+    private fun checkInitialDestination() {
+        if (checkingSession || navigating) return
+        val auth = com.google.firebase.auth.FirebaseAuth.getInstance()
+        val user = auth.currentUser
+        if (user == null) {
+            if (preferences.getBoolean(KEY_ONBOARDING_COMPLETED, false)) showLoginScreen()
+            else showOnboarding()
+            return
+        }
+        checkingSession = true
+        findViewById<View>(R.id.layoutSessionLoading).visibility = View.VISIBLE
+        user.reload().addOnCompleteListener(this) { task ->
+            checkingSession = false
+            if (navigating || isFinishing || isDestroyed) return@addOnCompleteListener
+            val refreshedUser = auth.currentUser
+            if (task.isSuccessful && refreshedUser?.uid == user.uid && refreshedUser.isEmailVerified) {
+                navigating = true
+                startActivity(Intent(this, HomeActivity::class.java))
+                finish()
             } else {
-                showOnboarding()
+                auth.signOut()
+                showLoginScreen()
+                if (!task.isSuccessful) android.widget.Toast.makeText(this,"로그인 상태를 확인하지 못했어요. 다시 로그인해 주세요.",android.widget.Toast.LENGTH_LONG).show()
             }
-        }, SPLASH_DURATION_MS)
+        }
     }
 
     private fun showOnboarding() {
+        onboardingShown = true
         setContentView(R.layout.activity_main)
         applySystemBarInsets(R.id.main)
 
@@ -86,7 +118,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showLoginScreen() {
-        // 로그인 화면으로 이동하여 실제 계정 인증을 진행
+        if (navigating) return
+        navigating = true
         startActivity(Intent(this, LoginActivity::class.java))
         finish()
     }
@@ -102,6 +135,5 @@ class MainActivity : AppCompatActivity() {
     companion object {
         private const val PREFERENCES_NAME = "maru_preferences"
         private const val KEY_ONBOARDING_COMPLETED = "onboarding_completed"
-        private const val SPLASH_DURATION_MS = 900L
     }
 }

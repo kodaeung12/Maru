@@ -32,6 +32,13 @@
             android:visibility="gone" />
     </LinearLayout>
     <TextView
+        android:id="@+id/tvChildAge"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="11sp"
+        android:textColor="@color/community_muted"
+        android:visibility="gone" />
+    <TextView
         android:id="@+id/tvContent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

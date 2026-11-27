@@ -210,6 +210,11 @@
                         android:ellipsize="end" />
                 </LinearLayout>
             </LinearLayout>
+            <Spinner
+                android:id="@+id/spinnerChildAge"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:contentDescription="공개할 자녀 나이 선택" />
             <TextView
                 android:id="@+id/tvStatus"
                 android:layout_width="match_parent"

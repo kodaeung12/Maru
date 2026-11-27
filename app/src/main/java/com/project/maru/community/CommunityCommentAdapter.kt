@@ -16,6 +16,8 @@ class CommunityCommentViewHolder(
 ) : RecyclerView.ViewHolder(binding.root) {
     fun bind(item: CommunityComment) = with(binding) {
         tvAuthor.text = if (item.authorName.isBlank()) "마루 이용자" else item.authorName
+        tvChildAge.visibility = if (item.childAge >= 0) View.VISIBLE else View.GONE
+        tvChildAge.text = "만 ${item.childAge}세 자녀"
         tvContent.text = item.content
         tvDate.text = SimpleDateFormat("yyyy.MM.dd HH:mm", Locale.KOREA).format(Date(item.createdAt))
         btnDelete.visibility = if (currentUser.isNotBlank() && item.ownerId == currentUser) View.VISIBLE else View.GONE

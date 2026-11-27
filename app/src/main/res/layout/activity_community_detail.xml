@@ -28,9 +28,14 @@
             android:textSize="17sp"
             android:textStyle="bold"
             android:textColor="@color/community_ink" />
-        <Space
+        <ImageButton
+            android:id="@+id/btnMore"
             android:layout_width="48dp"
-            android:layout_height="1dp" />
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="게시글 더보기"
+                android:padding="14dp"
+                android:src="@drawable/community_ic_more" />
     </LinearLayout>
     <TextView
         android:id="@+id/tvStatus"
@@ -91,6 +96,27 @@
                 android:layout_marginTop="5dp"
                 android:textSize="12sp"
                 android:textColor="@color/community_muted" />
+            <TextView
+                android:id="@+id/tvChildAge"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/community_muted"
+                android:textSize="12sp"
+                android:visibility="gone" />
+            <TextView
+                android:id="@+id/tvStats"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="8dp"
+                android:textColor="@color/community_muted"
+                android:textSize="12sp" />
+            <Button
+                android:id="@+id/btnLike"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:text="♡ 공감"
+                android:textColor="@color/community_pink"
+                android:backgroundTint="@color/community_soft" />
             <LinearLayout
                 android:id="@+id/ownerActions"
                 android:layout_width="match_parent"
@@ -175,6 +201,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:nestedScrollingEnabled="false" />
+            <Spinner
+                android:id="@+id/spinnerChildAge"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:contentDescription="공개할 자녀 나이 선택" />
             <EditText
                 android:id="@+id/etComment"
                 android:layout_width="match_parent"

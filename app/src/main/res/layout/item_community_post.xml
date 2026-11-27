@@ -56,11 +56,25 @@
             android:maxLines="1"
             android:ellipsize="end" />
         <TextView
+            android:id="@+id/tvChildAge"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="11sp"
+            android:textColor="@color/community_muted"
+            android:visibility="gone" />
+        <TextView
             android:id="@+id/tvDate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="3dp"
             android:textColor="@color/community_muted"
             android:textSize="11sp" />
+        <TextView
+            android:id="@+id/tvStats"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:textSize="11sp"
+            android:textColor="@color/community_pink" />
     </LinearLayout>
 </LinearLayout>

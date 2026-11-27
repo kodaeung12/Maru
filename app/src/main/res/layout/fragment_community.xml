@@ -1,201 +1,239 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/page_bg"
-    android:orientation="vertical">
-
+    android:layout_height="match_parent">
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:gravity="center_vertical"
-        android:paddingStart="22dp"
-        android:paddingEnd="10dp">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="커뮤니티"
-            android:textColor="@color/text_dark"
-            android:textSize="24sp"
-            android:textStyle="bold" />
-
-        <ImageButton
-            android:id="@+id/btnNotification"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="알림"
-            android:padding="11dp"
-            android:src="@drawable/community_ic_bell" />
-    </LinearLayout>
-
-    <HorizontalScrollView
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:scrollbars="none">
-
+        android:layout_height="match_parent"
+        android:background="@color/page_bg"
+        android:orientation="vertical">
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
             android:gravity="center_vertical"
-            android:paddingStart="18dp"
-            android:paddingEnd="12dp">
-
+            android:paddingStart="22dp"
+            android:paddingEnd="10dp">
             <TextView
-                android:id="@+id/categoryAll"
-                style="@style/CommunityCategoryChip"
-                android:text="전체" />
-
-            <TextView
-                android:id="@+id/categoryParenting"
-                style="@style/CommunityCategoryChip"
-                android:text="육아정보" />
-
-            <TextView
-                android:id="@+id/categoryDaily"
-                style="@style/CommunityCategoryChip"
-                android:text="일상공유" />
-
-            <TextView
-                android:id="@+id/categoryConcern"
-                style="@style/CommunityCategoryChip"
-                android:text="고민상담" />
-
-            <TextView
-                android:id="@+id/categoryLocal"
-                style="@style/CommunityCategoryChip"
-                android:text="지역정보" />
-        </LinearLayout>
-    </HorizontalScrollView>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="112dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="20dp"
-        android:background="@drawable/community_banner"
-        android:gravity="center_vertical"
-        android:orientation="vertical"
-        android:paddingStart="20dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="함께 나누는 소중한 이야기"
-            android:textColor="@color/text_dark"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:text="마루 부모님들과 이야기를 나눠보세요"
-            android:textColor="@color/text_sub"
-            android:textSize="12sp" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:gravity="center_vertical"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="최근 게시글"
-            android:textColor="@color/text_dark"
-            android:textSize="16sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/btnRefresh"
-            android:layout_width="wrap_content"
-            android:layout_height="44dp"
-            android:background="?attr/selectableItemBackground"
-            android:gravity="center"
-            android:paddingStart="12dp"
-            android:paddingEnd="4dp"
-            android:text="새로고침"
-            android:textColor="@color/text_gray"
-            android:textSize="12sp" />
-    </LinearLayout>
-
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp"
-            android:paddingBottom="8dp" />
-
-        <LinearLayout
-            android:id="@+id/layoutEmpty"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:visibility="gone">
-
-            <ImageView
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:background="@drawable/community_banner"
-                android:importantForAccessibility="no"
-                android:padding="16dp"
-                android:src="@drawable/community_ic_pencil" />
-
-            <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="아직 게시글이 없어요"
+                android:layout_weight="1"
+                android:text="커뮤니티"
+                android:textColor="@color/text_dark"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+            <FrameLayout
+                android:layout_width="64dp"
+                android:layout_height="48dp">
+                <ImageButton
+                    android:id="@+id/btnNotification"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="알림"
+                    android:padding="11dp"
+                    android:src="@drawable/community_ic_bell" />
+                <TextView
+                    android:id="@+id/tvUnread"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|end"
+                    android:minWidth="20dp"
+                    android:gravity="center"
+                    android:paddingHorizontal="4dp"
+                    android:background="@drawable/community_badge"
+                    android:textColor="@android:color/white"
+                    android:textSize="11sp"
+                    android:visibility="gone" />
+            </FrameLayout>
+        </LinearLayout>
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:scrollbars="none">
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:paddingStart="18dp"
+                android:paddingEnd="12dp">
+                <TextView
+                    android:id="@+id/categoryAll"
+                    style="@style/CommunityCategoryChip"
+                    android:text="전체" />
+                <TextView
+                    android:id="@+id/categoryParenting"
+                    style="@style/CommunityCategoryChip"
+                    android:text="육아정보" />
+                <TextView
+                    android:id="@+id/categoryDaily"
+                    style="@style/CommunityCategoryChip"
+                    android:text="일상공유" />
+                <TextView
+                    android:id="@+id/categoryConcern"
+                    style="@style/CommunityCategoryChip"
+                    android:text="고민상담" />
+                <TextView
+                    android:id="@+id/categoryLocal"
+                    style="@style/CommunityCategoryChip"
+                    android:text="꿀팁정보" />
+            </LinearLayout>
+        </HorizontalScrollView>
+        <LinearLayout
+            android:id="@+id/introBanner"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="20dp"
+            android:background="@drawable/community_banner"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="20dp">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="함께 나누는 소중한 이야기"
+                android:textColor="@color/text_dark"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+            <ImageButton
+                android:id="@+id/btnCloseBanner"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="소개 배너 닫기"
+                android:padding="14dp"
+                android:src="@drawable/community_ic_close" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical">
+            <EditText
+                android:id="@+id/etSearch"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="44dp"
+                android:paddingHorizontal="12dp"
+                android:background="@drawable/community_input"
+                android:hint="제목·내용 검색"
+                android:textSize="14sp"
+                android:maxLength="100"
+                android:inputType="text"
+                android:singleLine="true"
+                android:imeOptions="actionSearch" />
+            <Spinner
+                android:id="@+id/spinnerSort"
+                android:layout_width="100dp"
+                android:layout_height="48dp"
+                android:contentDescription="게시글 정렬" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:gravity="center_vertical"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="최근 게시글"
                 android:textColor="@color/text_dark"
                 android:textSize="16sp"
                 android:textStyle="bold" />
-
             <TextView
+                android:id="@+id/btnRefresh"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="첫 번째 이야기를 작성해 보세요!"
-                android:textColor="@color/text_sub"
+                android:layout_height="44dp"
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center"
+                android:paddingStart="12dp"
+                android:paddingEnd="4dp"
+                android:text="새로고침"
+                android:textColor="@color/text_gray"
                 android:textSize="12sp" />
         </LinearLayout>
-    </FrameLayout>
-
-    <TextView
-        android:id="@+id/tvStatus"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:accessibilityLiveRegion="polite"
-        android:paddingStart="20dp"
-        android:paddingTop="4dp"
-        android:paddingEnd="20dp"
-        android:paddingBottom="4dp"
-        android:textColor="@color/text_gray"
-        android:textSize="12sp" />
-
-    <Button
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:paddingBottom="84dp" />
+            <LinearLayout
+                android:id="@+id/layoutEmpty"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:visibility="gone">
+                <ImageView
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:background="@drawable/community_banner"
+                    android:importantForAccessibility="no"
+                    android:padding="16dp"
+                    android:src="@drawable/community_ic_pencil" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:id="@+id/tvEmptyTitle"
+                    android:text="아직 게시글이 없어요"
+                    android:textColor="@color/text_dark"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:id="@+id/tvEmptyMessage"
+                    android:text="첫 번째 이야기를 작성해 보세요!"
+                    android:textColor="@color/text_sub"
+                    android:textSize="12sp" />
+                <Button
+                    android:id="@+id/btnShowAll"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:text="전체 게시글 보기"
+                    android:textColor="@color/community_pink"
+                    android:backgroundTint="@color/community_soft" />
+            </LinearLayout>
+        </FrameLayout>
+        <TextView
+            android:id="@+id/tvStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:accessibilityLiveRegion="polite"
+            android:paddingStart="20dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="4dp"
+            android:textColor="@color/text_gray"
+            android:textSize="12sp" />
+    </LinearLayout>
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btnWrite"
-        android:layout_width="match_parent"
-        android:layout_height="52dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="12dp"
-        android:backgroundTint="@color/maru_pink"
-        android:text="글쓰기"
-        android:textColor="@color/white" />
-</LinearLayout>
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="20dp"
+        android:src="@drawable/community_ic_write_plus"
+        android:contentDescription="게시글 쓰기"
+        app:backgroundTint="@color/community_pink"
+        app:tint="@android:color/white"
+        app:fabSize="normal"
+        app:shapeAppearanceOverlay="@style/CommunityRoundFab"
+        app:maxImageSize="28dp" />
+</FrameLayout>

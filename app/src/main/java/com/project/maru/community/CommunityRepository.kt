@@ -44,7 +44,8 @@ object CommunityRepository {
                 transaction.set(ref, mapOf(
                     "id" to post.id, "category" to post.category, "title" to post.title,
                     "content" to post.content, "ownerId" to uid, "authorName" to post.authorName.ifBlank { "마루 이용자" }.take(100),
-                    "createdAt" to (post.createdAt.takeIf { it > 0L } ?: System.currentTimeMillis()), "imageKey" to post.imageKey, "deleting" to false
+                    "createdAt" to (post.createdAt.takeIf { it > 0L } ?: System.currentTimeMillis()), "imageKey" to post.imageKey, "deleting" to false,
+                    "likeCount" to 0L, "viewCount" to 0L, "childAge" to post.childAge
                 ))
             } else {
                 check(existing.getString("ownerId") == uid) { "다른 사용자의 글이에요." }
@@ -55,7 +56,7 @@ object CommunityRepository {
 
     fun readPost(document: DocumentSnapshot): CommunityPost = CommunityPost(
         id = document.id,
-        category = document.getString("category") ?: "육아정보",
+        category = CommunityPostFilters.category(document.getString("category") ?: "육아정보"),
         title = document.getString("title").orEmpty(),
         content = document.getString("content").orEmpty(),
         ownerId = document.getString("ownerId").orEmpty(),
@@ -66,6 +67,9 @@ object CommunityRepository {
             else -> 0L
         },
         imageKey = document.getString("imageKey") ?: "child",
-        deleting = document.getBoolean("deleting") ?: false
+        deleting = document.getBoolean("deleting") ?: false,
+        likeCount = document.getLong("likeCount") ?: 0L,
+        viewCount = document.getLong("viewCount") ?: 0L,
+        childAge = (document.getLong("childAge") ?: -1L).toInt()
     )
 }

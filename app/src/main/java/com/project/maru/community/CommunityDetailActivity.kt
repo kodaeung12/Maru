@@ -28,6 +28,13 @@ class CommunityDetailActivity : AppCompatActivity() {
     private var postLoadNumber = 0
     private var commentLoadNumber = 0
     private var pendingCommentId = ""
+    private lateinit var childPicker: CommunityChildPicker
+    private var liked = false
+    private var socialReady = false
+    private var likeBusy = false
+    private var foreground = false
+    private var postListener: com.google.firebase.firestore.ListenerRegistration? = null
+    private var reactionListener: com.google.firebase.firestore.ListenerRegistration? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,6 +42,10 @@ class CommunityDetailActivity : AppCompatActivity() {
         binding = ActivityCommunityDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
         postId = intent.getStringExtra("postId") ?: ""
+        childPicker = CommunityChildPicker(binding.spinnerChildAge)
+        childPicker.load()
+        binding.btnLike.setOnClickListener { changeLike() }
+        binding.btnMore.setOnClickListener { showReportMenu() }
         commentAdapter = CommunityCommentAdapter(auth.currentUser?.uid ?: "") { comment -> confirmCommentDelete(comment) }
         binding.commentList.layoutManager = LinearLayoutManager(this)
         binding.commentList.adapter = commentAdapter
@@ -60,6 +71,7 @@ class CommunityDetailActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        foreground = true
         // 수정 화면에서 돌아왔을 때 서버의 최신 글과 댓글을 다시 조회
         loadPost()
     }
@@ -80,7 +92,7 @@ class CommunityDetailActivity : AppCompatActivity() {
         binding.tvStatus.text = "게시글을 불러오는 중…"
         db.collection(CommunityFirestore.POSTS).document(postId).get(Source.SERVER)
             .addOnSuccessListener { document ->
-                if (isFinishing || isDestroyed || requestNumber != postLoadNumber) return@addOnSuccessListener
+                if (!foreground || isFinishing || isDestroyed || requestNumber != postLoadNumber) return@addOnSuccessListener
                 try {
                     val post = if (document.exists()) CommunityRepository.readPost(document) else null
                     if (post == null) {
@@ -91,7 +103,14 @@ class CommunityDetailActivity : AppCompatActivity() {
                     currentPost = post
                     postAvailable = true
                     binding.postBody.visibility = View.VISIBLE
-                    binding.tvCategory.text = post.category
+                    binding.tvCategory.text = CommunityPostFilters.category(post.category)
+                    binding.tvChildAge.visibility = if (post.childAge >= 0) View.VISIBLE else View.GONE
+                    binding.tvChildAge.text = "만 ${post.childAge}세 자녀"
+                    renderSocial()
+                    watchSocial()
+                    CommunitySocial.recordView(postId).addOnFailureListener { error ->
+                        if (!isFinishing && !isDestroyed) binding.tvStatus.text = "글은 열었지만 조회수를 반영하지 못했어요. " + CommunityFirestore.errorMessage(error)
+                    }
                     binding.tvTitle.text = post.title
                     binding.tvOwner.text = if (post.authorName.isBlank()) "마루 이용자" else post.authorName
                     binding.tvDate.text = SimpleDateFormat("yyyy.MM.dd HH:mm", Locale.KOREA).format(Date(post.createdAt))
@@ -144,27 +163,26 @@ class CommunityDetailActivity : AppCompatActivity() {
             .addOnFailureListener { error -> showDeleteError(error) }
     }
 
-    private fun deleteCommentBatch() {
+    private fun deleteCommentBatch(index: Int = 0) {
+        val collections = listOf(CommunityFirestore.COMMENTS, "reactions", "views")
+        if (index == collections.size) {
+            db.collection(CommunityFirestore.POSTS).document(postId).delete()
+                .addOnSuccessListener { if (!isFinishing && !isDestroyed) { toast("게시글을 삭제했어요."); finish() } }
+                .addOnFailureListener { showDeleteError(it) }
+            return
+        }
         val postRef = db.collection(CommunityFirestore.POSTS).document(postId)
         // 댓글이 많아도 한 번의 batch 크기를 넘지 않게 나누어 삭제
-        postRef.collection(CommunityFirestore.COMMENTS).limit(400).get(Source.SERVER)
+        postRef.collection(collections[index]).limit(400).get(Source.SERVER)
             .addOnSuccessListener { snapshot ->
                 if (isFinishing || isDestroyed) return@addOnSuccessListener
                 if (snapshot.isEmpty) {
-                    postRef.delete()
-                        .addOnSuccessListener {
-                            if (!isFinishing && !isDestroyed) {
-                                postAvailable = false
-                                toast("게시글과 댓글을 삭제했어요.")
-                                finish()
-                            }
-                        }
-                        .addOnFailureListener { error -> showDeleteError(error) }
+                    deleteCommentBatch(index + 1)
                 } else {
                     val batch = db.batch()
                     for (document in snapshot) batch.delete(document.reference)
                     batch.commit()
-                        .addOnSuccessListener { if (!isFinishing && !isDestroyed) deleteCommentBatch() }
+                        .addOnSuccessListener { if (!isFinishing && !isDestroyed) deleteCommentBatch(index) }
                         .addOnFailureListener { error -> showDeleteError(error) }
                 }
             }
@@ -229,12 +247,12 @@ class CommunityDetailActivity : AppCompatActivity() {
         val comment = CommunityComment(
             id = pendingCommentId, postId = postId, ownerId = user.uid,
             authorName = if (name.isNullOrBlank()) "마루 이용자" else name,
-            content = text, createdAt = System.currentTimeMillis()
+            content = text, createdAt = System.currentTimeMillis(), childAge = childPicker.selectedAge
         )
         binding.btnSendComment.isEnabled = false
         binding.etComment.isEnabled = false
         binding.tvCommentStatus.text = "댓글을 저장하는 중…"
-        colref.document(comment.id).set(comment)
+        CommunitySocial.addComment(comment)
             .addOnSuccessListener {
                 if (!isFinishing && !isDestroyed && postAvailable) {
                     pendingCommentId = ""
@@ -266,6 +284,100 @@ class CommunityDetailActivity : AppCompatActivity() {
                     }
             }.show()
     }
+
+    private fun renderSocial() {
+        val post = currentPost ?: return
+        binding.tvStats.text = "조회 ${post.viewCount} · 공감 ${post.likeCount}"
+        binding.btnLike.text = if (liked) "♥ 공감 ${post.likeCount}" else "♡ 공감 ${post.likeCount}"
+        binding.btnLike.contentDescription = if (liked) "공감 취소" else "이 게시글에 공감하기"
+        binding.btnLike.isEnabled = postAvailable && !post.deleting && socialReady && !likeBusy
+    }
+
+    private fun watchSocial() {
+        postListener?.remove(); reactionListener?.remove()
+        val uid = auth.currentUser?.uid ?: return
+        val ref = db.collection(CommunityFirestore.POSTS).document(postId)
+        postListener = ref.addSnapshotListener { document, error ->
+            if (isFinishing || isDestroyed || error != null || document == null) return@addSnapshotListener
+            if (!document.exists()) {
+                postAvailable = false
+                binding.postBody.visibility = View.GONE
+                binding.tvStatus.text = "삭제되었거나 존재하지 않는 게시글이에요."
+            } else {
+                currentPost?.deleting = document.getBoolean("deleting") == true
+                if (currentPost?.deleting == true) {
+                    binding.btnEdit.isEnabled = false
+                    binding.etComment.isEnabled = false
+                    binding.btnSendComment.isEnabled = false
+                }
+                currentPost?.likeCount = document.getLong("likeCount") ?: 0L
+                currentPost?.viewCount = document.getLong("viewCount") ?: 0L
+                renderSocial()
+            }
+        }
+        socialReady = false
+        binding.btnLike.isEnabled = false
+        reactionListener = ref.collection("reactions").document(uid).addSnapshotListener { document, error ->
+            if (isFinishing || isDestroyed) return@addSnapshotListener
+            if (error != null) {
+                binding.btnLike.isEnabled = false
+                binding.tvStatus.text = "공감 상태를 확인하지 못했어요. 새 규칙과 연결 상태를 확인해 주세요."
+            } else {
+                socialReady = true
+                liked = document?.getBoolean("liked") == true
+                renderSocial()
+            }
+        }
+    }
+
+    private fun changeLike() {
+        if (!postAvailable || currentPost?.deleting == true || auth.currentUser == null) return
+        if (!socialReady || likeBusy) return
+        likeBusy = true
+        val desired = !liked
+        binding.btnLike.isEnabled = false
+        CommunitySocial.setLiked(postId, desired).addOnSuccessListener {
+            if (!isFinishing && !isDestroyed) {
+                likeBusy = false
+                liked = desired
+                renderSocial()
+                toast(if (desired) "이 게시글에 공감했어요!" else "게시글 공감을 취소했어요.")
+            }
+        }.addOnFailureListener {
+            if (!isFinishing && !isDestroyed) { likeBusy = false; renderSocial(); toast(CommunityFirestore.errorMessage(it)) }
+        }
+    }
+
+    private fun showReportMenu() {
+        if (!postAvailable || auth.currentUser == null) return
+        android.widget.PopupMenu(this, binding.btnMore).apply {
+            menu.add("신고하기")
+            setOnMenuItemClickListener {
+                if (currentPost?.ownerId == auth.currentUser?.uid) toast("본인 게시글은 신고할 수 없어요.")
+                else AlertDialog.Builder(this@CommunityDetailActivity).setTitle("신고 사유를 선택해 주세요")
+                    .setItems(CommunitySocial.reportReasons) { _, index ->
+                        AlertDialog.Builder(this@CommunityDetailActivity).setTitle("게시글을 신고할까요?")
+                            .setMessage(CommunitySocial.reportReasons[index])
+                            .setNegativeButton("취소", null).setPositiveButton("신고") { _, _ ->
+                                CommunitySocial.report(postId, CommunitySocial.reportReasons[index])
+                                    .addOnSuccessListener { if (!isFinishing && !isDestroyed) toast(if (it) "신고가 정상적으로 접수되었어요." else "이미 신고한 게시글이에요.") }
+                                    .addOnFailureListener { if (!isFinishing && !isDestroyed) toast(CommunityFirestore.errorMessage(it)) }
+                            }.show()
+                    }.setNegativeButton("취소", null).show()
+                true
+            }
+        }.show()
+    }
+
+    override fun onStop() {
+        foreground = false
+        postLoadNumber++; commentLoadNumber++
+        postListener?.remove(); reactionListener?.remove()
+        postListener = null; reactionListener = null
+        super.onStop()
+    }
+
+    override fun onDestroy() { childPicker.close(); super.onDestroy() }
 
     private fun toast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()

@@ -42,6 +42,7 @@ class CommunityWriteActivity : AppCompatActivity() {
         val aadapter = ArrayAdapter(this, R.layout.community_spinner_item, categories)
         aadapter.setDropDownViewResource(R.layout.community_spinner_item)
         binding.spinnerCategory.adapter = aadapter
+        binding.ivCategoryArrow.setOnClickListener { binding.spinnerCategory.performClick() }
         binding.spinnerCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) { updatePreview() }
             override fun onNothingSelected(parent: AdapterView<*>?) { }
@@ -73,7 +74,7 @@ class CommunityWriteActivity : AppCompatActivity() {
             loadEditingPost()
         }
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
-            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.ime())
             view.setPadding(bars.left, bars.top, bars.right, bars.bottom)
             insets
         }
@@ -93,6 +94,8 @@ class CommunityWriteActivity : AppCompatActivity() {
         val title = binding.etTitle.text.toString().trim()
         binding.tvPreviewTitle.text = if (title.isBlank()) "제목을 입력해 주세요." else title
         CommunityImages.show(binding.ivPreview, selectedImage)
+        binding.tvPreviewMeta.text = editingPost?.let { "${it.authorName} · ${CommunityPresentation.time(it.createdAt)}" }
+            ?: "${auth.currentUser?.displayName?.takeIf { it.isNotBlank() } ?: "마루 이용자"} · 등록 전 미리보기"
     }
 
     private fun loadEditingPost() {
@@ -206,6 +209,9 @@ class CommunityWriteActivity : AppCompatActivity() {
         binding.etTitle.isEnabled = enabled
         binding.etContent.isEnabled = enabled
         binding.spinnerCategory.isEnabled = enabled
+        binding.ivCategoryArrow.isEnabled = enabled
+        binding.btnSave.alpha = if (enabled) 1f else 0.5f
+        binding.btnSaveBottom.alpha = binding.btnSave.alpha
         binding.imageGrid.isEnabled = enabled
         binding.spinnerChildAge.isEnabled = enabled
     }

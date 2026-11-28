@@ -1,43 +1,17 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginBottom="10dp"
-    android:orientation="vertical"
-    android:padding="16dp"
-    android:background="@drawable/community_card"
-    android:clickable="true"
-    android:focusable="true"
-    android:foreground="?attr/selectableItemBackground">
-    <TextView
-        android:id="@+id/tvRead"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/community_pink"
-        android:textSize="11sp" />
-    <TextView
-        android:id="@+id/tvMessage"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:textColor="@color/community_ink"
-        android:textStyle="bold"
-        android:textSize="14sp" />
-    <TextView
-        android:id="@+id/tvTitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:textColor="@color/community_muted"
-        android:textSize="13sp"
-        android:maxLines="2"
-        android:ellipsize="end" />
-    <TextView
-        android:id="@+id/tvDate"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:textColor="@color/community_muted"
-        android:textSize="11sp" />
+<?xml version='1.0' encoding='utf-8'?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="16dp" android:minHeight="108dp" android:padding="16dp" android:background="@drawable/community_card" android:gravity="top" android:clickable="true" android:focusable="true" android:foreground="?attr/selectableItemBackground">
+    <FrameLayout android:layout_width="50dp" android:layout_height="50dp" android:id="@+id/iconBadge" android:background="@drawable/community_note_comment">
+        <ImageView android:layout_width="22dp" android:layout_height="22dp" android:id="@+id/ivType" android:src="@drawable/community_figma_chat" android:importantForAccessibility="no" android:layout_gravity="center" />
+    </FrameLayout>
+    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:orientation="vertical" android:layout_weight="1" android:layout_marginStart="14dp">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:id="@+id/tvMessage" android:text="" android:layout_weight="1" android:textSize="15sp" style="@style/CommunityHeading" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/tvRead" android:text="새 알림" android:textColor="@color/community_action" android:textSize="9sp" android:layout_marginStart="4dp" style="@style/CommunityMuted" />
+        </LinearLayout>
+        <Space android:layout_width="1dp" android:layout_height="9dp" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/tvTitle" android:text="" android:maxLines="2" android:ellipsize="end" android:lineSpacingExtra="3dp" style="@style/CommunityMuted" />
+        <Space android:layout_width="1dp" android:layout_height="7dp" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/tvDate" android:text="" android:textSize="10sp" style="@style/CommunityMuted" />
+    </LinearLayout>
+    <TextView android:id="@+id/btnDeleteNotification" android:layout_width="48dp" android:layout_height="48dp" android:text="삭제" android:gravity="center" android:textSize="11sp" android:textColor="@color/community_muted" android:background="?attr/selectableItemBackgroundBorderless" android:clickable="true" android:focusable="true" android:contentDescription="알림 삭제" />
 </LinearLayout>

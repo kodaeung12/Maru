@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content" android:fillViewport="true">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:paddingStart="20dp" android:paddingTop="8dp" android:paddingEnd="20dp">
+        <EditText android:id="@+id/editTitle" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:hint="일정 제목" android:inputType="textCapSentences" android:singleLine="true" android:maxLength="100" />
+        <EditText android:id="@+id/editNote" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:hint="장소 / 메모" android:inputType="textMultiLine" android:maxLines="4" android:maxLength="1000" />
+        <Button android:id="@+id/buttonDate" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:contentDescription="일정 날짜 선택" />
+        <Button android:id="@+id/buttonTime" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:contentDescription="일정 시간 선택" />
+        <Spinner android:id="@+id/spinnerReminder" android:layout_width="match_parent" android:layout_height="48dp"
+            android:contentDescription="일정 알림 시점" />
+        <TextView android:id="@+id/textError" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:textColor="#FF0000" android:accessibilityLiveRegion="polite" />
+    </LinearLayout>
+</ScrollView>

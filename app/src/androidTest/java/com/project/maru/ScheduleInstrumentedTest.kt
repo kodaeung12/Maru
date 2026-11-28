@@ -41,8 +41,9 @@ class ScheduleInstrumentedTest {
                 assertEquals(today,calendar.selectedDate)
                 activity.findViewById<View>(R.id.btnBell).performClick()
             }
-            onView(withText("다가오는 일정")).check(matches(isDisplayed()))
-            onView(withText("닫기")).perform(click())
+            onView(withId(R.id.tvScreenTitle)).check(matches(withText("알림")))
+            onView(withId(R.id.recyclerNotifications)).check(matches(isDisplayed()))
+            androidx.test.espresso.Espresso.pressBack()
         }
     }
 

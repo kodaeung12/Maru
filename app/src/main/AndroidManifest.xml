@@ -29,6 +29,9 @@
             </intent-filter>
         </receiver>
         <activity android:name=".LoginActivity" android:exported="false" />
+        <activity android:name=".diary.DiaryHomeActivity" android:exported="false" />
+        <activity android:name=".diary.DiaryDetailActivity" android:exported="false" />
+        <activity android:name=".diary.DiaryEditorActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
 
         <activity
             android:name=".MainActivity"
@@ -41,16 +44,16 @@
 
         </activity>
 
-        <activity android:name=".community.CommunityNotificationsActivity" android:exported="false" />
+        <activity android:name=".community.CommunityNotificationsActivity" android:theme="@style/Theme.Maru.Community" android:exported="false" />
         <activity android:name=".HomeActivity" android:exported="false" />
 
         <activity
-            android:name=".community.CommunityWriteActivity"
+            android:name=".community.CommunityWriteActivity" android:theme="@style/Theme.Maru.Community"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
         <activity
-            android:name=".community.CommunityDetailActivity"
+            android:name=".community.CommunityDetailActivity" android:theme="@style/Theme.Maru.Community"
             android:exported="false" />
 
         <activity

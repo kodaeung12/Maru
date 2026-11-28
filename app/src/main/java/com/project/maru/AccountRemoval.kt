@@ -102,7 +102,7 @@ internal object AccountDataCleanup {
                 com.project.maru.community.CommunityDatabaseHelper(context).use { helper ->
                     helper.writableDatabase.delete("community_posts","owner_id = ?",arrayOf(uid))
                 }
-                listOf("children","favorites","schedules").forEach { deleteQuery(db, profile.collection(it)) }
+                listOf("children","favorites","schedules","diaries").forEach { deleteQuery(db, profile.collection(it)) }
                 waitFor(profile.delete())
     }
     private fun deleteQuery(db: FirebaseFirestore, query: Query) {

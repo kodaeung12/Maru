@@ -16,6 +16,7 @@ import com.google.firebase.auth.FirebaseAuth
 import java.time.*
 import java.time.format.DateTimeFormatter
 import java.util.UUID
+import com.project.maru.databinding.DialogScheduleFormBinding
 
 internal object ScheduleUi {
     fun timeLabel(value: Long): String = Instant.ofEpochMilli(value).atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm"))
@@ -76,11 +77,6 @@ internal object ScheduleUi {
                 rowParams.bottomMargin = dp(activity, 8)
                 rows.addView(row, rowParams)
             }
-            val now = System.currentTimeMillis()
-            val hasScheduledAlert = ScheduleSync.ready && ScheduleSync.items.any {
-                it.startsAt >= now && it.alarmAt?.let { alarmAt -> alarmAt >= now } == true
-            }
-            view.findViewById<View>(R.id.viewBellDot).visibility = if (hasScheduledAlert) View.VISIBLE else View.GONE
             val stateText = view.findViewById<TextView>(R.id.textScheduleState)
             when {
                 ScheduleSync.error != null -> {
@@ -94,6 +90,7 @@ internal object ScheduleUi {
                 else -> stateText.visibility = View.GONE
             }
         }
+        bindBellBadge(fragment, view.findViewById(R.id.viewBellDot))
         calendar.onDateSelected = { date -> selected = date; render() }
         view.findViewById<View>(R.id.buttonAddSelectedDateSchedule).setOnClickListener { showEditor(activity, selected) }
         view.findViewById<View>(R.id.btnBell).setOnClickListener { showNotifications(activity) }
@@ -105,71 +102,106 @@ internal object ScheduleUi {
     }
 
     fun showNotifications(activity: FragmentActivity) {
-        val items = ScheduleSync.items.filter { it.startsAt >= System.currentTimeMillis() }.take(30)
-        val dialog = AlertDialog.Builder(activity).setTitle("다가오는 일정")
-        if(items.isEmpty()) dialog.setMessage(ScheduleSync.error ?: "다가오는 일정이 없어요. 달력에 일정을 추가해 보세요.")
-        else dialog.setItems(items.map { "${timeLabel(it.startsAt)}  ${it.title}\n${reminderLabel(it.reminderMinutes)}" }.toTypedArray()) { _, index -> showEditor(activity,item=items[index]) }
-        dialog.setPositiveButton("일정 추가") { _, _ -> showEditor(activity) }
-            .setNegativeButton("닫기",null).show()
+        activity.startActivity(android.content.Intent(activity, com.project.maru.community.CommunityNotificationsActivity::class.java))
     }
 
     fun bindBellBadge(fragment: Fragment, dot: View) {
-        val update: () -> Unit = {
-            val now = System.currentTimeMillis()
-            val hasScheduledAlert = ScheduleSync.ready && ScheduleSync.items.any {
-                it.startsAt >= now && it.alarmAt?.let { alarmAt -> alarmAt >= now } == true
-            }
-            dot.visibility = if (hasScheduledAlert) View.VISIBLE else View.GONE
-        }
-        fragment.viewLifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
-            override fun onStart(owner: LifecycleOwner) { ScheduleSync.subscribe(update) }
-            override fun onStop(owner: LifecycleOwner) { ScheduleSync.unsubscribe(update) }
-        })
+        NotificationCenter.bindBadge(fragment, dot)
     }
 
-    fun showEditor(activity: FragmentActivity, date: LocalDate = LocalDate.now(), initialTitle: String = "", initialNote: String = "", eventId: String = "", item: Schedule? = null) {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: run { Toast.makeText(activity,"로그인 후 일정을 추가해 주세요.",Toast.LENGTH_SHORT).show(); return }
-        val box = LinearLayout(activity).apply { orientation=LinearLayout.VERTICAL; setPadding(40,16,40,0) }
-        val title = EditText(activity).apply { hint="일정 제목"; setSingleLine(); filters=arrayOf(android.text.InputFilter.LengthFilter(100)); setText(item?.title ?: initialTitle) }
-        val note = EditText(activity).apply { hint="장소 / 메모"; inputType=android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE; maxLines=4; filters=arrayOf(android.text.InputFilter.LengthFilter(1000)); setText(item?.note ?: initialNote) }
-        var whenAt = item?.startsAt?.let { Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()) } ?: if (date == LocalDate.now()) ZonedDateTime.now().plusHours(1).withSecond(0).withNano(0) else date.atTime(10,0).atZone(ZoneId.systemDefault())
-        val dateButton = Button(activity)
-        val timeButton = Button(activity)
-        fun refresh() { dateButton.text=whenAt.toLocalDate().toString(); timeButton.text=whenAt.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm")) }
-        refresh()
-        dateButton.setOnClickListener { DatePickerDialog(activity,{ _,y,m,d -> whenAt=LocalDate.of(y,m+1,d).atTime(whenAt.toLocalTime()).atZone(ZoneId.systemDefault()); refresh() },whenAt.year,whenAt.monthValue-1,whenAt.dayOfMonth).show() }
-        timeButton.setOnClickListener { TimePickerDialog(activity,{ _,h,m -> whenAt=whenAt.withHour(h).withMinute(m); refresh() },whenAt.hour,whenAt.minute,true).show() }
-        val reminders = listOf(0,60,1440,-1)
-        val spinner = Spinner(activity).apply { adapter=ArrayAdapter(activity,android.R.layout.simple_spinner_dropdown_item,reminders.map(::reminderLabel)); setSelection(reminders.indexOf(item?.reminderMinutes ?: 0).coerceAtLeast(0)) }
-        val error = TextView(activity).apply { setTextColor(android.graphics.Color.RED) }
-        listOf(title,note,dateButton,timeButton,spinner,error).forEach(box::addView)
-        val builder = AlertDialog.Builder(activity).setTitle(if(item == null) "일정 추가" else "일정 수정").setView(ScrollView(activity).apply { addView(box) }).setPositiveButton("저장",null).setNegativeButton("취소",null)
-        if(item != null) builder.setNeutralButton("삭제",null)
+    fun showEditor(
+        activity: FragmentActivity,
+        date: LocalDate = LocalDate.now(),
+        initialTitle: String = "",
+        initialNote: String = "",
+        eventId: String = "",
+        item: Schedule? = null
+    ) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        if (uid == null) {
+            Toast.makeText(activity, "로그인 후 일정을 추가해 주세요.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val form = DialogScheduleFormBinding.inflate(activity.layoutInflater)
+        form.editTitle.setText(item?.title ?: initialTitle)
+        form.editNote.setText(item?.note ?: initialNote)
+        var whenAt = when {
+            item != null -> Instant.ofEpochMilli(item.startsAt).atZone(ZoneId.systemDefault())
+            date == LocalDate.now() -> ZonedDateTime.now().plusHours(1).withSecond(0).withNano(0)
+            else -> date.atTime(10, 0).atZone(ZoneId.systemDefault())
+        }
+        fun refreshDateTime() {
+            form.buttonDate.text = whenAt.toLocalDate().toString()
+            form.buttonTime.text = whenAt.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm"))
+        }
+        refreshDateTime()
+        form.buttonDate.setOnClickListener {
+            DatePickerDialog(activity, { _, year, month, day ->
+                whenAt = LocalDate.of(year, month + 1, day).atTime(whenAt.toLocalTime()).atZone(ZoneId.systemDefault())
+                refreshDateTime()
+            }, whenAt.year, whenAt.monthValue - 1, whenAt.dayOfMonth).show()
+        }
+        form.buttonTime.setOnClickListener {
+            TimePickerDialog(activity, { _, hour, minute ->
+                whenAt = whenAt.withHour(hour).withMinute(minute)
+                refreshDateTime()
+            }, whenAt.hour, whenAt.minute, true).show()
+        }
+        val reminders = listOf(0, 60, 1440, -1)
+        form.spinnerReminder.adapter = ArrayAdapter(
+            activity, android.R.layout.simple_spinner_dropdown_item, reminders.map(::reminderLabel)
+        )
+        form.spinnerReminder.setSelection(reminders.indexOf(item?.reminderMinutes ?: 0).coerceAtLeast(0))
+        val builder = AlertDialog.Builder(activity)
+            .setTitle(if (item == null) "일정 추가" else "일정 수정")
+            .setView(form.root)
+            .setPositiveButton("저장", null)
+            .setNegativeButton("취소", null)
+        if (item != null) builder.setNeutralButton("삭제", null)
         val dialog = builder.create()
         dialog.setOnShowListener {
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
                 val start = whenAt.toInstant().toEpochMilli()
-                val reminder = reminders[spinner.selectedItemPosition]
-                val draft = Schedule(item?.id ?: UUID.randomUUID().toString(),title.text.toString().trim(),note.text.toString().trim(),start,reminder,UUID.randomUUID().toString(),item?.eventId ?: eventId)
+                val reminder = reminders[form.spinnerReminder.selectedItemPosition]
+                val draft = Schedule(
+                    item?.id ?: UUID.randomUUID().toString(), form.editTitle.text.toString().trim(),
+                    form.editNote.text.toString().trim(), start, reminder,
+                    UUID.randomUUID().toString(), item?.eventId ?: eventId
+                )
                 when {
-                    draft.title.isBlank() -> error.text="일정 제목을 입력해 주세요."
-                    start <= System.currentTimeMillis() -> error.text="미래의 날짜와 시간을 선택해 주세요."
-                    draft.alarmAt != null && draft.alarmAt!! <= System.currentTimeMillis() -> error.text="알림 시점이 이미 지났어요. 다른 알림 시점을 선택해 주세요."
+                    draft.title.isBlank() -> form.textError.text = "일정 제목을 입력해 주세요."
+                    start <= System.currentTimeMillis() -> form.textError.text = "미래의 날짜와 시간을 선택해 주세요."
+                    draft.alarmAt != null && draft.alarmAt!! <= System.currentTimeMillis() ->
+                        form.textError.text = "알림 시점이 이미 지났어요. 다른 알림 시점을 선택해 주세요."
                     else -> {
-                        dialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled=false
-                        ScheduleRepository.save(uid,draft,item?.revision).addOnCompleteListener { result ->
-                            if(result.isSuccessful) {
-                                if(reminder >= 0 && !ScheduleAlarms.notificationsEnabled(activity)) ActivityCompat.requestPermissions(activity,arrayOf(Manifest.permission.POST_NOTIFICATIONS),780)
-                                Toast.makeText(activity,"일정을 저장했어요.",Toast.LENGTH_SHORT).show(); dialog.dismiss()
-                            } else { error.text=result.exception?.message ?: "저장하지 못했어요."; dialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled=true }
+                        dialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled = false
+                        ScheduleRepository.save(uid, draft, item?.revision).addOnCompleteListener { result ->
+                            if (result.isSuccessful) {
+                                if (reminder >= 0 && !ScheduleAlarms.notificationsEnabled(activity)) {
+                                    ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.POST_NOTIFICATIONS), 780)
+                                }
+                                Toast.makeText(activity, "일정을 저장했어요.", Toast.LENGTH_SHORT).show()
+                                dialog.dismiss()
+                            } else {
+                                form.textError.text = result.exception?.message ?: "저장하지 못했어요."
+                                dialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled = true
+                            }
                         }
                     }
                 }
             }
-            if(item != null) dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
-                AlertDialog.Builder(activity).setTitle("일정을 삭제할까요?").setMessage(item.title).setNegativeButton("취소",null).setPositiveButton("삭제") { _, _ ->
-                    ScheduleRepository.delete(uid,item).addOnCompleteListener { result -> if(result.isSuccessful) dialog.dismiss() else error.text=result.exception?.message }
-                }.show()
+            if (item != null) {
+                dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
+                    AlertDialog.Builder(activity).setTitle("일정을 삭제할까요?")
+                        .setMessage(item.title)
+                        .setNegativeButton("취소", null)
+                        .setPositiveButton("삭제") { _, _ ->
+                            ScheduleRepository.delete(uid, item).addOnCompleteListener { result ->
+                                if (result.isSuccessful) dialog.dismiss()
+                                else form.textError.text = result.exception?.message
+                            }
+                        }.show()
+                }
             }
         }
         dialog.show()

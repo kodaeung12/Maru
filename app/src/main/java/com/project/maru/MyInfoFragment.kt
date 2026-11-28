@@ -3,12 +3,7 @@ package com.project.maru
 import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Button
-import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.RadioButton
-import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -23,6 +18,8 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.project.maru.databinding.FragmentMyInfoBinding
+import com.project.maru.databinding.DialogChildFormBinding
+import com.project.maru.databinding.ItemMyInfoChildBinding
 import java.util.Calendar
 import java.util.Locale
 
@@ -114,20 +111,10 @@ class MyInfoFragment : Fragment(R.layout.fragment_my_info) {
     }
 
     private fun showAddChildDialog(userId: String) {
-        val content = LinearLayout(requireContext()).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(dp(20), 0, dp(20), 0)
-        }
-        val nameInput = EditText(requireContext()).apply {
-            hint = getString(R.string.child_name_hint)
-            maxLines = 1
-        }
-        content.addView(nameInput)
-
+        val form = DialogChildFormBinding.inflate(layoutInflater)
+        val nameInput = form.editChildName
         var birthDate = ""
-        val dateButton = Button(requireContext()).apply {
-            text = getString(R.string.child_birthdate)
-            isAllCaps = false
+        form.buttonBirthDate.apply {
             setOnClickListener {
                 val today = Calendar.getInstance()
                 DatePickerDialog(
@@ -142,18 +129,13 @@ class MyInfoFragment : Fragment(R.layout.fragment_my_info) {
                 ).apply { datePicker.maxDate = today.timeInMillis }.show()
             }
         }
-        content.addView(dateButton)
-
-        val genderGroup = RadioGroup(requireContext()).apply { orientation = RadioGroup.HORIZONTAL }
-        val girl = makeGenderOption("여아")
-        val boy = makeGenderOption("남아")
-        genderGroup.addView(girl, RadioGroup.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
-        genderGroup.addView(boy, RadioGroup.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
-        content.addView(genderGroup)
+        val genderGroup = form.radioChildGender
+        val girl = form.radioGirl
+        val boy = form.radioBoy
 
         val dialog = AlertDialog.Builder(requireContext())
             .setTitle(R.string.add_child)
-            .setView(content)
+            .setView(form.root)
             .setNegativeButton(R.string.cancel, null)
             .setPositiveButton(R.string.save, null)
             .create()
@@ -201,61 +183,23 @@ class MyInfoFragment : Fragment(R.layout.fragment_my_info) {
     }
 
     private fun addChildRow(document: DocumentSnapshot) {
-        val row = LinearLayout(requireContext()).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = android.view.Gravity.CENTER_VERTICAL
-            background = androidx.core.content.ContextCompat.getDrawable(requireContext(), R.drawable.bg_mypage_profile)
-            setPadding(dp(14), dp(10), dp(10), dp(10))
-        }
-        val details = LinearLayout(requireContext()).apply {
-            orientation = LinearLayout.VERTICAL
-        }
-        val name = document.getString("name").orEmpty().ifBlank { "아이" }
+        val item = ItemMyInfoChildBinding.inflate(layoutInflater, binding.layoutMyInfoChildren, false)
+        item.textChildName.text = document.getString("name").orEmpty().ifBlank { "아이" }
         val birthDate = document.getString("birthDate").orEmpty()
         val gender = document.getString("gender").orEmpty()
-        details.addView(TextView(requireContext()).apply {
-            text = name
-            setTextColor(android.graphics.Color.rgb(48, 48, 48))
-            textSize = 15f
-            setTypeface(typeface, android.graphics.Typeface.BOLD)
-        })
-        details.addView(TextView(requireContext()).apply {
-            text = listOf(birthDate, gender).filter { it.isNotBlank() }.joinToString(" · ")
-            setTextColor(android.graphics.Color.rgb(135, 128, 126))
-            textSize = 12f
-            val top = dp(4)
-            setPadding(0, top, 0, 0)
-        })
-        row.addView(details, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
-        row.addView(Button(requireContext()).apply {
-            text = getString(R.string.my_info_edit_button)
-            isAllCaps = false
-            textSize = 13f
-            setTextColor(android.graphics.Color.WHITE)
-            background = androidx.core.content.ContextCompat.getDrawable(requireContext(), R.drawable.bg_choice_button_primary)
-            setOnClickListener { showChildEditDialog(document) }
-        }, LinearLayout.LayoutParams(dp(66), dp(40)))
-        val params = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-        params.bottomMargin = dp(10)
-        binding.layoutMyInfoChildren.addView(row, params)
+        item.textChildDetails.text = listOf(birthDate, gender).filter { it.isNotBlank() }.joinToString(" · ")
+        item.buttonEditChild.setOnClickListener { showChildEditDialog(document) }
+        binding.layoutMyInfoChildren.addView(item.root)
     }
 
     private fun showChildEditDialog(document: DocumentSnapshot) {
         val childRef = document.reference
-        val content = LinearLayout(requireContext()).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(dp(20), 0, dp(20), 0)
-        }
-        val nameInput = EditText(requireContext()).apply {
-            setText(document.getString("name").orEmpty())
-            hint = getString(R.string.child_name_hint)
-            maxLines = 1
-        }
-        content.addView(nameInput)
+        val form = DialogChildFormBinding.inflate(layoutInflater)
+        val nameInput = form.editChildName
+        nameInput.setText(document.getString("name").orEmpty())
         var birthDate = document.getString("birthDate").orEmpty()
-        val dateButton = Button(requireContext()).apply {
+        form.buttonBirthDate.apply {
             text = birthDate.ifBlank { getString(R.string.child_birthdate) }
-            isAllCaps = false
             setOnClickListener {
                 val today = Calendar.getInstance()
                 val parts = birthDate.split("-").mapNotNull { it.toIntOrNull() }
@@ -271,21 +215,17 @@ class MyInfoFragment : Fragment(R.layout.fragment_my_info) {
                 ).apply { datePicker.maxDate = today.timeInMillis }.show()
             }
         }
-        content.addView(dateButton)
-        val genderGroup = RadioGroup(requireContext()).apply { orientation = RadioGroup.HORIZONTAL }
-        val girl = makeGenderOption("여아")
-        val boy = makeGenderOption("남아")
-        genderGroup.addView(girl, RadioGroup.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
-        genderGroup.addView(boy, RadioGroup.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+        val genderGroup = form.radioChildGender
+        val girl = form.radioGirl
+        val boy = form.radioBoy
         when (document.getString("gender")) {
             "여아" -> genderGroup.check(girl.id)
             "남아" -> genderGroup.check(boy.id)
         }
-        content.addView(genderGroup)
 
         val dialog = AlertDialog.Builder(requireContext())
             .setTitle(R.string.my_info_edit_child)
-            .setView(content)
+            .setView(form.root)
             .setNegativeButton(R.string.cancel, null)
             .setPositiveButton(R.string.save, null)
             .create()
@@ -317,11 +257,4 @@ class MyInfoFragment : Fragment(R.layout.fragment_my_info) {
         dialog.show()
     }
 
-    private fun makeGenderOption(value: String) = RadioButton(requireContext()).apply {
-        id = View.generateViewId()
-        text = value
-        buttonTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.rgb(255, 133, 139))
-    }
-
-    private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
 }

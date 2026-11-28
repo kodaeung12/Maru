@@ -7,8 +7,11 @@ internal object CommunityPostFilters {
     fun apply(posts: List<CommunityPost>, selected: String, search: String, popular: Boolean): List<CommunityPost> {
         val words = search.trim().split(Regex("\\s+")).filter { it.isNotEmpty() }
         val result = posts.filter { post ->
-            (selected == "전체" || category(post.category) == selected) &&
-                words.all { word -> post.title.contains(word, true) || post.content.contains(word, true) }
+            val matchesCategory = selected == "전체" || category(post.category) == selected
+            val matchesSearch = words.all { word ->
+                post.title.contains(word, ignoreCase = true) || post.content.contains(word, ignoreCase = true)
+            }
+            matchesCategory && matchesSearch
         }
         return if (popular) result.sortedWith(compareByDescending<CommunityPost> { it.likeCount }
             .thenByDescending { it.createdAt }.thenBy { it.id })

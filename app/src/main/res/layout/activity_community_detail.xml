@@ -1,233 +1,49 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/main"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/community_bg">
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:gravity="center_vertical">
-        <ImageButton
-            android:id="@+id/btnBack"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:padding="12dp"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/community_ic_back"
-            android:contentDescription="뒤로" />
-        <TextView
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="게시글 상세"
-            android:textSize="17sp"
-            android:textStyle="bold"
-            android:textColor="@color/community_ink" />
-        <ImageButton
-            android:id="@+id/btnMore"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="게시글 더보기"
-                android:padding="14dp"
-                android:src="@drawable/community_ic_more" />
+<?xml version='1.0' encoding='utf-8'?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="@color/community_bg">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="56dp" android:orientation="horizontal" android:paddingHorizontal="4dp" android:gravity="center_vertical">
+        <ImageButton android:layout_width="48dp" android:layout_height="48dp" android:id="@+id/btnBack" android:src="@drawable/community_figma_back" android:background="?attr/selectableItemBackgroundBorderless" android:contentDescription="뒤로 가기" android:padding="15dp" android:scaleType="fitCenter" />
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:id="@+id/tvScreenTitle" android:text="게시글 상세" android:layout_weight="1" android:gravity="center" android:textSize="17sp" style="@style/CommunityHeading" />
+        <ImageButton android:layout_width="48dp" android:layout_height="48dp" android:id="@+id/btnMore" android:src="@drawable/community_ic_more" android:background="?attr/selectableItemBackgroundBorderless" android:padding="14dp" android:contentDescription="게시글 더보기" android:scaleType="fitCenter" />
     </LinearLayout>
-    <TextView
-        android:id="@+id/tvStatus"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingStart="18dp"
-        android:paddingEnd="18dp"
-        android:textColor="@color/community_muted"
-        android:accessibilityLiveRegion="polite" />
-    <Button
-        android:id="@+id/btnRetry"
-        android:layout_width="wrap_content"
-        android:layout_height="48dp"
-        android:text="다시 불러오기"
-        android:visibility="gone"
-        android:textColor="@color/community_ink"
-        android:backgroundTint="@color/community_soft" />
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:fillViewport="true">
-        <LinearLayout
-            android:id="@+id/postBody"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="18dp"
-            android:orientation="vertical"
-            android:visibility="gone">
-            <TextView
-                android:id="@+id/tvCategory"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="8dp"
-                android:background="@drawable/community_chip_off"
-                android:textColor="@color/community_pink"
-                android:textSize="12sp" />
-            <TextView
-                android:id="@+id/tvTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:textColor="@color/community_ink"
-                android:textIsSelectable="true" />
-            <TextView
-                android:id="@+id/tvOwner"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:textSize="12sp"
-                android:textColor="@color/community_muted" />
-            <TextView
-                android:id="@+id/tvDate"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:textSize="12sp"
-                android:textColor="@color/community_muted" />
-            <TextView
-                android:id="@+id/tvChildAge"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/community_muted"
-                android:textSize="12sp"
-                android:visibility="gone" />
-            <TextView
-                android:id="@+id/tvStats"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingTop="8dp"
-                android:textColor="@color/community_muted"
-                android:textSize="12sp" />
-            <Button
-                android:id="@+id/btnLike"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:text="♡ 공감"
-                android:textColor="@color/community_pink"
-                android:backgroundTint="@color/community_soft" />
-            <LinearLayout
-                android:id="@+id/ownerActions"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="end"
-                android:visibility="gone">
-                <Button
-                    android:id="@+id/btnEdit"
-                    android:layout_width="80dp"
-                    android:layout_height="48dp"
-                    android:text="수정"
-                    android:textColor="@color/community_ink"
-                    android:backgroundTint="@color/community_soft" />
-                <Button
-                    android:id="@+id/btnDelete"
-                    android:layout_width="80dp"
-                    android:layout_height="48dp"
-                    android:layout_marginStart="8dp"
-                    android:text="삭제"
-                    android:textColor="@color/community_pink"
-                    android:backgroundTint="@color/community_soft" />
+    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/community_line" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/tvStatus" android:text="" android:paddingHorizontal="20dp" android:accessibilityLiveRegion="polite" style="@style/CommunityMuted" />
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/btnRetry" android:text="다시 불러오기" android:paddingHorizontal="20dp" android:visibility="gone" style="@style/CommunityAction" />
+    <androidx.core.widget.NestedScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:fillViewport="true">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/postBody" android:orientation="vertical" android:paddingHorizontal="18dp" android:paddingTop="12dp" android:paddingBottom="24dp" android:visibility="gone">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/tvCategory" android:text="" android:paddingHorizontal="12dp" android:paddingVertical="7dp" android:background="@drawable/community_detail_chip" android:textColor="@color/community_action" android:textSize="12sp" style="@style/CommunityFieldLabel" />
+            <Space android:layout_width="1dp" android:layout_height="14dp" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/tvTitle" android:text="" android:textSize="18sp" android:textIsSelectable="true" android:lineSpacingExtra="3dp" style="@style/CommunityHeading" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="12dp" android:gravity="center_vertical">
+                <TextView android:layout_width="22dp" android:layout_height="wrap_content" android:text="☺" android:textColor="@color/community_action" style="@style/CommunityText" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/tvOwner" android:text="" android:textSize="12sp" style="@style/CommunityMuted" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/tvDate" android:text="" android:layout_marginStart="8dp" style="@style/CommunityMuted" />
             </LinearLayout>
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="14dp"
-                android:layout_marginBottom="18dp"
-                android:background="@color/community_line" />
-            <ImageView
-                android:id="@+id/ivRepresentative"
-                android:layout_width="110dp"
-                android:layout_height="120dp"
-                android:scaleType="fitCenter"
-                android:contentDescription="게시글 대표 이미지" />
-            <TextView
-                android:id="@+id/tvContent"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="18dp"
-                android:textSize="15sp"
-                android:textColor="@color/community_ink"
-                android:lineSpacingExtra="7dp"
-                android:textIsSelectable="true" />
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="14dp"
-                android:background="@color/community_line" />
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:gravity="center_vertical">
-                <TextView
-                    android:id="@+id/tvCommentCount"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="댓글"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/community_ink" />
-                <Button
-                    android:id="@+id/btnRefreshComments"
-                    android:layout_width="100dp"
-                    android:layout_height="48dp"
-                    android:text="새로고침"
-                    android:textSize="12sp"
-                    android:textColor="@color/community_ink"
-                    android:backgroundTint="@color/community_soft" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/tvChildAge" android:text="" android:layout_marginTop="4dp" android:visibility="gone" style="@style/CommunityMuted" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/ownerActions" android:orientation="horizontal" android:gravity="end" android:visibility="gone" android:layout_marginTop="6dp">
+                <TextView android:layout_width="64dp" android:layout_height="40dp" android:id="@+id/btnEdit" android:text="수정" android:gravity="center" android:clickable="true" android:focusable="true" android:textColor="@color/community_action" style="@style/CommunityFieldLabel" />
+                <TextView android:layout_width="64dp" android:layout_height="40dp" android:id="@+id/btnDelete" android:text="삭제" android:gravity="center" android:clickable="true" android:focusable="true" android:textColor="@color/community_action" style="@style/CommunityFieldLabel" />
             </LinearLayout>
-            <TextView
-                android:id="@+id/tvCommentStatus"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/community_muted"
-                android:textSize="12sp"
-                android:accessibilityLiveRegion="polite" />
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/commentList"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false" />
-            <Spinner
-                android:id="@+id/spinnerChildAge"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:contentDescription="공개할 자녀 나이 선택" />
-            <EditText
-                android:id="@+id/etComment"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="56dp"
-                android:layout_marginTop="14dp"
-                android:padding="12dp"
-                android:background="@drawable/community_input"
-                android:hint="댓글을 입력해 주세요. (최대 500자)"
-                android:textSize="14sp"
-                android:textColor="@color/community_ink"
-                android:textColorHint="@color/community_muted"
-                android:inputType="textMultiLine"
-                android:maxLength="500" />
-            <Button
-                android:id="@+id/btnSendComment"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="8dp"
-                android:text="댓글 등록"
-                android:textColor="#FFFFFF"
-                android:backgroundTint="@color/community_pink" />
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/community_line" android:layout_marginVertical="16dp" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/tvContent" android:text="" android:textSize="14sp" android:textIsSelectable="true" android:lineSpacingExtra="8dp" style="@style/CommunityText" />
+            <ImageView android:layout_width="104dp" android:layout_height="104dp" android:id="@+id/ivRepresentative" android:layout_marginTop="18dp" android:scaleType="fitCenter" android:contentDescription="게시글 대표 이미지" />
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/community_line" android:layout_marginVertical="16dp" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="48dp" android:orientation="horizontal" android:gravity="center_vertical">
+                <TextView android:layout_width="wrap_content" android:layout_height="48dp" android:id="@+id/btnLike" android:text="공감" android:gravity="center_vertical" android:drawableStart="@drawable/community_figma_heart" android:drawablePadding="5dp" android:paddingEnd="12dp" android:textColor="@color/community_action" android:clickable="true" android:focusable="true" style="@style/CommunityFieldLabel" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:id="@+id/tvStats" android:text="" android:layout_weight="1" android:gravity="end" style="@style/CommunityMuted" />
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="44dp" android:orientation="horizontal" android:gravity="center_vertical">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:id="@+id/tvCommentCount" android:text="댓글 0" android:layout_weight="1" android:textSize="15sp" style="@style/CommunityHeading" />
+                <TextView android:layout_width="wrap_content" android:layout_height="44dp" android:id="@+id/btnRefreshComments" android:text="새로고침" android:paddingHorizontal="10dp" android:gravity="center" android:clickable="true" android:focusable="true" style="@style/CommunityMuted" />
+            </LinearLayout>
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/tvCommentStatus" android:text="" android:accessibilityLiveRegion="polite" style="@style/CommunityMuted" />
+            <androidx.recyclerview.widget.RecyclerView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/commentList" android:nestedScrollingEnabled="false" />
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
+    <LinearLayout android:id="@+id/commentComposer" android:visibility="gone" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="18dp" android:paddingBottom="10dp" android:background="@color/community_bg">
+        <Spinner android:layout_width="match_parent" android:layout_height="44dp" android:id="@+id/spinnerChildAge" android:contentDescription="공개할 자녀 나이 선택" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:minHeight="48dp" android:background="@drawable/community_comment_input" android:paddingStart="14dp" android:paddingEnd="6dp" android:gravity="center_vertical">
+            <EditText android:layout_width="0dp" android:layout_height="wrap_content" android:id="@+id/etComment" android:layout_weight="1" android:minHeight="48dp" android:maxHeight="112dp" android:background="@android:color/transparent" android:fontFamily="@font/pretendard" android:hint="댓글을 입력해 주세요..." android:textSize="13sp" android:textColor="@color/community_ink" android:textColorHint="@color/community_muted" android:inputType="textMultiLine" android:maxLength="500" android:paddingVertical="10dp" />
+            <TextView android:layout_width="48dp" android:layout_height="44dp" android:id="@+id/btnSendComment" android:text="등록" android:textColor="@color/community_action" android:gravity="center" android:clickable="true" android:focusable="true" style="@style/CommunityFieldLabel" />
+        </LinearLayout>
+    </LinearLayout>
 </LinearLayout>

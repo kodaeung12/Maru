@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="60dp" android:gravity="center_vertical" android:paddingHorizontal="12dp">
+    
+
+    <TextView android:id="@+id/btnBack" android:layout_width="40dp" android:layout_height="48dp" android:gravity="center" android:text="‹" android:textSize="30sp" android:textColor="#333333" android:contentDescription="뒤로 가기" android:background="?attr/selectableItemBackgroundBorderless" android:clickable="true" android:focusable="true"/>
+    
+
+    <TextView android:id="@+id/tvTitle" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="마루일기" android:textStyle="bold" android:textSize="23sp" android:textColor="#333333"/>
+    
+
+</LinearLayout>

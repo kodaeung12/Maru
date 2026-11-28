@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical"
+    android:paddingStart="20dp" android:paddingEnd="20dp">
+    <EditText android:id="@+id/editChildName" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:hint="@string/child_name_hint" android:inputType="textPersonName" android:maxLines="1" />
+    <Button android:id="@+id/buttonBirthDate" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="@string/child_birthdate" android:textAllCaps="false" />
+    <RadioGroup android:id="@+id/radioChildGender" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <RadioButton android:id="@+id/radioGirl" android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:text="여아" android:buttonTint="#FF858B" />
+        <RadioButton android:id="@+id/radioBoy" android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:text="남아" android:buttonTint="#FF858B" />
+    </RadioGroup>
+</LinearLayout>

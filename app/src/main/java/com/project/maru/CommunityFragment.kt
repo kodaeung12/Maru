@@ -27,7 +27,7 @@ class CommunityFragment : Fragment(R.layout.fragment_community) {
     private val binding get() = requireNotNull(_binding)
     private lateinit var adapter: CommunityPostAdapter
     private var category = "전체"
-    private var notifications: ListenerRegistration? = null
+    private var postsLoaded = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -75,6 +75,10 @@ class CommunityFragment : Fragment(R.layout.fragment_community) {
         }
         binding.etSearch.doAfterTextChanged { applySearch() }
         binding.btnShowAll.setOnClickListener {
+            if (binding.etSearch.text.isBlank() && category == "전체" && adapter.itemCount == 0) {
+                binding.btnWrite.performClick()
+                return@setOnClickListener
+            }
             binding.etSearch.text.clear()
             binding.etSearch.clearFocus()
             (requireContext().getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager)
@@ -130,10 +134,12 @@ class CommunityFragment : Fragment(R.layout.fragment_community) {
             return
         }
         setButtonsEnabled(false)
+        postsLoaded = false
         currentBinding.layoutEmpty.visibility = View.GONE
         currentBinding.tvStatus.text = "게시글을 불러오는 중…"
         adapter.loadItems({ count ->
             if (_binding !== currentBinding) return@loadItems
+            postsLoaded = true
             setButtonsEnabled(true)
             showCount(count)
         }, { error ->
@@ -145,11 +151,15 @@ class CommunityFragment : Fragment(R.layout.fragment_community) {
 
     private fun showCount(count: Int) {
         val currentBinding = _binding ?: return
-        currentBinding.layoutEmpty.visibility = if (count == 0) View.VISIBLE else View.GONE
+        currentBinding.tvSectionTitle.text = if (currentBinding.spinnerSort.selectedItemPosition == 1) "인기 게시글" else "최근 게시글"
+        currentBinding.layoutEmpty.visibility = if (postsLoaded && count == 0) View.VISIBLE else View.GONE
+        val closed = requireContext().getSharedPreferences("community_ui", 0).getBoolean("intro_closed", false)
+        currentBinding.introBanner.visibility = if (closed || (postsLoaded && count == 0)) View.GONE else View.VISIBLE
         val filtered = currentBinding.etSearch.text.isNotBlank() || category != "전체"
         currentBinding.tvEmptyTitle.text = if (filtered) "검색 결과가 없어요" else "아직 게시글이 없어요"
         currentBinding.tvEmptyMessage.text = if (filtered) "다른 검색어로 다시 검색해 보세요." else "첫 번째 이야기를 작성해 보세요!"
-        currentBinding.btnShowAll.visibility = if (filtered) View.VISIBLE else View.GONE
+        currentBinding.btnShowAll.text = if (filtered) "전체 게시글 보기" else "글쓰기"
+        currentBinding.btnShowAll.visibility = View.VISIBLE
         currentBinding.tvStatus.text = if (count == 0) {
             ""
         } else {
@@ -162,24 +172,7 @@ class CommunityFragment : Fragment(R.layout.fragment_community) {
         showCount(adapter.searchAndSort(current.etSearch.text.toString(), current.spinnerSort.selectedItemPosition == 1))
     }
 
-    override fun onStart() {
-        super.onStart()
-        val current = _binding ?: return
-        val uid = auth.currentUser?.uid ?: return
-        notifications = db.collection(CommunitySocial.NOTIFICATIONS).whereEqualTo("recipientId", uid)
-            .addSnapshotListener { snapshot, error ->
-                if (_binding !== current) return@addSnapshotListener
-                if (error == null && snapshot != null) {
-                    val count = snapshot.documents.count { it.getBoolean("read") != true }
-                    current.tvUnread.visibility = if (count > 0) View.VISIBLE else View.GONE
-                    current.tvUnread.text = if (count > 99) "99+" else count.toString()
-                    current.btnNotification.contentDescription = "커뮤니티 알림, 읽지 않은 알림 ${count}개"
-                }
-            }
-    }
-
     override fun onStop() {
-        notifications?.remove(); notifications = null
         adapter.stopLoading()
         super.onStop()
     }

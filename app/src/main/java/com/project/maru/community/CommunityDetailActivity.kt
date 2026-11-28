@@ -63,7 +63,7 @@ class CommunityDetailActivity : AppCompatActivity() {
         }
         binding.btnDelete.setOnClickListener { confirmPostDelete() }
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
-            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.ime())
             view.setPadding(bars.left, bars.top, bars.right, bars.bottom)
             insets
         }
@@ -83,6 +83,7 @@ class CommunityDetailActivity : AppCompatActivity() {
         postAvailable = false
         currentPost = null
         binding.postBody.visibility = View.GONE
+        binding.commentComposer.visibility = View.GONE
         binding.ownerActions.visibility = View.GONE
         binding.btnRetry.visibility = View.GONE
         if (postId.isBlank() || auth.currentUser == null) {
@@ -103,6 +104,7 @@ class CommunityDetailActivity : AppCompatActivity() {
                     currentPost = post
                     postAvailable = true
                     binding.postBody.visibility = View.VISIBLE
+                    binding.commentComposer.visibility = View.VISIBLE
                     binding.tvCategory.text = CommunityPostFilters.category(post.category)
                     binding.tvChildAge.visibility = if (post.childAge >= 0) View.VISIBLE else View.GONE
                     binding.tvChildAge.text = "만 ${post.childAge}세 자녀"
@@ -287,8 +289,13 @@ class CommunityDetailActivity : AppCompatActivity() {
 
     private fun renderSocial() {
         val post = currentPost ?: return
-        binding.tvStats.text = "조회 ${post.viewCount} · 공감 ${post.likeCount}"
-        binding.btnLike.text = if (liked) "♥ 공감 ${post.likeCount}" else "♡ 공감 ${post.likeCount}"
+        binding.tvStats.text = "조회 ${post.viewCount}"
+        binding.btnLike.text = "공감 ${post.likeCount}"
+        val heart = androidx.core.content.ContextCompat.getDrawable(this,
+            if (liked) com.project.maru.R.drawable.community_figma_heart_filled else com.project.maru.R.drawable.community_figma_heart)
+        val size = (16 * resources.displayMetrics.density).toInt()
+        heart?.setBounds(0, 0, size, size)
+        binding.btnLike.setCompoundDrawables(heart, null, null, null)
         binding.btnLike.contentDescription = if (liked) "공감 취소" else "이 게시글에 공감하기"
         binding.btnLike.isEnabled = postAvailable && !post.deleting && socialReady && !likeBusy
     }
@@ -302,6 +309,7 @@ class CommunityDetailActivity : AppCompatActivity() {
             if (!document.exists()) {
                 postAvailable = false
                 binding.postBody.visibility = View.GONE
+                binding.commentComposer.visibility = View.GONE
                 binding.tvStatus.text = "삭제되었거나 존재하지 않는 게시글이에요."
             } else {
                 currentPost?.deleting = document.getBoolean("deleting") == true
@@ -350,11 +358,20 @@ class CommunityDetailActivity : AppCompatActivity() {
 
     private fun showReportMenu() {
         if (!postAvailable || auth.currentUser == null) return
-        android.widget.PopupMenu(this, binding.btnMore).apply {
-            menu.add("신고하기")
-            setOnMenuItemClickListener {
-                if (currentPost?.ownerId == auth.currentUser?.uid) toast("본인 게시글은 신고할 수 없어요.")
-                else AlertDialog.Builder(this@CommunityDetailActivity).setTitle("신고 사유를 선택해 주세요")
+        val sheet = com.google.android.material.bottomsheet.BottomSheetDialog(this)
+        val options = com.project.maru.databinding.CommunityPostOptionsBinding.inflate(layoutInflater)
+        sheet.setContentView(options.root)
+        options.tvPostTitle.text = currentPost?.title
+        val ownPost = currentPost?.ownerId == auth.currentUser?.uid
+        options.btnReport.visibility = if (ownPost) View.GONE else View.VISIBLE
+        options.btnEdit.visibility = if (ownPost && currentPost?.deleting == false) View.VISIBLE else View.GONE
+        options.btnDelete.visibility = if (ownPost) View.VISIBLE else View.GONE
+        options.btnClose.setOnClickListener { sheet.dismiss() }
+        options.btnEdit.setOnClickListener { sheet.dismiss(); binding.btnEdit.performClick() }
+        options.btnDelete.setOnClickListener { sheet.dismiss(); confirmPostDelete() }
+        options.btnReport.setOnClickListener {
+                sheet.dismiss()
+                AlertDialog.Builder(this@CommunityDetailActivity).setTitle("신고 사유를 선택해 주세요")
                     .setItems(CommunitySocial.reportReasons) { _, index ->
                         AlertDialog.Builder(this@CommunityDetailActivity).setTitle("게시글을 신고할까요?")
                             .setMessage(CommunitySocial.reportReasons[index])
@@ -364,9 +381,8 @@ class CommunityDetailActivity : AppCompatActivity() {
                                     .addOnFailureListener { if (!isFinishing && !isDestroyed) toast(CommunityFirestore.errorMessage(it)) }
                             }.show()
                     }.setNegativeButton("취소", null).show()
-                true
-            }
-        }.show()
+        }
+        sheet.show()
     }
 
     override fun onStop() {

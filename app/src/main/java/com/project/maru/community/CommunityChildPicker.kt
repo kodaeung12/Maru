@@ -46,7 +46,9 @@ class CommunityChildPicker(private val spinner: Spinner) {
     fun close() { generation++ }
 
     private fun show(selection: Int) {
-        spinner.adapter = ArrayAdapter(spinner.context, android.R.layout.simple_spinner_dropdown_item, labels.toList())
+        spinner.adapter = ArrayAdapter(spinner.context, com.project.maru.R.layout.community_spinner_item, labels.toList()).apply {
+            setDropDownViewResource(com.project.maru.R.layout.community_spinner_dropdown)
+        }
         spinner.setSelection(selection.coerceIn(0, ages.lastIndex))
     }
 }

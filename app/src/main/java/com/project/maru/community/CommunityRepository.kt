@@ -1,14 +1,14 @@
 package com.project.maru.community
 
 import com.google.android.gms.tasks.Task
-import com.google.firebase.auth.FirebaseAuth
+import com.project.maru.MyApplication.Companion.auth
 import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.FirebaseFirestore
+import com.project.maru.MyApplication.Companion.db
 import com.google.firebase.firestore.Source
 
 // SQLite 원본은 유지하고, 공유 게시판의 저장과 조회는 Firestore에서 처리한다.
 object CommunityRepository {
-    private val posts get() = FirebaseFirestore.getInstance().collection("communityPosts")
+    private val posts get() = db.collection("communityPosts")
 
     fun loadPosts(ownerId: String? = null): Task<List<CommunityPost>> {
         val query = if (ownerId == null) posts else posts.whereEqualTo("ownerId", ownerId)
@@ -46,7 +46,7 @@ object CommunityRepository {
 
     // 문서 ID를 재사용하여 재시도/화면 회전으로 같은 글이 중복 등록되지 않게 한다.
     fun createPost(post: CommunityPost): Task<Void> {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        val uid = auth.currentUser?.uid
         if (uid == null || uid != post.ownerId) {
             return com.google.android.gms.tasks.Tasks.forException(IllegalStateException("로그인 후 작성해 주세요."))
         }
@@ -57,7 +57,7 @@ object CommunityRepository {
             return com.google.android.gms.tasks.Tasks.forException(IllegalArgumentException(com.project.maru.ContentPolicy.MESSAGE))
         }
         val ref = posts.document(post.id)
-        return FirebaseFirestore.getInstance().runTransaction { transaction ->
+        return db.runTransaction { transaction ->
             val existing = transaction.get(ref)
             if (!existing.exists()) {
                 transaction.set(ref, mapOf(

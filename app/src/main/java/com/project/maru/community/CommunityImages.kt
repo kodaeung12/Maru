@@ -50,12 +50,34 @@ class CommunityImageAdapter(var selectedKey: String) : BaseAdapter() {
             ItemCommunityImageBinding.bind(convertView)
         }
         val key = getItem(position)
-        CommunityImages.show(binding.ivImage, key)
-        binding.root.setBackgroundResource(if (selectedKey == key) R.drawable.community_image_selected else R.drawable.community_image_idle)
+        if (binding.ivImage.tag != key) CommunityImages.show(binding.ivImage, key)
+        binding.root.background = null
+        binding.selectionOutline.visibility = if (selectedKey == key) View.VISIBLE else View.GONE
         binding.root.contentDescription = CommunityImages.labels[position] + if (selectedKey == key) " 선택됨" else ""
-        // 나머지 여덟 원본에는 이름이 이미 들어 있어 중복 표기하지 않는다.
-        binding.tvLabel.visibility = if (position < 2) View.VISIBLE else View.GONE
+        binding.tvSelected.visibility = if (selectedKey == key) View.VISIBLE else View.GONE
+        // 원본 카드 아래의 글씨 영역은 뷰에서 잘라 내고 같은 이름을 읽기 쉬운 텍스트로 표시한다.
+        binding.tvLabel.visibility = View.VISIBLE
         binding.tvLabel.text = CommunityImages.labels[position]
+        binding.ivImage.tag = key
+        fun fitArt() {
+            val image = binding.ivImage
+            if (image.tag != key || image.width <= 0) return
+            val density = image.resources.displayMetrics.density
+            if (position < 2) {
+                val height = (56 * density).toInt()
+                if (image.layoutParams.height != height) image.layoutParams = image.layoutParams.apply { this.height = height }
+                image.scaleType = ImageView.ScaleType.FIT_CENTER
+                val horizontal = (image.width * 0.25f).toInt()
+                val vertical = (11 * density).toInt()
+                if (image.paddingLeft != horizontal || image.paddingTop != vertical) image.setPadding(horizontal, vertical, horizontal, vertical)
+            } else {
+                if (image.paddingLeft != 0 || image.paddingTop != 0) image.setPadding(0, 0, 0, 0)
+                image.scaleType = ImageView.ScaleType.FIT_XY
+                val height = (image.width * 139f / 130f).toInt()
+                if (image.layoutParams.height != height) image.layoutParams = image.layoutParams.apply { this.height = height }
+            }
+        }
+        binding.ivImage.post { fitArt() }
         return binding.root
     }
 }

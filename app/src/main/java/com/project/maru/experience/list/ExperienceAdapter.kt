@@ -1,4 +1,10 @@
-package com.project.maru.experience
+package com.project.maru.experience.list
+
+import com.project.maru.experience.Experience
+import com.project.maru.experience.ExperiencePeriod
+import com.project.maru.experience.FavoriteStore
+import com.project.maru.experience.matchesSearch
+import com.project.maru.experience.openExperienceDetail
 
 import android.view.LayoutInflater
 import android.view.View
@@ -8,8 +14,6 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import android.content.Intent
-import com.project.maru.DetailActivity
 import com.project.maru.R
 
 internal class ExperienceAdapter(
@@ -23,7 +27,7 @@ internal class ExperienceAdapter(
 
     private var currentQuery = ""
 
-    private var selectedCategory = "전체"
+    private var selectedCategory = ExperienceCategory.ALL
 
     private var selectedRegion = "전체 지역"
 
@@ -41,7 +45,7 @@ internal class ExperienceAdapter(
         updateFilteredList()
     }
 
-    fun filterCategory(category: String) {
+    fun filterCategory(category: ExperienceCategory) {
         selectedCategory = category
         updateFilteredList()
     }
@@ -64,9 +68,7 @@ internal class ExperienceAdapter(
                 val matchesQuery =
                     experience.matchesSearch(currentQuery)
 
-                val matchesCategory =
-                    selectedCategory == "전체" ||
-                            experience.category == selectedCategory
+                val matchesCategory = selectedCategory.matches(experience)
 
                 val matchesRegion =
                     selectedRegion == "전체 지역" ||
@@ -131,20 +133,7 @@ internal class ExperienceAdapter(
         holder.favoriteButton.setOnClickListener { favorites.toggle(experience) }
 
         holder.itemView.setOnClickListener {
-            RecentExperienceStore.recordView(holder.itemView.context, experience)
-            val intent = Intent(holder.itemView.context, DetailActivity::class.java).apply {
-                putExtra(DetailActivity.EXTRA_TITLE, experience.title)
-                putExtra(DetailActivity.EXTRA_DATE, experience.date)
-                putExtra(DetailActivity.EXTRA_PLACE, experience.location)
-                putExtra(DetailActivity.EXTRA_REGION, experience.region)
-                putExtra(DetailActivity.EXTRA_IMAGE_URL, experience.imageUrl.orEmpty())
-                putExtra(DetailActivity.EXTRA_TARGET_AGE, experience.targetAge)
-                putExtra(DetailActivity.EXTRA_CATEGORY, experience.category)
-                putExtra(DetailActivity.EXTRA_START_DATE, experience.startDate?.toString().orEmpty())
-                putExtra(DetailActivity.EXTRA_END_DATE, experience.endDate?.toString().orEmpty())
-            }
-
-            holder.itemView.context.startActivity(intent)
+            openExperienceDetail(holder.itemView.context, experience)
         }
 
         if (!experience.imageUrl.isNullOrBlank()) {

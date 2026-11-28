@@ -1,4 +1,6 @@
-package com.project.maru.experience
+package com.project.maru.experience.recommendation
+
+import com.project.maru.experience.Experience
 
 import android.content.Context
 import org.json.JSONArray

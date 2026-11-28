@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="144dp"
+    android:layout_height="wrap_content"
+    android:layout_marginEnd="8dp"
+    android:background="@drawable/community_card"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <ImageView
+        android:id="@+id/recommendationImage"
+        android:layout_width="128dp"
+        android:layout_height="128dp"
+        android:background="@drawable/community_card"
+        android:clipToOutline="true"
+        android:importantForAccessibility="no"
+        android:scaleType="centerCrop" />
+
+    <TextView
+        android:id="@+id/recommendationTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:minLines="2"
+        android:textColor="@color/text_dark"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/recommendationRegion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textColor="@color/text_sub"
+        android:textSize="11sp" />
+
+    <TextView
+        android:id="@+id/recommendationDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:textColor="@color/text_sub"
+        android:textSize="11sp" />
+</LinearLayout>

@@ -23,23 +23,37 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
+import androidx.core.view.isVisible
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.project.maru.experience.recommendation.DetailRecommendationAdapter
+import com.project.maru.experience.data.ExperienceCandidateCache
+import com.project.maru.experience.recommendation.SimilarExperienceRecommender
+import com.project.maru.experience.location.bindExperienceLocationPreview
+import com.project.maru.experience.bindExperienceDetailNavSelection
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Locale
 
 class DetailActivity : AppCompatActivity() {
 
-    // 행사 목록 화면에서 데이터를 넘길 때 사용하는 키 (이름표)
     companion object {
-        const val EXTRA_TITLE = "extra_title"             // TITLE
-        const val EXTRA_DATE = "extra_date"               // DATE
-        const val EXTRA_PLACE = "extra_place"             // PLACE
-        const val EXTRA_REGION = "extra_region"           // GUNAME
-        const val EXTRA_IMAGE_URL = "extra_image_url"     // MAIN_IMG
-        const val EXTRA_TARGET_AGE = "extra_target_age"   // USE_TRGT
-        const val EXTRA_FEE = "extra_fee"                 // USE_FEE
-        const val EXTRA_HOMEPAGE = "extra_homepage"       // HMPG_ADDR
+        const val EXTRA_TITLE = "extra_title"
+        const val EXTRA_DATE = "extra_date"
+        const val EXTRA_PLACE = "extra_place"
+        const val EXTRA_REGION = "extra_region"
+        const val EXTRA_IMAGE_URL = "extra_image_url"
+        const val EXTRA_TARGET_AGE = "extra_target_age"
+        const val EXTRA_FEE = "extra_fee"
+        const val EXTRA_HOMEPAGE = "extra_homepage"
         const val EXTRA_START_DATE = "extra_start_date"
         const val EXTRA_END_DATE = "extra_end_date"
-        const val EXTRA_CATEGORY = "extra_category"       // CODENAME
+        const val EXTRA_CATEGORY = "extra_category"
     }
 
     private lateinit var tabInfoText: TextView
@@ -56,15 +70,12 @@ class DetailActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_detail)
 
-        // 상태바/내비게이션바에 화면이 가려지지 않게 여백 주기
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { view, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             view.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
 
-        // ---------- 1. 목록 화면에서 넘어온 행사 데이터 받기 ----------
-        // 목록 없이 이 화면만 실행하면(테스트용) 오른쪽의 샘플 데이터가 표시됨
         val title = getData(EXTRA_TITLE, "가을 가족 체험 축제")
         val date = getData(EXTRA_DATE, "2026. 10. 25(일) ~ 10. 26(월)")
         val place = getData(EXTRA_PLACE, "서울 어린이대공원")
@@ -98,10 +109,8 @@ class DetailActivity : AppCompatActivity() {
         }
         favorite.setOnClickListener { favorites.toggle(event) }
 
-        // ---------- 2. 화면에 데이터 표시 ----------
         findViewById<TextView>(R.id.textDetailTitle).text = title
 
-        // API에는 행사 소개글이 없어서 카테고리로 간단한 소개 문구를 만듦
         findViewById<TextView>(R.id.textDetailDescription).text =
             if (isFromList()) {
                 "아이와 함께하는 특별한 하루!\n${orDefault(category)} 행사에 초대합니다."
@@ -111,14 +120,13 @@ class DetailActivity : AppCompatActivity() {
 
         findViewById<TextView>(R.id.textDetailDate).text = orDefault(date)
         findViewById<TextView>(R.id.textDetailPlace).text = orDefault(place)
+        bindExperienceLocationPreview(this, title, orDefault(place))
         findViewById<TextView>(R.id.textDetailAge).text = orDefault(targetAge)
         findViewById<TextView>(R.id.textDetailFee).text = orDefault(fee)
 
-        // 시간 정보는 API에 없어서 샘플일 때만 표시
         setTextOrHide(findViewById(R.id.textDetailTime), if (isFromList()) "" else "10:00 ~ 17:00")
         setTextOrHide(findViewById(R.id.textDetailRegion), region)
 
-        // 문의처도 API에 없어서 샘플일 때만 표시, 목록에서 왔으면 홈페이지 안내
         if (isFromList()) {
             findViewById<TextView>(R.id.textDetailContact).text = "공식 사이트를 확인해주세요"
             setTextOrHide(findViewById(R.id.textDetailPhone), "")
@@ -127,7 +135,6 @@ class DetailActivity : AppCompatActivity() {
             setTextOrHide(findViewById(R.id.textDetailPhone), "02-123-4567")
         }
 
-        // 대표 이미지: API 이미지 주소가 있으면 Glide로 불러오고, 없으면 drawable/detail_event 사용
         val imageView = findViewById<ImageView>(R.id.imageDetail)
         if (imageUrl.isNotBlank()) {
             Glide.with(this)
@@ -140,7 +147,6 @@ class DetailActivity : AppCompatActivity() {
             imageView.setImageResource(R.drawable.detail_event)
         }
 
-        // ---------- 3. 별점 + 리뷰 목록 ----------
         reviewEventId = if (isFromList()) eventReviewId(title, place, date) else ""
         showReviews(emptyList())
         findViewById<Button>(R.id.buttonRefreshReviews).setOnClickListener { loadReviews() }
@@ -148,7 +154,6 @@ class DetailActivity : AppCompatActivity() {
         findViewById<Button>(R.id.buttonSaveReview).isEnabled = reviewEventId.isNotBlank()
         loadReviews()
 
-        // ---------- 4. 탭 (행사 안내 / 행사 리뷰) ----------
         tabInfoText = findViewById(R.id.tabInfoText)
         tabInfoLine = findViewById(R.id.tabInfoLine)
         tabReviewText = findViewById(R.id.tabReviewText)
@@ -160,7 +165,6 @@ class DetailActivity : AppCompatActivity() {
         findViewById<View>(R.id.tabReview).setOnClickListener { selectTab(false) }
         selectTab(true)
 
-        // ---------- 5. 버튼들 ----------
         findViewById<ImageView>(R.id.btnBack).setOnClickListener { finish() }
 
         findViewById<Button>(R.id.btnOfficialSite).setOnClickListener {
@@ -168,6 +172,27 @@ class DetailActivity : AppCompatActivity() {
         }
 
         setupBottomNav()
+        if (isFromList()) bindDetailRecommendations(event)
+    }
+
+    private fun bindDetailRecommendations(event: Experience) {
+        val section = findViewById<View>(R.id.detailRecommendationSection)
+        val recycler = findViewById<RecyclerView>(R.id.detailRecommendationList)
+        val adapter = DetailRecommendationAdapter()
+        recycler.layoutManager = LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
+        recycler.adapter = adapter
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                ExperienceCandidateCache.candidates.collectLatest { candidates ->
+                    val recommendations = withContext(Dispatchers.Default) {
+                        SimilarExperienceRecommender.recommendForEvent(event, candidates)
+                    }
+                    adapter.submitList(recommendations)
+                    section.isVisible = recommendations.isNotEmpty()
+                }
+            }
+        }
     }
 
     private fun loadReviews() {
@@ -235,10 +260,8 @@ class DetailActivity : AppCompatActivity() {
             }
     }
 
-    // 목록 화면에서 넘어왔는지 확인 (행사명이 넘어왔으면 목록에서 온 것)
     private fun isFromList(): Boolean = intent.hasExtra(EXTRA_TITLE)
 
-    // 목록에서 왔으면 넘어온 값을, 아니면 샘플 값을 돌려줌
     private fun getData(key: String, sample: String): String {
         return if (isFromList()) intent.getStringExtra(key).orEmpty().trim() else sample
     }
@@ -250,7 +273,6 @@ class DetailActivity : AppCompatActivity() {
         textView.visibility = if (text.isBlank()) View.GONE else View.VISIBLE
     }
 
-    // 탭 선택: true = 행사 안내, false = 행사 리뷰
     private fun selectTab(isInfo: Boolean) {
         val pink = 0xFFFF858A.toInt()
         val gray = 0xFF777777.toInt()
@@ -266,7 +288,6 @@ class DetailActivity : AppCompatActivity() {
         tabReviewLine.visibility = if (isInfo) View.INVISIBLE else View.VISIBLE
     }
 
-    // 별점 평균 계산 + 리뷰 카드 추가
     private fun showReviews(reviews: List<Review>) {
         val average = if (reviews.isEmpty()) 0.0 else reviews.map { it.rating }.average()
         findViewById<TextView>(R.id.textRating).text = String.format(Locale.KOREA, "%.1f", average)
@@ -286,14 +307,12 @@ class DetailActivity : AppCompatActivity() {
         }
     }
 
-    // 공식 사이트를 인터넷 브라우저로 열기
     private fun openWebsite(address: String) {
         if (address.isBlank()) {
             Toast.makeText(this, "공식 사이트 정보가 없습니다.", Toast.LENGTH_SHORT).show()
             return
         }
 
-        // "www.~" 처럼 http가 빠진 주소도 열리도록 앞에 붙여줌
         val url = if (address.startsWith("http")) address else "https://$address"
 
         try {
@@ -303,13 +322,13 @@ class DetailActivity : AppCompatActivity() {
         }
     }
 
-    // 하단 메뉴에서 홈을 누르면 앱의 실제 홈 화면으로 돌아간다.
     private fun setupBottomNav() {
+        bindExperienceDetailNavSelection(this)
         findViewById<View>(R.id.navHome).setOnClickListener {
             startActivity(HomeActivity.homeIntent(this))
         }
         findViewById<View>(R.id.navEvent).setOnClickListener {
-            finish()   // 체험·행사 목록에서 들어왔으므로 닫으면 목록 화면으로 돌아감
+            startActivity(HomeActivity.sectionIntent(this, R.id.experienceFragment))
         }
         findViewById<View>(R.id.navStudy).setOnClickListener {
             startActivity(HomeActivity.sectionIntent(this, R.id.ageEduFragment))

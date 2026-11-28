@@ -1,4 +1,4 @@
-package com.project.maru   // ← 내 프로젝트 패키지명과 다르면 이 줄만 바꿔주세요
+package com.project.maru
 
 import android.os.Bundle
 import android.view.View
@@ -9,13 +9,14 @@ import androidx.core.os.bundleOf
 import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.project.maru.experience.list.ExperienceCategory
+import com.project.maru.experience.recommendation.bindHomeExperienceRecommendations
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val nav = findNavController()
 
-        // ---------- 이름 / 나이 넣기 (res/values/strings.xml 의 user_name, child_age) ----------
         val userName = getString(R.string.user_name)
         val age = resources.getInteger(R.integer.child_age)
 
@@ -28,28 +29,29 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         ScheduleUi.bindHome(this, view)
 
-        // ---------- 하트(즐겨찾기) → 즐겨찾기 화면 ----------
         view.findViewById<View>(R.id.btnFavorite).setOnClickListener {
             nav.navigate(R.id.action_home_to_favorites)
         }
 
         HomeSearch.bind(this, view)
 
-        // ---------- 홈 카테고리: 문화·예술 / 자연·생태 / 축제·행사 / 가족 나들이 ----------
         view.findViewById<View>(R.id.catCulture).setOnClickListener {
-            nav.navigate(R.id.action_home_to_experience, bundleOf("category" to getString(R.string.cat_culture)))
+            nav.navigate(R.id.action_home_to_experience, bundleOf("category" to ExperienceCategory.CULTURE.name))
         }
         view.findViewById<View>(R.id.catNature).setOnClickListener {
-            nav.navigate(R.id.action_home_to_experience, bundleOf("category" to getString(R.string.cat_nature)))
+            nav.navigate(R.id.action_home_to_experience, bundleOf("category" to ExperienceCategory.NATURE.name))
         }
         view.findViewById<View>(R.id.catFestival).setOnClickListener {
-            nav.navigate(R.id.action_home_to_experience, bundleOf("category" to getString(R.string.cat_festival)))
+            nav.navigate(R.id.action_home_to_experience, bundleOf("category" to ExperienceCategory.FESTIVAL.name))
         }
         view.findViewById<View>(R.id.catFamily).setOnClickListener {
-            nav.navigate(R.id.action_home_to_experience, bundleOf("category" to getString(R.string.cat_family)))
+            nav.navigate(R.id.action_home_to_experience, bundleOf("category" to ExperienceCategory.EDUCATION.name))
         }
 
-        // ---------- 연령 추천 배너 (>) → 연령별 교육 ----------
+        view.findViewById<View>(R.id.catExperience).setOnClickListener {
+            nav.navigate(R.id.action_home_to_experience, bundleOf("category" to ExperienceCategory.EXPERIENCE.name))
+        }
+
         val defaultAgeCategory = resources.getInteger(R.integer.child_age).toString()
         view.findViewById<View>(R.id.bannerRecommend).setOnClickListener {
             nav.navigate(R.id.action_home_to_ageEdu, bundleOf("category" to defaultAgeCategory))
@@ -58,12 +60,10 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             nav.navigate(R.id.action_home_to_ageEdu, bundleOf("category" to defaultAgeCategory))
         }
 
-        // ---------- 추천 체험 "전체보기 >" → 체험·행사 ----------
         view.findViewById<View>(R.id.tvMoreExperience).setOnClickListener {
             nav.navigate(R.id.action_home_to_experience)
         }
 
-        // 홈의 소개용 카드에서는 실제 API 행사를 선택하도록 안내한다.
         listOf(R.id.btnHeart1, R.id.btnHeart2, R.id.btnHeart3).forEach { id ->
             view.findViewById<ImageButton>(id).setOnClickListener {
                 Toast.makeText(requireContext(), R.string.favorite_choose_event, Toast.LENGTH_SHORT).show()
@@ -71,7 +71,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             }
         }
 
-        // ---------- 연령별 교육 "전체보기 >" 와 카드들 → 연령별 교육 ----------
+        bindHomeExperienceRecommendations(this, view)
+
         view.findViewById<View>(R.id.tvMoreAge).setOnClickListener {
             nav.navigate(R.id.action_home_to_ageEdu, bundleOf("category" to defaultAgeCategory))
         }

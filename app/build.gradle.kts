@@ -15,19 +15,15 @@ if (localFile.exists()) {
 }
 
 val seoulApiKey = localProperties.getProperty("SEOUL_API_KEY", "")
+val kakaoMapApiKey = localProperties.getProperty("KAKAO_MAP_API_KEY", "").trim()
 
 dependencies {
-    // Import the Firebase BoM
     implementation(platform("com.google.firebase:firebase-bom:34.19.0"))
 
 
-    // TODO: Add the dependencies for Firebase products you want to use
-    // When using the BoM, don't specify versions in Firebase dependencies
     implementation("com.google.firebase:firebase-analytics")
 
 
-    // Add the dependencies for any other desired Firebase products
-    // https://firebase.google.com/docs/android/setup#available-libraries
     implementation("com.google.firebase:firebase-auth")
 
     implementation("androidx.credentials:credentials:1.3.0")
@@ -58,6 +54,8 @@ android {
         versionName = "1.0"
 
         buildConfigField("String", "SEOUL_API_KEY", "\"$seoulApiKey\"")
+
+        buildConfigField("String", "KAKAO_MAP_API_KEY", "\"$kakaoMapApiKey\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -94,6 +92,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
+    implementation("com.kakao.maps.open:android:2.15.2")
     implementation("com.github.bumptech.glide:glide:4.16.0")
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")

@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 홈 화면 -->
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -14,13 +13,11 @@
         android:paddingBottom="16dp"
         android:focusable="true" android:focusableInTouchMode="true">
 
-        <!-- ============ 1. 상단 (로고 / 인사말 / 가족 그림 / 알림·하트 / 검색바) ============ -->
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="340dp"
             android:background="@drawable/bg_hero">
 
-            <!-- 가족 그림 -->
             <ImageView
                 android:layout_width="240dp"
                 android:layout_height="wrap_content"
@@ -30,14 +27,12 @@
                 android:importantForAccessibility="no"
                 android:src="@drawable/img_family_hero" />
 
-            <!-- 그림 아래쪽을 배경색으로 흐리게 -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_gravity="bottom"
                 android:background="@drawable/bg_hero_fade" />
 
-            <!-- 왼쪽 글자 -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -74,7 +69,6 @@
                     android:textColor="@color/text_sub"
                     android:textSize="13sp" />
 
-                <!-- "지은님, 오늘은 어떤 특별한 하루를 만들어볼까요?" (이름은 strings.xml 의 user_name) -->
                 <TextView
                     android:id="@+id/tvGreeting"
                     android:layout_width="wrap_content"
@@ -87,7 +81,6 @@
                     tools:text="지은님,\n오늘은 어떤\n특별한 하루를\n만들어볼까요?" />
             </LinearLayout>
 
-            <!-- 오른쪽 위: 알림 / 즐겨찾기 -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -110,7 +103,6 @@
                         android:scaleType="fitCenter"
                         android:src="@drawable/community_ic_bell" />
 
-                        <!-- 알림 켜짐 표시 빨간 점 -->
                     <View
                         android:id="@+id/viewBellDot"
                         android:layout_width="8dp"
@@ -132,7 +124,6 @@
                     android:src="@drawable/ic_favorite_border" />
             </LinearLayout>
 
-            <!-- 검색바 -->
             <LinearLayout
                 android:id="@+id/searchBar"
                 android:layout_width="match_parent"
@@ -184,10 +175,10 @@
             <LinearLayout android:id="@+id/layoutPopularSearches" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
         </LinearLayout>
 
-        <!-- ============ 2. 카테고리 버튼 4개 ============ -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:baselineAligned="false"
             android:orientation="horizontal"
             android:paddingStart="13dp"
             android:paddingTop="14dp"
@@ -197,37 +188,49 @@
             <LinearLayout
                 android:id="@+id/catCulture"
                 style="@style/CategoryBox"
+                android:layout_height="match_parent"
                 android:backgroundTint="@color/cat_orange">
                 <ImageView style="@style/CategoryIcon" android:src="@drawable/ic_cat_palette" />
-                <TextView style="@style/CategoryText" android:text="@string/cat_culture" />
+                <TextView style="@style/CategoryText" android:gravity="center" android:maxLines="5" android:text="@string/cat_culture" />
             </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/catNature"
                 style="@style/CategoryBox"
+                android:layout_height="match_parent"
                 android:backgroundTint="@color/cat_green">
                 <ImageView style="@style/CategoryIcon" android:src="@drawable/ic_cat_sprout" />
-                <TextView style="@style/CategoryText" android:text="@string/cat_nature" />
+                <TextView style="@style/CategoryText" android:gravity="center" android:maxLines="5" android:text="@string/cat_nature" />
             </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/catFestival"
                 style="@style/CategoryBox"
+                android:layout_height="match_parent"
                 android:backgroundTint="@color/cat_blue">
                 <ImageView style="@style/CategoryIcon" android:src="@drawable/ic_cat_balloon" />
-                <TextView style="@style/CategoryText" android:text="@string/cat_festival" />
+                <TextView style="@style/CategoryText" android:gravity="center" android:maxLines="5" android:text="@string/cat_festival" />
             </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/catFamily"
                 style="@style/CategoryBox"
+                android:layout_height="match_parent"
                 android:backgroundTint="@color/cat_beige">
-                <ImageView style="@style/CategoryIcon" android:src="@drawable/ic_cat_bear" />
-                <TextView style="@style/CategoryText" android:text="@string/cat_family" />
+                <ImageView style="@style/CategoryIcon" android:src="@drawable/ic_cat_education" />
+                <TextView style="@style/CategoryText" android:gravity="center" android:maxLines="5" android:text="@string/cat_education" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/catExperience"
+                style="@style/CategoryBox"
+                android:layout_height="match_parent"
+                android:backgroundTint="@color/cat_pink">
+                <ImageView style="@style/CategoryIcon" android:src="@drawable/ic_cat_puzzle" />
+                <TextView style="@style/CategoryText" android:gravity="center" android:maxLines="5" android:text="@string/experience_list_category_experience" />
             </LinearLayout>
         </LinearLayout>
 
-        <!-- ============ 3. 연령 추천 배너 ============ -->
         <LinearLayout
             android:id="@+id/bannerRecommend"
             android:layout_width="match_parent"
@@ -304,7 +307,6 @@
             <TextView android:id="@+id/textScheduleState" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="13sp" />
         </LinearLayout>
 
-        <!-- ============ 4. 우리 아이 맞춤 추천 체험 ============ -->
         <LinearLayout style="@style/SectionRow">
             <ImageView
                 android:layout_width="24dp"
@@ -314,6 +316,7 @@
                 app:tint="@color/maru_pink" />
             <TextView
                 style="@style/SectionTitle"
+                android:id="@+id/textHomeExperienceRecommendationHeading"
                 android:text="@string/section_recommend" />
             <TextView
                 android:id="@+id/tvMoreExperience"
@@ -321,6 +324,7 @@
         </LinearLayout>
 
         <HorizontalScrollView
+            android:id="@+id/scrollHomeExperienceRecommendations"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:clipToPadding="false"
@@ -329,13 +333,19 @@
             android:scrollbars="none">
 
             <LinearLayout
+                android:id="@+id/layoutHomeExperienceRecommendations"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:paddingTop="4dp"
                 android:paddingBottom="6dp">
 
-                <!-- 카드 1 -->
+                <TextView
+                    android:id="@+id/textHomeExperienceRecommendationStatus"
+                    style="@style/CardInfo"
+                    android:minHeight="48dp"
+                    android:text="@string/home_recommend_loading" />
+
                 <com.google.android.material.card.MaterialCardView style="@style/ExpCard">
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -370,7 +380,6 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- 카드 2 -->
                 <com.google.android.material.card.MaterialCardView style="@style/ExpCard">
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -405,7 +414,6 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- 카드 3 -->
                 <com.google.android.material.card.MaterialCardView style="@style/ExpCard">
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -442,7 +450,6 @@
             </LinearLayout>
         </HorizontalScrollView>
 
-        <!-- ============ 5. 지은이(6세)를 위한 연령별 교육 ============ -->
         <LinearLayout style="@style/SectionRow">
             <ImageView
                 android:layout_width="24dp"
@@ -520,7 +527,6 @@
             </LinearLayout>
         </HorizontalScrollView>
 
-        <!-- 최신 커뮤니티 글 -->
         <LinearLayout
             android:layout_width="match_parent" android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp" android:layout_marginTop="16dp"

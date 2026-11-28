@@ -1,4 +1,17 @@
-package com.project.maru.experience
+package com.project.maru.experience.list
+
+import com.project.maru.experience.location.EventCoordinates
+import com.project.maru.experience.Experience
+import com.project.maru.experience.data.ExperienceCandidateCache
+import com.project.maru.experience.ExperiencePeriod
+import com.project.maru.experience.data.familyExperiences
+import com.project.maru.experience.FavoriteStore
+import com.project.maru.experience.data.SEOUL_CULTURE_PAGE_SIZE
+import com.project.maru.experience.data.SeoulCultureData
+import com.project.maru.experience.data.SeoulCultureEvent
+import com.project.maru.experience.data.SeoulCultureFirstPage
+import com.project.maru.experience.data.SeoulCultureResponse
+import com.project.maru.experience.data.SeoulCultureRetrofit
 
 import android.app.AlertDialog
 import android.os.Bundle
@@ -9,22 +22,27 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.project.maru.BuildConfig
 import com.project.maru.R
 import com.project.maru.showHome
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-// 행사 목록과 홈의 검색 메뉴가 같은 화면 및 필터를 사용한다.
+
 class ExperienceListFragment : Fragment(R.layout.fragment_experience_list) {
     private var activeCall: Call<SeoulCultureResponse>? = null
+    private var firstPageJob: Job? = null
 
     private companion object {
-        const val API_PAGE_SIZE = 1000
+        const val API_PAGE_SIZE = SEOUL_CULTURE_PAGE_SIZE
+        const val API_MAX_COUNT = 5000
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -37,7 +55,6 @@ class ExperienceListFragment : Fragment(R.layout.fragment_experience_list) {
         val search = view.findViewById<EditText>(R.id.editSearch)
         val status = view.findViewById<TextView>(R.id.textSearchStatus)
         val retry = view.findViewById<Button>(R.id.buttonRetrySearch)
-        val similar = view.findViewById<Button>(R.id.btnSimilarEvents)
         val favoritesMode = navController.currentDestination?.id == R.id.favoritesFragment
         val favorites = FavoriteStore(viewLifecycleOwner) { message ->
             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
@@ -56,7 +73,9 @@ class ExperienceListFragment : Fragment(R.layout.fragment_experience_list) {
                 else getString(R.string.search_count, adapter.itemCount)
         }
         adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
-            override fun onChanged() = showResultCount()
+            override fun onChanged() {
+                showResultCount()
+            }
         })
         search.doAfterTextChanged { adapter.filterList(it?.toString().orEmpty()) }
         search.imeOptions = android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH
@@ -72,7 +91,8 @@ class ExperienceListFragment : Fragment(R.layout.fragment_experience_list) {
             } else false
         }
         if (savedInstanceState == null) search.setText(arguments?.getString("query").orEmpty())
-        ExperienceCategoryPicker.bind(view.findViewById(R.id.filterCategory), adapter)
+        ExperienceCategoryPicker.bind(view.findViewById(R.id.filterCategory), adapter,
+            arguments?.getString("category"), favoritesMode)
         ExperiencePeriodPicker.bind(view.findViewById(R.id.filterPeriod), adapter)
         val regionButton = view.findViewById<Button>(R.id.filterRegion)
         regionButton.setOnClickListener {
@@ -85,9 +105,6 @@ class ExperienceListFragment : Fragment(R.layout.fragment_experience_list) {
                     regionButton.text = "${regions[index]}  ⌄"
                     adapter.filterRegion(regions[index])
                 }.setNegativeButton(android.R.string.cancel, null).show()
-        }
-        similar.setOnClickListener {
-            startActivity(SimilarEventsActivity.createIntent(requireContext(), candidates))
         }
 
         favorites.onChanged = {
@@ -106,9 +123,6 @@ class ExperienceListFragment : Fragment(R.layout.fragment_experience_list) {
             }
         }
         if (favoritesMode) {
-            similar.visibility = View.GONE
-            // 추천 배너의 장식도 함께 숨긴다.
-            (similar.parent as View).visibility = View.GONE
             retry.setOnClickListener { favorites.reload() }
             status.setText(R.string.favorites_loading)
             return
@@ -117,49 +131,65 @@ class ExperienceListFragment : Fragment(R.layout.fragment_experience_list) {
         fun showFailure() {
             loading = false
             failed = true
-            similar.isEnabled = false
             status.text = if (candidates.isEmpty()) getString(R.string.search_failed)
                 else "일부 행사만 불러왔어요. 다시 시도하면 전체 목록을 불러옵니다."
             retry.visibility = View.VISIBLE
         }
 
-        // 받은 행사부터 보여 주고, 전체 조회가 끝날 때까지 진행 상태를 표시한다.
-        fun loadPage(start: Int, collected: MutableList<Experience>) {
-            val call = SeoulCultureRetrofit.apiService.getCultureEvents(BuildConfig.SEOUL_API_KEY, start, start + API_PAGE_SIZE - 1)
+        // 받은 행사부터 보여 주고, 전체 조회가 끝날 때까지 진행 상태를 표시함
+
+        fun loadPage(start: Int, collected: MutableList<Experience>, lastRow: Int = API_MAX_COUNT) {
+            fun showPage(data: SeoulCultureData?) {
+                if (data == null || (data.row.isEmpty() && start <= data.list_total_count)) {
+                    showFailure()
+                    return
+                }
+                collected.addAll(data.familyExperiences())
+                candidates = collected.distinctBy { listOf(it.title, it.location, it.date) }
+                adapter.updateData(candidates)
+                status.text = "체험·행사를 불러오는 중이에요… (${candidates.size}개 표시)"
+                val next = start + data.row.size
+                val lastAvailableRow = minOf(data.list_total_count, API_MAX_COUNT)
+                val hasNext = next <= lastAvailableRow && data.row.isNotEmpty()
+                ExperienceCandidateCache.publish(candidates, complete = !hasNext)
+                if (hasNext) {
+                    loadPage(next, collected, lastAvailableRow)
+                } else {
+                    loading = false
+                    showResultCount()
+                }
+            }
+
+            if (start == 1) {
+                firstPageJob = viewLifecycleOwner.lifecycleScope.launch {
+                    showPage(SeoulCultureFirstPage.load())
+                }
+                return
+            }
+
+            val end = minOf(start + API_PAGE_SIZE - 1, lastRow)
+            val call = SeoulCultureRetrofit.apiService.getCultureEvents(BuildConfig.SEOUL_API_KEY, start, end)
             activeCall = call
             call.enqueue(object : Callback<SeoulCultureResponse> {
                 override fun onResponse(call: Call<SeoulCultureResponse>, response: Response<SeoulCultureResponse>) {
                     if (activeCall !== call || this@ExperienceListFragment.view !== view) return
-                    val data = response.body()?.aiViewCulture
-                    if (!response.isSuccessful || data == null || (data.row.isEmpty() && start <= data.list_total_count)) {
-                        showFailure()
-                        return
-                    }
-                    collected.addAll(data.row.map { it.toExperience() }.filter { isSuitableForAge5To8(it.targetAge) })
-                    candidates = collected.distinctBy { listOf(it.title, it.location, it.date) }
-                    adapter.updateData(candidates)
-                    status.text = "체험·행사를 불러오는 중이에요… (${candidates.size}개 표시)"
-                    val next = start + data.row.size
-                    if (next <= data.list_total_count && data.row.isNotEmpty()) {
-                        loadPage(next, collected)
-                    } else {
-                        loading = false
-                        similar.isEnabled = true
-                        showResultCount()
-                    }
+                    showPage(response.body()?.aiViewCulture?.takeIf { response.isSuccessful })
                 }
                 override fun onFailure(call: Call<SeoulCultureResponse>, error: Throwable) {
                     if (activeCall === call && this@ExperienceListFragment.view === view) showFailure()
                 }
             })
         }
+
+
         fun loadEvents() {
+            firstPageJob?.cancel()
             activeCall?.cancel()
+            activeCall = null
             candidates = emptyList()
             adapter.updateData(candidates)
             loading = true
             failed = false
-            similar.isEnabled = false
             retry.visibility = View.GONE
             status.setText(R.string.search_loading)
             if (BuildConfig.SEOUL_API_KEY.isBlank()) {
@@ -171,7 +201,14 @@ class ExperienceListFragment : Fragment(R.layout.fragment_experience_list) {
             loadPage(1, mutableListOf())
         }
         retry.setOnClickListener { loadEvents() }
-        loadEvents()
+        val cached = ExperienceCandidateCache.completed
+        if (cached == null) {
+            loadEvents()
+        } else {
+            candidates = cached
+            loading = false
+            adapter.updateData(candidates)
+        }
     }
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
@@ -180,6 +217,8 @@ class ExperienceListFragment : Fragment(R.layout.fragment_experience_list) {
     }
 
     override fun onDestroyView() {
+        firstPageJob?.cancel()
+        firstPageJob = null
         activeCall?.cancel()
         activeCall = null
         view?.findViewById<RecyclerView>(R.id.recyclerExperience)?.adapter = null
@@ -187,7 +226,7 @@ class ExperienceListFragment : Fragment(R.layout.fragment_experience_list) {
     }
 }
 
-private fun SeoulCultureEvent.toExperience(): Experience = Experience(
+internal fun SeoulCultureEvent.toExperience(): Experience = Experience(
     title = TITLE,
     location = PLACE,
     date = DATE,
@@ -203,5 +242,8 @@ private fun SeoulCultureEvent.toExperience(): Experience = Experience(
     },
     imageUrl = MAIN_IMG,
     targetAge = USE_TRGT,
-    region = GUNAME
+    region = GUNAME,
+    coordinates = EventCoordinates.fromApi(LAT, LOT),
+    feeLabel = IS_FREE?.trim()?.takeIf { it.isNotEmpty() } ?: USE_FEE.orEmpty().trim(),
+    sourceCategory = CODENAME.trim()
 )

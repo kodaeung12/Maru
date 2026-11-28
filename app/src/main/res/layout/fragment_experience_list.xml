@@ -135,68 +135,6 @@
                     android:textStyle="normal" />
             </LinearLayout>
         </HorizontalScrollView>
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="6dp"
-            android:minHeight="48dp"
-            android:background="@drawable/community_banner"
-            android:clipToOutline="true">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:gravity="center_vertical"
-                android:importantForAccessibility="noHideDescendants"
-                android:orientation="horizontal"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="5dp">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:includeFontPadding="false"
-                        android:text="@string/experience_list_recommend"
-                        android:textColor="@color/text_dark"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:includeFontPadding="false"
-                        android:text="@string/experience_list_recommend_description"
-                        android:textColor="@color/text_sub"
-                        android:textSize="12sp" />
-                </LinearLayout>
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_marginStart="8dp"
-                    android:src="@drawable/ic_chevron_right"
-                    android:tint="@color/community_pink" />
-            </LinearLayout>
-
-            <Button
-                android:id="@+id/btnSimilarEvents"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:minHeight="48dp"
-                android:background="?attr/selectableItemBackground"
-                android:backgroundTint="@null"
-                android:contentDescription="@string/experience_list_recommend_accessibility" />
-        </FrameLayout>
-
     </LinearLayout>
 
     <TextView
@@ -220,5 +158,4 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:clipToPadding="false" />
-
 </LinearLayout>

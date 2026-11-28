@@ -1,7 +1,6 @@
 <resources>
   <string name="app_name">Maru</string>
   <string name="splash_tagline">아이와 함께하는\n오늘, 더 특별하게</string>
-  <!-- 온보딩화면에서 사용 할 꺼 -->
   <string name="skip">건너뛰기</string>
   <string name="next">다음</string>
   <string name="start">시작하기</string>
@@ -14,7 +13,6 @@
   <string name="onboarding_description_3">훈육, 발달, 긴급상황까지\n믿을 수 있는 정보를 제공해요.</string>
   <string name="onboarding_title_4">체험 전 준비물과\n안전정보까지</string>
   <string name="onboarding_description_4">더 안전하고 즐거운 추억을 위해\n꼭 필요한 정보를 확인하세요.</string>
-  <!-- 로그인화면에서 사용할 거 -->
   <string name="login_title">로그인하고 시작해요</string>
   <string name="auth_choice_title">부모와 자녀\n모두를 위한 앱. 마루</string>
   <string name="signup_choice_title">부모로써 새로운 첫 걸음\n마루 시작하기</string>
@@ -29,14 +27,11 @@
   <string name="google_login">Google로 계속하기</string>
   <string name="or">또는</string>
   <string name="go_signup">계정이 없으신가요? 회원가입</string>
-  <!-- 회원가입화면에서 사용할 거 -->
   <string name="signup_title">마루 회원가입</string>
   <string name="password_confirm_hint">비밀번호 확인</string>
   <string name="signup">회원가입</string>
   <string name="go_login">이미 계정이 있으신가요? 로그인</string>
-  <!-- TODO: Remove or change this placeholder text -->
   <string name="hello_blank_fragment">Hello blank fragment</string>
-  <!-- 수업의 이메일 인증/화면 전환 예제를 Maru에 적용 -->
   <string name="logout">로그아웃</string>
   <string name="logged_out">로그아웃되었습니다.</string>
   <string name="google_login_pending">Google 로그인은 아직 준비 중입니다. 이메일 로그인을 이용해 주세요.</string>
@@ -134,8 +129,6 @@
     <string name="empty_screen">준비 중인 화면이에요</string>
     <string name="logo">마루</string>
     <string name="logo_sub">아이와 함께하는\n특별한 하루, 마루</string>
-  <!-- <string name="home_greeting"><![CDATA[%1$s님,<br>오늘은 어떤<br><font color="#F0506E">특별한 하루</font>를<br>만들어볼까요?]]></string> -->
-  <!-- 회원 이름 대신 공통 인사말 표시 -->
   <string name="home_greeting"><![CDATA[안녕하세요!<br>오늘은 어떤<br><font color="#F0506E">특별한 하루</font>를<br>만들어볼까요?]]></string>
    <string name="search_hint">지역, 행사명, 키워드로 검색해 보세요!</string>
    <string name="notification">알림</string>
@@ -146,20 +139,18 @@
    <string name="cat_culture">문화·예술</string>
    <string name="cat_nature">자연·생태</string>
    <string name="cat_festival">축제·행사</string>
-   <string name="cat_family">가족 나들이</string>
-   <!--<string name="recommend_badge">%1$s이(%2$d세)에게 추천해요!</string> -->
-  <!-- 자녀 이름과 나이 대신 공통 추천 문구 표시 -->
+   <string name="cat_education">교육</string>
   <string name="recommend_badge">우리 아이에게 추천해요!</string>
-   <!--<string name="recommend_title">%1$d세가 배우면 좋은\n교육 주제를 확인해 보세요!</string> -->
-  <!-- 특정 나이 대신 공통 교육 안내 문구 표시 -->
   <string name="recommend_title">아이와 함께하면 좋은\n교육 주제를 확인해 보세요!</string>
-   <string name="section_recommend">우리 아이 맞춤 추천 체험</string>
-  <!-- <string name="section_age"><![CDATA[%1$s이<font color="#F0506E">(%2$d세)</font>를 위한 연령별 교육]]></string> -->
-  <!-- 특정 자녀 정보 대신 연령별 교육 제목 표시 -->
+   <string name="section_recommend">우리 아이 추천 체험</string>
+   <string name="section_recommend_personalized">관심 있을 만한 체험·행사</string>
+   <string name="home_recommend_loading">추천 체험을 불러오는 중이에요…</string>
+   <string name="home_recommend_empty">지금 표시할 추천 체험이 없어요.</string>
   <string name="section_age"><![CDATA[우리 아이를 위한 <font color="#F0506E">연령별 교육</font>]]></string>
    <string name="see_all">전체보기</string>
    <string name="free">무료</string>
    <string name="paid">유료</string>
+   <string name="home_recommend_fee_unknown">요금 미정</string>
    <string name="tag_culture">문화/예술</string>
    <string name="tag_experience">체험</string>
    <string name="tag_nature">자연/생태</string>
@@ -189,9 +180,6 @@
    <string name="age_education_tab_description">%1$d세 교육 선택</string>
    <string name="safety_small">체험 전 꼭 확인하세요!</string>
    <string name="safety_title">준비물과 안전수칙을\n미리 확인해요.</string>
-    <string name="similar_events_no_history">행사 상세를 먼저 확인해 주세요.</string>
-    <string name="similar_events_candidates_unavailable">추천 후보를 불러오지 못했어요.</string>
-    <string name="similar_events_no_matches">비슷한 행사를 찾지 못했어요.</string>
     <string name="experience_period_title">기간 선택</string>
     <string name="experience_period_all">전체 기간</string>
     <string name="experience_period_this_week">이번 주</string>
@@ -211,11 +199,8 @@
     <string name="experience_list_category_all">전체</string>
     <string name="experience_list_category_experience">체험</string>
     <string name="experience_list_category_education">교육</string>
-    <string name="experience_list_category_culture">문화/예술</string>
-    <string name="experience_list_category_nature">자연</string>
-    <string name="experience_list_recommend">비슷한 행사 추천</string>
-    <string name="experience_list_recommend_description">최근 본 행사와 비슷한 체험을 찾아보세요</string>
-    <string name="experience_list_recommend_accessibility">비슷한 행사 추천. 최근 본 행사와 비슷한 체험을 찾아보세요</string>
+    <string name="experience_list_category_culture">문화·예술</string>
+    <string name="experience_list_category_nature">자연·생태</string>
     <string name="search_retry">다시 불러오기</string>
     <string name="search_loading">체험·행사를 불러오는 중이에요…</string>
     <string name="search_failed">행사를 불러오지 못했어요. 연결 상태를 확인하고 다시 시도해 주세요.</string>
@@ -238,4 +223,11 @@
     <string name="home_community_failed">최신 글을 불러오지 못했어요. 다시 시도해 주세요.</string>
     <string name="home_community_signin">로그인 후 커뮤니티 글을 볼 수 있어요.</string>
     <string name="home_community_retry">다시 시도</string>
+    <string name="detail_similar_events">이 행사와 비슷한 행사</string>
+    <string name="experience_location_heading">행사 위치</string>
+    <string name="experience_map_mode">지도 보기</string>
+    <string name="experience_map_back_detail">행사 상세로 돌아가기</string>
+    <string name="experience_map_zoom_in">지도 확대</string>
+    <string name="experience_map_zoom_out">지도 축소</string>
+    <string name="experience_map_load_failed">카카오 지도를 불러오지 못했어요.</string>
 </resources>

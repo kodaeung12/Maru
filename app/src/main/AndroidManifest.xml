@@ -18,6 +18,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Maru">
+        <activity android:name=".experience.location.ExperienceLocationActivity" android:exported="false" />
         <receiver android:name=".ScheduleAlarmReceiver" android:exported="false" />
         <receiver android:name=".ScheduleRestoreReceiver" android:exported="false">
             <intent-filter>
@@ -55,10 +56,6 @@
         <activity
             android:name=".DetailActivity"
             android:exported="false" />
-        <activity
-            android:name=".experience.SimilarEventsActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
 
     </application>
 

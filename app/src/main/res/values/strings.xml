@@ -229,5 +229,5 @@
     <string name="experience_map_back_detail">행사 상세로 돌아가기</string>
     <string name="experience_map_zoom_in">지도 확대</string>
     <string name="experience_map_zoom_out">지도 축소</string>
-    <string name="experience_map_load_failed">카카오 지도를 불러오지 못했어요.</string>
+    <string name="experience_map_load_failed">지도를 불러오지 못했어요.</string>
 </resources>

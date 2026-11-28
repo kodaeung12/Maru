@@ -1,9 +1,19 @@
 package com.project.maru.experience.location
 
+import android.annotation.SuppressLint
+import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.Rect
 import android.view.View
 import android.view.ViewTreeObserver
+import android.webkit.RenderProcessGoneDetail
+import android.webkit.WebResourceError
+import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
+import android.webkit.WebSettings
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -12,19 +22,8 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
-import com.kakao.vectormap.GestureType
-import com.kakao.vectormap.KakaoMap
-import com.kakao.vectormap.KakaoMapReadyCallback
-import com.kakao.vectormap.KakaoMapSdk
-import com.kakao.vectormap.LatLng
-import com.kakao.vectormap.MapLifeCycleCallback
-import com.kakao.vectormap.MapView
-import com.kakao.vectormap.camera.CameraAnimation
-import com.kakao.vectormap.camera.CameraUpdateFactory
-import com.kakao.vectormap.label.LabelOptions
-import com.kakao.vectormap.label.LabelStyle
-import com.project.maru.BuildConfig
 import com.project.maru.R
+import java.io.ByteArrayOutputStream
 
 private const val MAP_LATITUDE = "experience_map_latitude"
 private const val MAP_LONGITUDE = "experience_map_longitude"
@@ -42,7 +41,6 @@ internal fun Intent.experienceMapCoordinates(): EventCoordinates? =
 
 internal fun bindExperienceLocationPreview(activity: AppCompatActivity, title: String, place: String) {
     val point = activity.intent.experienceMapCoordinates() ?: return
-    if (BuildConfig.KAKAO_MAP_API_KEY.isBlank()) return
 
     val section = activity.findViewById<View>(R.id.experienceLocationPreview)
     val host = section.findViewById<FrameLayout>(R.id.experienceLocationPreviewHost)
@@ -84,109 +82,137 @@ internal fun bindExperienceLocationPreview(activity: AppCompatActivity, title: S
 internal class ExperienceLocationMap(
     private val owner: LifecycleOwner,
     private val host: FrameLayout,
-    point: EventCoordinates,
+    private val point: EventCoordinates,
     private val interactive: Boolean = false,
     private val onUnavailable: () -> Unit,
-    private val onReady: (KakaoMap) -> Unit = {}
+    private val onReady: (ExperienceLocationMap) -> Unit = {}
 ) : DefaultLifecycleObserver {
-    private val location = LatLng.from(point.latitude, point.longitude)
-    private var view: MapView? = null
-    private var destroyed = false
+    private var view: WebView? = null
     private var available = true
-    private var resumed = false
+    private var started = false
+    private val checkTiles = Runnable { checkTileStatus() }
+    private var remainingChecks = 60
 
     init {
         owner.lifecycle.addObserver(this)
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     fun start() {
-        if (view != null || destroyed || !available) return
-        val context = host.context
-        if (BuildConfig.KAKAO_MAP_API_KEY.isBlank()) {
-            unavailable()
-            return
-        }
+        if (started || owner.lifecycle.currentState == Lifecycle.State.DESTROYED) return
+        started = true
         try {
-            if (!KakaoMapSdk.isInitialized()) {
-                KakaoMapSdk.init(context.applicationContext, BuildConfig.KAKAO_MAP_API_KEY)
+            val marker = requireNotNull(ContextCompat.getDrawable(host.context, R.drawable.ic_experience_map_marker))
+            val markerBytes = ByteArrayOutputStream().apply {
+                marker.toBitmap(31, 41).compress(Bitmap.CompressFormat.PNG, 100, this)
+            }.toByteArray()
+            val web = WebView(host.context)
+            view = web
+            web.settings.apply {
+                javaScriptEnabled = true
+                allowFileAccess = false
+                allowContentAccess = false
+                mixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW
+                userAgentString += " MARU/1.0 (+https://github.com/kodaeung12/Maru)"
             }
-            val mapView = MapView(context)
-            view = mapView
-            host.addView(mapView, FrameLayout.LayoutParams(-1, -1))
-            mapView.start(object : MapLifeCycleCallback() {
-                override fun onMapDestroy() = Unit
-
-                override fun onMapError(error: Exception) {
-                    if (!destroyed) unavailable()
-                }
-            }, object : KakaoMapReadyCallback() {
-                override fun getPosition(): LatLng = location
-
-                override fun getZoomLevel(): Int = 16
-
-                override fun onMapReady(kakaoMap: KakaoMap) {
-                    if (destroyed || !available) return
-                    val icon = requireNotNull(ContextCompat.getDrawable(context, R.drawable.ic_experience_map_marker))
-                    val style = LabelStyle.from(icon.toBitmap(31, 41)).setApplyDpScale(true).setAnchorPoint(0.5f, 1f)
-                    if (interactive) {
-                        mapView.reverseMouseWheelScroll(false)
-                        kakaoMap.setGestureEnable(GestureType.Zoom, true)
-                        kakaoMap.setGestureEnable(GestureType.Pan, true)
+            web.webViewClient = object : WebViewClient() {
+                override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
+                    val url = request.url
+                    if (url.scheme == "https" && url.host == "tile.openstreetmap.org" && url.port == -1) {
+                        return null
                     }
-                    kakaoMap.labelManager?.layer?.addLabel(LabelOptions.from(location).setStyles(style))
-                    onReady(kakaoMap)
+                    if (url.scheme == "https" && url.host == MAP_HOST && url.port == -1) {
+                        val (name, mime) = when (url.path) {
+                            "/index.html" -> "index.html" to "text/html"
+                            "/map.js" -> "map.js" to "text/javascript"
+                            "/leaflet.js" -> "leaflet.js" to "text/javascript"
+                            "/leaflet.css" -> "leaflet.css" to "text/css"
+                            "/marker.png" -> return WebResourceResponse("image/png", null, markerBytes.inputStream())
+                            else -> return blockedResponse()
+                        }
+                        return WebResourceResponse(mime, "UTF-8", host.context.assets.open("experience_map/$name"))
+                    }
+                    return blockedResponse()
                 }
-            })
-            if (owner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) onResume(owner)
-        } catch (_: Exception) {
-            unavailable()
-        } catch (_: LinkageError) {
+
+                override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
+                    if (interactive && request.isForMainFrame && request.hasGesture() &&
+                        request.url.toString() == "https://www.openstreetmap.org/copyright"
+                    ) {
+                        try {
+                            host.context.startActivity(Intent(Intent.ACTION_VIEW, request.url))
+                        } catch (_: ActivityNotFoundException) {
+                        }
+                    }
+                    return true
+                }
+
+                override fun onReceivedError(view: WebView, request: WebResourceRequest, error: WebResourceError) {
+                    if (request.isForMainFrame) unavailable()
+                }
+
+                override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean {
+                    unavailable()
+                    return true
+                }
+            }
+            host.addView(web, FrameLayout.LayoutParams(-1, -1))
+            web.loadUrl("https://$MAP_HOST/index.html#${point.latitude},${point.longitude},$interactive")
+            host.postDelayed(checkTiles, 250)
+        } catch (_: RuntimeException) {
             unavailable()
         }
     }
 
+    fun zoomBy(step: Int) {
+        view?.evaluateJavascript("window.maruZoom && window.maruZoom($step)", null)
+    }
+
+    private fun checkTileStatus() {
+        val web = view ?: return
+        web.evaluateJavascript("window.maruMapState || 0") { state ->
+            if (view !== web) return@evaluateJavascript
+            when {
+                state == "1" -> onReady(this)
+                --remainingChecks <= 0 -> unavailable()
+                else -> host.postDelayed(checkTiles, 250)
+            }
+        }
+    }
+
+    private fun blockedResponse() = WebResourceResponse(
+        "text/plain", "UTF-8", 403, "Forbidden", emptyMap(), ByteArray(0).inputStream()
+    )
+
     private fun unavailable() {
+        if (!available) return
         available = false
+        releaseView()
         host.isVisible = false
         onUnavailable()
     }
 
     override fun onResume(owner: LifecycleOwner) {
-        val mapView = view ?: return
-        if (!available || resumed) return
-        mapView.resume()
-        resumed = true
+        view?.onResume()
     }
 
     override fun onPause(owner: LifecycleOwner) {
-        if (!resumed) return
-        view?.pause()
-        resumed = false
+        view?.onPause()
     }
 
     override fun onDestroy(owner: LifecycleOwner) {
-        destroyed = true
-        view?.finish()
-        view = null
-        host.removeAllViews()
+        releaseView()
     }
-}
 
-internal fun bindExperienceLocationZoom(map: KakaoMap, plus: View, minus: View) {
-    fun updateButtons() {
-        plus.isEnabled = map.zoomLevel < map.cameraMaxLevel
-        minus.isEnabled = map.zoomLevel > map.cameraMinLevel
-        plus.alpha = if (plus.isEnabled) 1f else 0.4f
-        minus.alpha = if (minus.isEnabled) 1f else 0.4f
+    private fun releaseView() {
+        host.removeCallbacks(checkTiles)
+        val web = view ?: return
+        view = null
+        host.removeView(web)
+        web.destroy()
     }
-    fun zoomBy(step: Int) {
-        val target = (map.zoomLevel + step).coerceIn(map.cameraMinLevel, map.cameraMaxLevel)
-        if (target != map.zoomLevel) {
-            map.moveCamera(CameraUpdateFactory.zoomTo(target), CameraAnimation.from(270, true, false))
-        }
+
+    private companion object {
+        const val MAP_HOST = "appassets.androidplatform.net"
     }
-    plus.setOnClickListener { zoomBy(1) }
-    minus.setOnClickListener { zoomBy(-1) }
-    map.setOnCameraMoveEndListener { _, _, _ -> updateButtons() }
-    updateButtons()
 }

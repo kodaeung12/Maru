@@ -15,7 +15,6 @@ if (localFile.exists()) {
 }
 
 val seoulApiKey = localProperties.getProperty("SEOUL_API_KEY", "")
-val kakaoMapApiKey = localProperties.getProperty("KAKAO_MAP_API_KEY", "").trim()
 
 dependencies {
     implementation(platform("com.google.firebase:firebase-bom:34.19.0"))
@@ -55,7 +54,6 @@ android {
 
         buildConfigField("String", "SEOUL_API_KEY", "\"$seoulApiKey\"")
 
-        buildConfigField("String", "KAKAO_MAP_API_KEY", "\"$kakaoMapApiKey\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -92,7 +90,6 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
-    implementation("com.kakao.maps.open:android:2.15.2")
     implementation("com.github.bumptech.glide:glide:4.16.0")
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")

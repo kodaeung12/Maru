@@ -11,12 +11,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
-import com.kakao.vectormap.KakaoMap
 import com.project.maru.R
 
 class ExperienceLocationActivity : AppCompatActivity() {
-    private var map: KakaoMap? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val point = intent.experienceMapCoordinates()
@@ -43,17 +40,10 @@ class ExperienceLocationActivity : AppCompatActivity() {
             controls.isVisible = false
             error.isVisible = true
         }) { readyMap ->
-            map = readyMap
             controls.isVisible = true
-            bindExperienceLocationZoom(readyMap, findViewById(R.id.buttonExperienceZoomIn),
-                findViewById(R.id.buttonExperienceZoomOut))
+            findViewById<View>(R.id.buttonExperienceZoomIn).setOnClickListener { readyMap.zoomBy(1) }
+            findViewById<View>(R.id.buttonExperienceZoomOut).setOnClickListener { readyMap.zoomBy(-1) }
         }.start()
-    }
-
-    override fun onDestroy() {
-        map?.setOnCameraMoveEndListener(null)
-        map = null
-        super.onDestroy()
     }
 
     companion object {

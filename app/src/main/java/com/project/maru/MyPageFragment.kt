@@ -18,13 +18,17 @@ import com.project.maru.community.CommunityRepository
 import com.project.maru.community.CommunityDetailActivity
 import com.project.maru.community.CommunityPostAdapter
 import com.project.maru.databinding.FragmentMypageBinding
+import com.project.maru.community.MyCommentsAdapter
+import com.project.maru.community.MyCommentsRepository
 
 class MyPageFragment : Fragment(R.layout.fragment_mypage) {
     private var _binding: FragmentMypageBinding? = null
     private val binding get() = requireNotNull(_binding)
     private lateinit var adapter: CommunityPostAdapter
+    private lateinit var commentsAdapter: MyCommentsAdapter
     private var selectedTab = TAB_POSTS
     private var loadNumber = 0
+    private var profileRequest = 0
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -42,6 +46,10 @@ class MyPageFragment : Fragment(R.layout.fragment_mypage) {
                 putExtra("postId", post.id)
             })
         }
+        commentsAdapter = MyCommentsAdapter { item ->
+            startActivity(Intent(requireContext(), CommunityDetailActivity::class.java)
+                .putExtra("postId", item.comment.postId))
+        }
         binding.recyclerMyPosts.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerMyPosts.adapter = adapter
 
@@ -53,7 +61,7 @@ class MyPageFragment : Fragment(R.layout.fragment_mypage) {
         binding.btnNotification.setOnClickListener {
             ScheduleUi.showNotifications(requireActivity())
         }
-        binding.tvProfileName.setOnClickListener {
+        binding.btnEditProfile.setOnClickListener {
             findNavController().navigate(R.id.action_myPage_to_myInfo)
         }
         binding.btnSettings.setOnClickListener {
@@ -65,15 +73,36 @@ class MyPageFragment : Fragment(R.layout.fragment_mypage) {
 
     override fun onResume() {
         super.onResume()
-        if (_binding != null && ::adapter.isInitialized && selectedTab == TAB_POSTS) {
-            loadMyPosts()
+        if (_binding != null && ::adapter.isInitialized) {
+            loadProfileAvatar()
+            if (selectedTab == TAB_COMMENTS) loadMyComments() else loadMyPosts()
         }
+    }
+
+    override fun onStop() {
+        profileRequest++
+        loadNumber++
+        super.onStop()
     }
 
     override fun onDestroyView() {
         if (_binding != null) binding.recyclerMyPosts.adapter = null
         _binding = null
         super.onDestroyView()
+    }
+
+    private fun loadProfileAvatar() {
+        val current = _binding ?: return
+        val request = ++profileRequest
+        current.ivProfileAvatar.imageTintList = null
+        current.ivProfileAvatar.setImageResource(R.drawable.ic_person)
+        val user = auth.currentUser ?: return
+        current.tvProfileName.text = user.displayName?.takeIf { it.isNotBlank() }
+            ?: user.email?.substringBefore("@") ?: "마루 이용자"
+        db.collection("users").document(user.uid).get(Source.SERVER).addOnSuccessListener { document ->
+            if (_binding !== current || request != profileRequest || auth.currentUser?.uid != user.uid) return@addOnSuccessListener
+            current.ivProfileAvatar.setImageResource(ProfileAvatar.image(document.getString("gender")))
+        }
     }
 
     private fun selectTab(tab: String, loadPosts: Boolean = true) {
@@ -98,9 +127,15 @@ class MyPageFragment : Fragment(R.layout.fragment_mypage) {
         }
 
         when (tab) {
-            TAB_POSTS -> if (loadPosts) loadMyPosts()
+            TAB_POSTS -> {
+                binding.recyclerMyPosts.adapter = adapter
+                if (loadPosts) loadMyPosts()
+            }
             TAB_SAVED -> showEmpty(getString(R.string.mypage_empty_saved))
-            TAB_COMMENTS -> showEmpty(getString(R.string.mypage_empty_comments))
+            TAB_COMMENTS -> {
+                binding.recyclerMyPosts.adapter = commentsAdapter
+                loadMyComments()
+            }
         }
     }
 
@@ -113,6 +148,7 @@ class MyPageFragment : Fragment(R.layout.fragment_mypage) {
             showEmpty("로그인 후 내 글을 확인해 주세요.")
             return
         }
+        currentBinding.recyclerMyPosts.adapter = adapter
         adapter.submitList(emptyList())
         currentBinding.layoutMyPageEmpty.visibility = View.GONE
         currentBinding.tvMyPageStatus.text = "게시글을 불러오는 중…"
@@ -150,8 +186,34 @@ class MyPageFragment : Fragment(R.layout.fragment_mypage) {
             }
     }
 
+    private fun loadMyComments() {
+        val current = _binding ?: return
+        val request = ++loadNumber
+        val uid = auth.currentUser?.uid
+        current.recyclerMyPosts.adapter = commentsAdapter
+        commentsAdapter.submitList(emptyList())
+        if (uid == null) {
+            showEmpty("로그인 후 내 댓글을 확인해 주세요.")
+            return
+        }
+        current.layoutMyPageEmpty.visibility = View.GONE
+        current.tvMyPageStatus.text = "댓글을 불러오는 중…"
+        fun active() = _binding === current && selectedTab == TAB_COMMENTS &&
+            request == loadNumber && auth.currentUser?.uid == uid
+        MyCommentsRepository.load(uid, ::active, { items ->
+            if (!active()) return@load
+            commentsAdapter.submitList(items)
+            current.layoutMyPageEmpty.visibility = if (items.isEmpty()) View.VISIBLE else View.GONE
+            current.tvMyPageEmpty.text = "아직 작성한 댓글이 없어요."
+            current.tvMyPageStatus.text = if (items.isEmpty()) "" else "내가 작성한 댓글 ${items.size}개"
+        }, { error ->
+            if (active()) showEmpty(CommunityFirestore.errorMessage(error) + " 내 댓글을 눌러 다시 시도해 주세요.")
+        })
+    }
+
     private fun showEmpty(message: String) {
         adapter.submitList(emptyList())
+        commentsAdapter.submitList(emptyList())
         binding.layoutMyPageEmpty.visibility = View.VISIBLE
         binding.tvMyPageEmpty.text = message
         binding.tvMyPageStatus.text = ""

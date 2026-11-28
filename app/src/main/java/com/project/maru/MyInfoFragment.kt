@@ -26,6 +26,8 @@ import java.util.Locale
 class MyInfoFragment : Fragment(R.layout.fragment_my_info) {
     private var _binding: FragmentMyInfoBinding? = null
     private val binding get() = requireNotNull(_binding)
+    private var profileReady = false
+    private var profileRequest = 0
     private val firestore by lazy { FirebaseFirestore.getInstance() }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -47,6 +49,7 @@ class MyInfoFragment : Fragment(R.layout.fragment_my_info) {
         binding.buttonSaveMyInfo.setOnClickListener { saveAccountName(user.uid) }
         binding.buttonAddMyChild.setOnClickListener { showAddChildDialog(user.uid) }
         loadChildren(user.uid)
+        loadProfileGender(user.uid)
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { root, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -56,38 +59,83 @@ class MyInfoFragment : Fragment(R.layout.fragment_my_info) {
     }
 
     override fun onDestroyView() {
+        profileRequest++
         _binding = null
         super.onDestroyView()
     }
 
+    private fun setProfileFormEnabled(enabled: Boolean) {
+        val current = _binding ?: return
+        current.buttonSaveMyInfo.isEnabled = enabled
+        current.radioProfileFemale.isEnabled = enabled
+        current.radioProfileMale.isEnabled = enabled
+        current.radioProfileUnspecified.isEnabled = enabled
+    }
+
+    private fun loadProfileGender(uid: String) {
+        val current = _binding ?: return
+        val request = ++profileRequest
+        profileReady = false
+        setProfileFormEnabled(false)
+        current.textProfileStatus.text = "프로필을 불러오는 중…"
+        current.textProfileStatus.setOnClickListener { if (!profileReady) loadProfileGender(uid) }
+        firestore.collection("users").document(uid).get(com.google.firebase.firestore.Source.SERVER)
+            .addOnSuccessListener { document ->
+                if (_binding !== current || request != profileRequest || FirebaseAuth.getInstance().currentUser?.uid != uid) return@addOnSuccessListener
+                val image = ProfileAvatar.image(document.getString("gender"))
+                current.radioProfileGender.check(when (image) {
+                    R.drawable.ic_profile_female -> R.id.radioProfileFemale
+                    R.drawable.ic_profile_male -> R.id.radioProfileMale
+                    else -> R.id.radioProfileUnspecified
+                })
+                profileReady = true
+                current.textProfileStatus.text = "선택한 성별에 맞는 프로필 이미지가 표시돼요."
+                setProfileFormEnabled(true)
+            }.addOnFailureListener {
+                if (_binding === current && request == profileRequest) {
+                    current.textProfileStatus.text = "프로필을 불러오지 못했어요. 여기를 눌러 다시 시도해 주세요."
+                }
+            }
+    }
+
     private fun saveAccountName(userId: String) {
+        if (!profileReady || !binding.buttonSaveMyInfo.isEnabled) return
+        val current = binding
+        val user = FirebaseAuth.getInstance().currentUser ?: return
+        if (user.uid != userId) return
+        val gender = when (current.radioProfileGender.checkedRadioButtonId) {
+            R.id.radioProfileFemale -> "female"
+            R.id.radioProfileMale -> "male"
+            else -> "unspecified"
+        }
         val name = binding.editMyInfoName.text.toString().trim()
         if (name.isBlank()) {
             binding.editMyInfoName.error = getString(R.string.signup_username_required)
             return
         }
-        binding.buttonSaveMyInfo.isEnabled = false
-        val user = FirebaseAuth.getInstance().currentUser ?: return
+        setProfileFormEnabled(false)
         val request = UserProfileChangeRequest.Builder().setDisplayName(name).build()
         user.updateProfile(request).addOnCompleteListener { profileTask ->
+            if (_binding !== current || FirebaseAuth.getInstance().currentUser?.uid != userId) return@addOnCompleteListener
             if (!profileTask.isSuccessful) {
                 finishAccountSave(false, name)
                 return@addOnCompleteListener
             }
             firestore.collection("users").document(userId)
-                .set(mapOf("displayName" to name), SetOptions.merge())
+                .set(mapOf("displayName" to name, "gender" to gender), SetOptions.merge())
                 .addOnCompleteListener { firestoreTask ->
-                    finishAccountSave(firestoreTask.isSuccessful, name)
+                    if (_binding === current && FirebaseAuth.getInstance().currentUser?.uid == userId)
+                        finishAccountSave(firestoreTask.isSuccessful, name)
                 }
         }
     }
 
     private fun finishAccountSave(success: Boolean, name: String) {
         val currentBinding = _binding ?: return
-        currentBinding.buttonSaveMyInfo.isEnabled = true
+        setProfileFormEnabled(true)
         Toast.makeText(
             context,
-            if (success) "이름을 수정했어요." else getString(R.string.settings_save_failed),
+            if (success) "내 정보를 저장했어요." else getString(R.string.settings_save_failed),
             Toast.LENGTH_SHORT
         ).show()
         if (success) currentBinding.editMyInfoName.setText(name)
@@ -187,6 +235,13 @@ class MyInfoFragment : Fragment(R.layout.fragment_my_info) {
         item.textChildName.text = document.getString("name").orEmpty().ifBlank { "아이" }
         val birthDate = document.getString("birthDate").orEmpty()
         val gender = document.getString("gender").orEmpty()
+        val genderImage = when (gender) {
+            "남아" -> R.drawable.ic_child_boy
+            "여아" -> R.drawable.ic_child_girl
+            else -> null
+        }
+        item.imageChildGender.visibility = if (genderImage == null) View.GONE else View.VISIBLE
+        if (genderImage != null) item.imageChildGender.setImageResource(genderImage)
         item.textChildDetails.text = listOf(birthDate, gender).filter { it.isNotBlank() }.joinToString(" · ")
         item.buttonEditChild.setOnClickListener { showChildEditDialog(document) }
         binding.layoutMyInfoChildren.addView(item.root)

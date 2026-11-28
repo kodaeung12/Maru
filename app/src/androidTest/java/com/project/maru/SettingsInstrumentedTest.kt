@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit
 @RunWith(AndroidJUnit4::class)
 class SettingsInstrumentedTest {
     private fun <T> await(task: com.google.android.gms.tasks.Task<T>): T=Tasks.await(task,60,TimeUnit.SECONDS)
-    @Test fun nameOpensProfileAndGearOpensSettingsWithSafeCancel() {
+    @Test fun pencilOpensProfileAndGearOpensSettingsWithSafeCancel() {
         ActivityScenario.launch(HomeActivity::class.java).use { scenario ->
             scenario.onActivity { activity ->
                 val host=activity.supportFragmentManager.findFragmentById(R.id.nav_host) as NavHostFragment
@@ -32,8 +32,12 @@ class SettingsInstrumentedTest {
             }
             scenario.onActivity { activity ->
                 assertNull(activity.resources.getIdentifier("buttonLogoutFromHome","id",activity.packageName).takeIf { it!=0 }?.let { activity.findViewById<View>(it) })
-                activity.findViewById<View>(R.id.tvProfileName).performClick()
                 val host=activity.supportFragmentManager.findFragmentById(R.id.nav_host) as NavHostFragment
+                val name=activity.findViewById<View>(R.id.tvProfileName)
+                assertFalse(name.isClickable)
+                name.performClick()
+                assertEquals(R.id.myPageFragment,host.navController.currentDestination?.id)
+                activity.findViewById<View>(R.id.btnEditProfile).performClick()
                 assertEquals(R.id.myInfoFragment,host.navController.currentDestination?.id)
                 host.navController.popBackStack()
             }

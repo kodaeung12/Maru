@@ -9,8 +9,10 @@
     <RadioGroup android:id="@+id/radioChildGender" android:layout_width="match_parent" android:layout_height="wrap_content"
         android:orientation="horizontal">
         <RadioButton android:id="@+id/radioGirl" android:layout_width="0dp" android:layout_height="wrap_content"
-            android:layout_weight="1" android:text="여아" android:buttonTint="#FF858B" />
+            android:layout_weight="1" android:minHeight="56dp" android:paddingEnd="12dp"
+            android:drawableEnd="@drawable/ic_child_girl" android:drawablePadding="6dp" android:text="여아" android:buttonTint="#FF858B" />
         <RadioButton android:id="@+id/radioBoy" android:layout_width="0dp" android:layout_height="wrap_content"
-            android:layout_weight="1" android:text="남아" android:buttonTint="#FF858B" />
+            android:layout_weight="1" android:minHeight="56dp" android:paddingEnd="12dp"
+            android:drawableEnd="@drawable/ic_child_boy" android:drawablePadding="6dp" android:text="남아" android:buttonTint="#FF858B" />
     </RadioGroup>
 </LinearLayout>

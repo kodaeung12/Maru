@@ -69,6 +69,20 @@
                 android:textColor="@color/text_dark"
                 android:textSize="15sp" />
 
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="16dp" android:text="내 성별 · 프로필 이미지" android:textColor="@color/text_gray" android:textSize="14sp" />
+            <RadioGroup android:id="@+id/radioProfileGender" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="6dp" android:orientation="horizontal" android:checkedButton="@id/radioProfileUnspecified">
+                <RadioButton android:id="@+id/radioProfileFemale" android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:minHeight="48dp" android:text="여성" android:textSize="13sp" android:buttonTint="#FF858B" />
+                <RadioButton android:id="@+id/radioProfileMale" android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:minHeight="48dp" android:text="남성" android:textSize="13sp" android:buttonTint="#FF858B" />
+                <RadioButton android:id="@+id/radioProfileUnspecified" android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:minHeight="48dp" android:text="선택 안 함" android:textSize="13sp" android:buttonTint="#FF858B" />
+            </RadioGroup>
+            <TextView android:id="@+id/textProfileStatus" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:textColor="@color/text_gray" android:textSize="12sp" android:paddingVertical="4dp" android:accessibilityLiveRegion="polite" />
+
             <Button
                 android:id="@+id/buttonSaveMyInfo"
                 android:layout_width="match_parent"
@@ -77,7 +91,7 @@
                 android:background="@drawable/bg_choice_button_primary"
                 android:backgroundTint="@null"
                 android:stateListAnimator="@null"
-                android:text="@string/my_info_save"
+                android:text="내 정보 저장"
                 android:textAllCaps="false"
                 android:textColor="@android:color/white"
                 android:textSize="15sp" />

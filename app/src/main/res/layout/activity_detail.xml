@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 행사 상세보기 화면 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/main"
@@ -8,7 +7,6 @@
     android:orientation="vertical"
     android:background="#FFFFFF">
 
-    <!-- ===== 상단바 (뒤로가기 + 제목) ===== -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="56dp"
@@ -45,7 +43,6 @@
             android:contentDescription="@string/favorite_add" />
     </LinearLayout>
 
-    <!-- ===== 스크롤 되는 내용 ===== -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -59,7 +56,6 @@
             android:paddingEnd="20dp"
             android:paddingBottom="16dp">
 
-            <!-- 대표 이미지 (모서리 둥글게) -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
@@ -77,7 +73,6 @@
                     android:contentDescription="행사 대표 이미지" />
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- 행사명 -->
             <TextView
                 android:id="@+id/textDetailTitle"
                 android:layout_width="match_parent"
@@ -88,7 +83,6 @@
                 android:textStyle="bold"
                 android:textColor="#222222" />
 
-            <!-- 행사 소개 -->
             <TextView
                 android:id="@+id/textDetailDescription"
                 android:layout_width="match_parent"
@@ -99,7 +93,6 @@
                 android:lineSpacingExtra="4dp"
                 android:textColor="#666666" />
 
-            <!-- 별점 -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -134,7 +127,6 @@
                     android:textColor="#777777" />
             </LinearLayout>
 
-            <!-- ===== 탭 (행사 안내 / 행사 리뷰) ===== -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -193,7 +185,6 @@
                 android:layout_height="1dp"
                 android:background="#EEEEEE" />
 
-            <!-- ===== [탭1] 행사 안내 ===== -->
             <LinearLayout
                 android:id="@+id/layoutInfo"
                 android:layout_width="match_parent"
@@ -201,7 +192,6 @@
                 android:orientation="vertical"
                 android:paddingTop="8dp">
 
-                <!-- 행사 일정 -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -248,7 +238,6 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <!-- 행사 장소 -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -295,7 +284,6 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <!-- 추천 연령 -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -334,7 +322,6 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <!-- 이용 요금 -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -373,7 +360,6 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <!-- 문의 -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -419,9 +405,35 @@
                             android:textColor="#555555" />
                     </LinearLayout>
                 </LinearLayout>
+                <include layout="@layout/layout_experience_location_preview" />
+
+                <LinearLayout
+                    android:id="@+id/detailRecommendationSection"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:accessibilityHeading="true"
+                        android:text="@string/detail_similar_events"
+                        android:textColor="@color/text_dark"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/detailRecommendationList"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clipToPadding="false"
+                        android:paddingEnd="16dp" />
+                </LinearLayout>
             </LinearLayout>
 
-            <!-- ===== [탭2] 행사 리뷰 (처음엔 숨김) ===== -->
             <LinearLayout
                 android:id="@+id/layoutReview"
                 android:layout_width="match_parent"
@@ -464,7 +476,6 @@
                     android:layout_height="wrap_content"
                     android:text="@string/reviews_save" />
 
-                <!-- 코드에서 item_review.xml 을 여기에 하나씩 추가함 -->
                 <LinearLayout
                     android:id="@+id/layoutReviewList"
                     android:layout_width="match_parent"
@@ -475,7 +486,6 @@
         </LinearLayout>
     </ScrollView>
 
-    <!-- ===== 공식 사이트 보러가기 버튼 ===== -->
     <Button
         android:id="@+id/btnOfficialSite"
         android:layout_width="match_parent"
@@ -491,7 +501,6 @@
         android:textStyle="bold"
         app:cornerRadius="12dp" />
 
-    <!-- ===== 하단 네비게이션 바 ===== -->
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"

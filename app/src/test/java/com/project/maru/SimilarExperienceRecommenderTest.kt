@@ -1,8 +1,8 @@
 package com.project.maru
 
 import com.project.maru.experience.Experience
-import com.project.maru.experience.RecentExperienceStore
-import com.project.maru.experience.SimilarExperienceRecommender
+import com.project.maru.experience.recommendation.RecentExperienceStore
+import com.project.maru.experience.recommendation.SimilarExperienceRecommender
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -62,6 +62,22 @@ class SimilarExperienceRecommenderTest {
     @Test
     fun emptyHistoryProducesNoRecommendations() {
         assertTrue(SimilarExperienceRecommender.recommend(emptyList(), listOf(event("후보"))).isEmpty())
+    }
+
+    @Test
+    fun detailRecommendationsExcludeCurrentAndDuplicatesAndLimitResults() {
+        val current = event("서울 도자기")
+        val closest = event("서울 도자기 체험")
+        val candidates = listOf(current.copy(title = " 서울   도자기 "), closest, closest) +
+            (1..8).map { event("행사 $it") }
+
+        val results = SimilarExperienceRecommender.recommendForEvent(current, candidates)
+
+        assertEquals(5, results.size)
+        assertEquals(closest, results.first())
+        assertEquals(5, results.map(RecentExperienceStore::identityOf).toSet().size)
+        assertTrue(results.none { RecentExperienceStore.identityOf(it) == RecentExperienceStore.identityOf(current) })
+        assertTrue(SimilarExperienceRecommender.recommendForEvent(current, emptyList()).isEmpty())
     }
 
     private fun event(title: String, age: String = "") =

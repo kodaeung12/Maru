@@ -4,7 +4,7 @@ import android.content.ContextWrapper
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.project.maru.experience.Experience
-import com.project.maru.experience.RecentExperienceStore
+import com.project.maru.experience.recommendation.RecentExperienceStore
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Test

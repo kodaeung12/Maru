@@ -1,12 +1,13 @@
-package com.project.maru.experience
+package com.project.maru.experience.recommendation
+
+import com.project.maru.experience.Experience
+import com.project.maru.experience.list.explicitFamilyAges
 
 import java.util.Locale
 
 internal object SimilarExperienceRecommender {
     private val recencyWeights = listOf(1.0, 0.9, 0.8, 0.7, 0.6)
     private val wordPattern = Regex("[\\p{L}\\p{N}]+")
-    private val ageRange = Regex("(?:만)?(\\d{1,2})(?:세)?[~～〜–-](?:만)?(\\d{1,2})세")
-    private val ageLimit = Regex("(?:만)?(\\d{1,2})세(?:\\([^)]*\\))?(이상|부터|이하|미만|초과|까지)?")
 
     fun recommend(
         history: List<RecentExperienceStore.ViewedExperience>,
@@ -28,6 +29,22 @@ internal object SimilarExperienceRecommender {
                 candidate to score
             }
             .filter { (_, score) -> score > 0.0 }
+            .sortedWith(compareByDescending<Pair<Experience, Double>> { it.second }
+                .thenBy { it.first.title }
+                .thenBy { it.first.location }
+                .thenBy { it.first.date })
+            .map { it.first }
+            .distinctBy(RecentExperienceStore::identityOf)
+            .take(5)
+            .toList()
+    }
+
+    fun recommendForEvent(current: Experience, candidates: List<Experience>): List<Experience> {
+        val currentKey = RecentExperienceStore.identityOf(current)
+        return candidates.asSequence()
+            .filterNot { RecentExperienceStore.identityOf(it) == currentKey }
+            .map { it to similarityScore(current, it) }
+            .filter { it.second > 0.0 }
             .sortedWith(compareByDescending<Pair<Experience, Double>> { it.second }
                 .thenBy { it.first.title }
                 .thenBy { it.first.location }
@@ -66,27 +83,6 @@ internal object SimilarExperienceRecommender {
     private fun eligibleAges(targetAge: String): List<Int> {
         val target = targetAge.filterNot(Char::isWhitespace)
         if ("성인전용" in target || "성인만" in target) return emptyList()
-        val range = ageRange.find(target)
-        if (range != null) {
-            val first = range.groupValues[1].toInt()
-            val last = range.groupValues[2].toInt()
-            return (5..8).filter { it in first..last }
-        }
-
-        val limits = ageLimit.findAll(target).toList()
-        if (limits.isEmpty()) return emptyList()
-
-        return (5..8).filter { age ->
-            limits.all { limit ->
-                val boundary = limit.groupValues[1].toInt()
-                when (limit.groupValues[2]) {
-                    "이상", "부터" -> age >= boundary
-                    "이하", "까지" -> age <= boundary
-                    "미만" -> age < boundary
-                    "초과" -> age > boundary
-                    else -> age == boundary
-                }
-            }
-        }
+        return explicitFamilyAges(target).orEmpty()
     }
 }

@@ -9,5 +9,8 @@ data class CommunityPost(
     var authorName: String = "",
     var createdAt: Long = 0L,
     var imageKey: String = "child",
-    var deleting: Boolean = false
+    var deleting: Boolean = false,
+    var likeCount: Long = 0L,
+    var viewCount: Long = 0L,
+    var childAge: Int = -1
 )

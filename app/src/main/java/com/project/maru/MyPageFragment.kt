@@ -46,7 +46,9 @@ class MyPageFragment : Fragment(R.layout.fragment_mypage) {
         binding.recyclerMyPosts.adapter = adapter
 
         binding.tabMyPosts.setOnClickListener { selectTab(TAB_POSTS) }
-        binding.tabSavedPosts.setOnClickListener { selectTab(TAB_SAVED) }
+        binding.tabSavedPosts.setOnClickListener {
+            startActivity(Intent(requireContext(), com.project.maru.diary.DiaryHomeActivity::class.java))
+        }
         binding.tabMyComments.setOnClickListener { selectTab(TAB_COMMENTS) }
         binding.btnNotification.setOnClickListener {
             ScheduleUi.showNotifications(requireActivity())
@@ -115,7 +117,7 @@ class MyPageFragment : Fragment(R.layout.fragment_mypage) {
         currentBinding.layoutMyPageEmpty.visibility = View.GONE
         currentBinding.tvMyPageStatus.text = "게시글을 불러오는 중…"
 
-        // 수업 예제처럼 get -> toObject -> Adapter 갱신 순서로 조회한다.
+        // 조회한 문서를 게시글 모델로 변환한 뒤 어댑터를 갱신한다.
         db.collection(CommunityFirestore.POSTS)
             .whereEqualTo("ownerId", userId)
             .get(Source.SERVER)

@@ -7,5 +7,6 @@ data class CommunityComment(
     var ownerId: String = "",
     var authorName: String = "",
     var content: String = "",
-    var createdAt: Long = 0L
+    var createdAt: Long = 0L,
+    var childAge: Int = -1
 )

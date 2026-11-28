@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp"
+    android:orientation="horizontal" android:gravity="center_vertical" android:background="@drawable/bg_mypage_profile"
+    android:paddingStart="14dp" android:paddingTop="10dp" android:paddingEnd="10dp" android:paddingBottom="10dp">
+    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+        <TextView android:id="@+id/textChildName" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:textColor="#303030" android:textSize="15sp" android:textStyle="bold" />
+        <TextView android:id="@+id/textChildDetails" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:textColor="#87807E" android:textSize="12sp" android:paddingTop="4dp" />
+    </LinearLayout>
+    <Button android:id="@+id/buttonEditChild" android:layout_width="66dp" android:layout_height="40dp"
+        android:text="@string/my_info_edit_button" android:textAllCaps="false" android:textSize="13sp"
+        android:textColor="#FFFFFF" android:background="@drawable/bg_choice_button_primary" />
+</LinearLayout>

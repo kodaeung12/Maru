@@ -1,8 +1,10 @@
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <color name="community_bg">@color/page_bg</color>
-    <color name="community_ink">@color/text_dark</color>
-    <color name="community_muted">@color/text_gray</color>
-    <color name="community_pink">@color/maru_pink</color>
-    <color name="community_line">#FFF0F1</color>
-    <color name="community_soft">@color/cat_pink</color>
+    <color name="community_bg">#FFFAFA</color>
+    <color name="community_ink">#192D4A</color>
+    <color name="community_muted">#718096</color>
+    <color name="community_pink">#FF9494</color>
+    <color name="community_action">#FF667C</color>
+    <color name="community_line">#F4E2E5</color>
+    <color name="community_soft">#FFF0F0</color>
 </resources>

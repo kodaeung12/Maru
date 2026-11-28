@@ -1,0 +1,32 @@
+<?xml version="1.0" ?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="#FFFFFF">
+    
+    
+    <include android:id="@+id/header" layout="@layout/diary_header"/>
+    
+    
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:fillViewport="true">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="24dp">
+            <TextView android:id="@+id/tvDate" style="@style/DiaryMuted" android:text=""/>
+            <Space android:layout_width="1dp" android:layout_height="26dp"/>
+            <TextView android:id="@+id/tvQuestion" style="@style/DiaryHeading" android:text="오늘 하루는 어땠나요?"/>
+            <Space android:layout_width="1dp" android:layout_height="17dp"/>
+            <LinearLayout android:id="@+id/layoutMoods" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical"/>
+            <Space android:layout_width="1dp" android:layout_height="25dp"/>
+            <TextView android:id="@+id/tvStory" style="@style/DiaryHeading" android:text="오늘의 이야기"/>
+            <Space android:layout_width="1dp" android:layout_height="13dp"/>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="14dp" android:background="@drawable/diary_card">
+                <EditText android:id="@+id/etContent" android:layout_width="match_parent" android:layout_height="210dp" android:background="@android:color/transparent" android:gravity="top" android:hint="오늘 아이와 어떤 하루를 보냈나요?&#10;나의 마음을 자유롭게 기록해 보세요." android:textColor="#333333" android:textColorHint="#898589" android:textSize="14sp" android:lineSpacingExtra="8dp" android:inputType="textMultiLine|textCapSentences" android:maxLength="2000" android:padding="0dp"/>
+                <TextView android:id="@+id/tvCount" style="@style/DiaryMuted" android:text="0 / 2000" android:gravity="end"/>
+            </LinearLayout>
+            <Space android:layout_width="1dp" android:layout_height="25dp"/>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="15dp" android:background="@drawable/diary_soft">
+                <CheckBox android:id="@+id/checkAi" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="AI 코멘트 받기 (준비 중)" android:enabled="false" android:textColor="#333333" android:textStyle="bold" android:buttonTint="#FF9494"/>
+                <TextView android:id="@+id/tvPrivate" style="@style/DiaryMuted" android:text="일기는 나만 볼 수 있게 저장돼요.&#10;AI 코멘트는 연결 준비 중이에요." android:lineSpacingExtra="5dp"/>
+            </LinearLayout>
+            <Space android:layout_width="1dp" android:layout_height="12dp"/>
+            <TextView android:id="@+id/tvStatus" style="@style/DiaryMuted" android:text=""/>
+        </LinearLayout>
+    </ScrollView>
+    <TextView android:id="@+id/btnAction" style="@style/DiaryButton" android:text="오늘의 일기 등록하기" android:layout_marginHorizontal="24dp" android:layout_marginTop="8dp" android:layout_marginBottom="16dp"/>
+</LinearLayout>

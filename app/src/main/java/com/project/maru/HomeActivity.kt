@@ -1,4 +1,4 @@
-package com.project.maru   // ← 내 프로젝트 패키지명과 다르면 이 줄만 바꿔주세요
+package com.project.maru
 
 import android.content.Context
 import android.content.Intent

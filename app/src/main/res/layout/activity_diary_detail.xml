@@ -1,0 +1,37 @@
+<?xml version="1.0" ?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="#FFFFFF">
+    
+    
+    <include android:id="@+id/header" layout="@layout/diary_header"/>
+    
+    
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:fillViewport="true">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="24dp">
+            <TextView android:id="@+id/tvDate" style="@style/DiaryMuted" android:text=""/>
+            <Space android:layout_width="1dp" android:layout_height="21dp"/>
+            <LinearLayout android:id="@+id/layoutMood" android:layout_width="match_parent" android:layout_height="76dp" android:background="@drawable/diary_soft" android:gravity="center_vertical" android:paddingHorizontal="20dp">
+                <ImageView android:id="@+id/ivMood" android:layout_width="40dp" android:layout_height="40dp" android:importantForAccessibility="no"/>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginStart="13dp">
+                    <TextView android:id="@+id/tvMood" style="@style/DiaryHeading" android:text=""/>
+                    <Space android:layout_width="1dp" android:layout_height="6dp"/>
+                    <TextView android:id="@+id/tvMoodLabel" style="@style/DiaryMuted" android:text="내가 선택한 감정"/>
+                </LinearLayout>
+            </LinearLayout>
+            <Space android:layout_width="1dp" android:layout_height="21dp"/>
+            <TextView android:id="@+id/tvStory" style="@style/DiaryHeading" android:text="오늘의 이야기"/>
+            <Space android:layout_width="1dp" android:layout_height="16dp"/>
+            <TextView android:id="@+id/tvContent" style="@style/DiaryText" android:text="" android:lineSpacingExtra="8dp" android:textIsSelectable="true"/>
+            <Space android:layout_width="1dp" android:layout_height="24dp"/>
+            <TextView android:id="@+id/tvPrivate" style="@style/DiaryMuted" android:text="나만 볼 수 있는 소중한 기록" android:padding="20dp" android:background="@drawable/diary_soft"/>
+            <Space android:layout_width="1dp" android:layout_height="24dp"/>
+            <TextView android:id="@+id/btnEdit" style="@style/DiaryButton" android:text="일기 수정하기" android:background="@drawable/diary_outline" android:textColor="#FF9494"/>
+            <Space android:layout_width="1dp" android:layout_height="16dp"/>
+            <TextView android:id="@+id/btnDelete" style="@style/DiaryButton" android:text="일기 삭제하기" android:background="@drawable/diary_card" android:textColor="#7B7B7B"/>
+            <Space android:layout_width="1dp" android:layout_height="12dp"/>
+            <TextView android:id="@+id/tvStatus" style="@style/DiaryMuted" android:text=""/>
+            <Space android:layout_width="1dp" android:layout_height="8dp"/>
+            <TextView android:id="@+id/btnRetry" style="@style/DiaryButton" android:text="다시 불러오기" android:visibility="gone"/>
+        </LinearLayout>
+    </ScrollView>
+    <TextView android:id="@+id/btnAction" style="@style/DiaryButton" android:text="일기 홈으로 돌아가기" android:layout_marginHorizontal="24dp" android:layout_marginTop="8dp" android:layout_marginBottom="16dp"/>
+</LinearLayout>

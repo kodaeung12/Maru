@@ -20,6 +20,7 @@ import com.project.maru.databinding.ActivityCommunityWriteBinding
 class CommunityWriteActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCommunityWriteBinding
     private lateinit var imageAdapter: CommunityImageAdapter
+    private lateinit var childPicker: CommunityChildPicker
     private var postId = ""
     private var draftId = ""
     private var editingPost: CommunityPost? = null
@@ -31,6 +32,8 @@ class CommunityWriteActivity : AppCompatActivity() {
         binding = ActivityCommunityWriteBinding.inflate(layoutInflater)
         setContentView(binding.root)
         postId = intent.getStringExtra("postId") ?: ""
+        childPicker = CommunityChildPicker(binding.spinnerChildAge)
+        if (postId.isBlank()) childPicker.load(savedInstanceState?.getInt("childAge", -1) ?: -1)
         draftId = savedInstanceState?.getString("draftId")
             ?: db.collection(CommunityFirestore.POSTS).document().id
         selectedImage = savedInstanceState?.getString("selectedImage") ?: "child"
@@ -39,6 +42,7 @@ class CommunityWriteActivity : AppCompatActivity() {
         val aadapter = ArrayAdapter(this, R.layout.community_spinner_item, categories)
         aadapter.setDropDownViewResource(R.layout.community_spinner_item)
         binding.spinnerCategory.adapter = aadapter
+        binding.ivCategoryArrow.setOnClickListener { binding.spinnerCategory.performClick() }
         binding.spinnerCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) { updatePreview() }
             override fun onNothingSelected(parent: AdapterView<*>?) { }
@@ -70,13 +74,14 @@ class CommunityWriteActivity : AppCompatActivity() {
             loadEditingPost()
         }
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
-            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.ime())
             view.setPadding(bars.left, bars.top, bars.right, bars.bottom)
             insets
         }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
+        outState.putInt("childAge", childPicker.selectedAge)
         outState.putString("draftId", draftId)
         outState.putString("selectedImage", selectedImage)
         super.onSaveInstanceState(outState)
@@ -89,6 +94,8 @@ class CommunityWriteActivity : AppCompatActivity() {
         val title = binding.etTitle.text.toString().trim()
         binding.tvPreviewTitle.text = if (title.isBlank()) "제목을 입력해 주세요." else title
         CommunityImages.show(binding.ivPreview, selectedImage)
+        binding.tvPreviewMeta.text = editingPost?.let { "${it.authorName} · ${CommunityPresentation.time(it.createdAt)}" }
+            ?: "${auth.currentUser?.displayName?.takeIf { it.isNotBlank() } ?: "마루 이용자"} · 등록 전 미리보기"
     }
 
     private fun loadEditingPost() {
@@ -110,6 +117,7 @@ class CommunityWriteActivity : AppCompatActivity() {
                     }
                     post.id = document.id
                     editingPost = post
+                    childPicker.load(post.childAge)
                     binding.etTitle.setText(post.title)
                     binding.etContent.setText(post.content)
                     val categories = resources.getStringArray(R.array.community_categories)
@@ -167,7 +175,7 @@ class CommunityWriteActivity : AppCompatActivity() {
                 id = postId, category = category, title = title, content = content,
                 ownerId = user.uid,
                 authorName = if (displayName.isNullOrBlank()) "마루 이용자" else displayName,
-                createdAt = System.currentTimeMillis(), imageKey = selectedImage
+                createdAt = System.currentTimeMillis(), imageKey = selectedImage, childAge = childPicker.selectedAge
             )
             // 팀 코드의 중복 등록 방지 transaction을 사용하고 대표 이미지도 저장한다.
             CommunityRepository.createPost(post)
@@ -176,7 +184,7 @@ class CommunityWriteActivity : AppCompatActivity() {
             // 작성자, ID, 작성 시각은 건드리지 않는다.
             colref.document(postId).update(mapOf(
                 "title" to title, "content" to content,
-                "category" to category, "imageKey" to selectedImage
+                "category" to category, "imageKey" to selectedImage, "childAge" to childPicker.selectedAge
             ))
         }
         task.addOnSuccessListener {
@@ -193,12 +201,18 @@ class CommunityWriteActivity : AppCompatActivity() {
         }
     }
 
+    override fun onDestroy() { childPicker.close(); super.onDestroy() }
+
     private fun setFormEnabled(enabled: Boolean) {
         binding.btnSave.isEnabled = enabled
         binding.btnSaveBottom.isEnabled = enabled
         binding.etTitle.isEnabled = enabled
         binding.etContent.isEnabled = enabled
         binding.spinnerCategory.isEnabled = enabled
+        binding.ivCategoryArrow.isEnabled = enabled
+        binding.btnSave.alpha = if (enabled) 1f else 0.5f
+        binding.btnSaveBottom.alpha = binding.btnSave.alpha
         binding.imageGrid.isEnabled = enabled
+        binding.spinnerChildAge.isEnabled = enabled
     }
 }

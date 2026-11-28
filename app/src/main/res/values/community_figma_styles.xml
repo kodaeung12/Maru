@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <style name="CommunityText">
+        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:textColor">@color/community_ink</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+    <style name="CommunityMuted" parent="CommunityText">
+        <item name="android:textSize">11sp</item>
+        <item name="android:textColor">@color/community_muted</item>
+    </style>
+    <style name="CommunityHeading" parent="CommunityText">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+    <style name="CommunityFieldLabel" parent="CommunityText">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">13sp</item>
+    </style>
+    <style name="CommunityAction" parent="CommunityText">
+        <item name="android:layout_height">48dp</item>
+        <item name="android:background">@drawable/community_primary</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:gravity">center</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:foreground">?attr/selectableItemBackground</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+    <style name="Theme.Maru.Community" parent="Theme.Maru">
+        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="fontFamily">@font/pretendard</item>
+        <item name="colorPrimary">@color/community_action</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="android:windowBackground">@color/community_bg</item>
+    </style>
+</resources>

@@ -139,7 +139,7 @@
             android:layout_weight="1"
             android:background="@drawable/community_chip_off"
             android:gravity="center"
-            android:text="@string/mypage_saved_tab"
+            android:text="마루일기"
             android:textColor="@color/community_pink"
             android:textSize="12sp" />
 

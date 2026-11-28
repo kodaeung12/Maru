@@ -15,14 +15,32 @@ import java.util.Locale
 class CommunityPostViewHolder(
     private val binding: ItemCommunityPostBinding,
     private val currentUser: String,
-    private val onItemClick: (CommunityPost) -> Unit
+    private val onItemClick: (CommunityPost) -> Unit,
+    private val commentCounts: MutableMap<String, Long>
 ) : RecyclerView.ViewHolder(binding.root) {
+    private var bindNumber = 0
     fun bind(item: CommunityPost) = with(binding) {
+        val number = ++bindNumber
         CommunityImages.show(ivRepresentative, item.imageKey)
-        tvCategory.text = item.category
+        tvCategory.text = CommunityPostFilters.category(item.category)
+        tvChildAge.visibility = if (item.childAge >= 0) android.view.View.VISIBLE else android.view.View.GONE
+        tvChildAge.text = "만 ${item.childAge}세 자녀"
+        tvStats.text = item.likeCount.toString()
+        tvViews.text = "조회 ${item.viewCount}"
+        tvComments.text = commentCounts[item.id]?.toString() ?: "댓글"
+        if (currentUser.isNotEmpty() && item.id !in commentCounts) {
+            db.collection(CommunityFirestore.POSTS).document(item.id)
+                .collection(CommunityFirestore.COMMENTS).count()
+                .get(com.google.firebase.firestore.AggregateSource.SERVER)
+                .addOnSuccessListener {
+                    commentCounts[item.id] = it.count
+                    if (number == bindNumber) tvComments.text = it.count.toString()
+                }
+        }
         tvTitle.text = item.title
         val name = if (item.authorName.isBlank()) "마루 이용자" else item.authorName
-        tvOwner.text = if (currentUser.isNotEmpty() && item.ownerId == currentUser) "$name · 내 글" else name
+        val author = if (currentUser.isNotEmpty() && item.ownerId == currentUser) "$name · 내 글" else name
+        tvOwner.text = "$author · ${CommunityPresentation.time(item.createdAt)}"
         tvDate.text = if (item.createdAt > 0L) {
             SimpleDateFormat("yyyy.MM.dd HH:mm", Locale.KOREA).format(Date(item.createdAt))
         } else "작성 시간 없음"
@@ -39,10 +57,14 @@ class CommunityPostAdapter(
     private var items: MutableList<CommunityPost> = mutableListOf()
     private var categoryFilter = "전체"
     private var loadNumber = 0
+    private var registration: com.google.firebase.firestore.ListenerRegistration? = null
+    private var search = ""
+    private var popular = false
+    private val commentCounts = mutableMapOf<String, Long>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CommunityPostViewHolder {
         val binding = ItemCommunityPostBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return CommunityPostViewHolder(binding, currentUser, onItemClick)
+        return CommunityPostViewHolder(binding, currentUser, onItemClick, commentCounts)
     }
 
     override fun onBindViewHolder(holder: CommunityPostViewHolder, position: Int) {
@@ -60,38 +82,45 @@ class CommunityPostAdapter(
 
     fun applyFilter(category: String): Int {
         categoryFilter = category
-        val filtered = allItems.filter { item ->
-            categoryFilter == "전체" || item.category == categoryFilter
-        }
+        val filtered = CommunityPostFilters.apply(allItems, categoryFilter, search, popular)
         submitList(filtered)
         return items.size
     }
 
 
-    // 수업의 get -> toObject -> notifyDataSetChanged 방식
+    fun searchAndSort(query: String, byLikes: Boolean): Int {
+        search = query
+        popular = byLikes
+        return applyFilter(categoryFilter)
+    }
+
+    // 서버 조회 -> 모델 변환 -> 어댑터 갱신
     fun loadItems(onSuccess: (Int) -> Unit, onFailure: (Exception) -> Unit) {
+        commentCounts.clear()
         loadNumber++
         val requestNumber = loadNumber
-        db.collection(CommunityFirestore.POSTS)
+        registration?.remove()
+        registration = db.collection(CommunityFirestore.POSTS)
             .orderBy("createdAt", Query.Direction.DESCENDING)
-            .get(Source.SERVER)
-            .addOnSuccessListener { snapshot ->
-                if (requestNumber != loadNumber) return@addOnSuccessListener
+            .addSnapshotListener { snapshot, error ->
+                if (requestNumber != loadNumber) return@addSnapshotListener
+                if (error != null || snapshot == null) {
+                    onFailure(error ?: IllegalStateException("게시글 응답이 없어요."))
+                    return@addSnapshotListener
+                }
                 try {
-                    val list = mutableListOf<CommunityPost>()
+                    val postList = mutableListOf<CommunityPost>()
                     for (document in snapshot) {
                         val post = CommunityRepository.readPost(document)
-                        post.id = document.id
-                        list.add(post)
+                        if (!post.deleting || post.ownerId == currentUser) {
+                            postList.add(post)
+                        }
                     }
-                    allItems = list
+                    allItems = postList
                     onSuccess(applyFilter(categoryFilter))
-                } catch (error: Exception) {
-                    onFailure(error)
-                }
-            }
-            .addOnFailureListener { error ->
-                if (requestNumber == loadNumber) onFailure(error)
+                } catch (failure: Exception) { onFailure(failure) }
             }
     }
+
+    fun stopLoading() { loadNumber++; registration?.remove(); registration = null }
 }

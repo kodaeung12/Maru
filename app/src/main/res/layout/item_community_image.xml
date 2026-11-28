@@ -1,24 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="90dp"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:padding="3dp"
-    android:background="@drawable/community_image_idle">
-    <ImageView
-        android:id="@+id/ivImage"
-        android:layout_width="match_parent"
-        android:layout_height="64dp"
-        android:scaleType="fitCenter"
-        android:importantForAccessibility="no" />
-    <TextView
-        android:id="@+id/tvLabel"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="10sp"
-        android:gravity="center"
-        android:textColor="@color/community_ink" />
+<?xml version='1.0' encoding='utf-8'?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="78dp" android:orientation="vertical" android:padding="2dp">
+    <FrameLayout android:layout_width="match_parent" android:layout_height="56dp" android:clipChildren="true">
+        <ImageView android:layout_width="match_parent" android:layout_height="match_parent" android:id="@+id/ivImage" android:scaleType="fitCenter" android:importantForAccessibility="no" />
+        <View android:id="@+id/selectionOutline" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/community_image_outline" android:visibility="gone" />
+        <TextView android:id="@+id/tvSelected" android:layout_width="16dp" android:layout_height="16dp" android:text="✓" android:layout_gravity="top|end" android:background="@drawable/community_check" android:textColor="#FFFFFF" android:textSize="11sp" android:gravity="center" android:visibility="gone" style="@style/CommunityFieldLabel" />
+    </FrameLayout>
+    <TextView android:id="@+id/tvLabel" android:layout_width="match_parent" android:layout_height="16dp" android:layout_marginTop="3dp" android:textSize="8sp" android:gravity="center" style="@style/CommunityText" />
 </LinearLayout>
